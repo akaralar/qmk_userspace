@@ -92,6 +92,7 @@ enum C_keycodes {
 #define C_NAV_ALFD LGUI(LCTL(KC_SLASH))
 #define C_ACT_ALFD RGUI(RCTL(KC_BSLASH))
 #define C_1PASS LALT(LGUI(KC_BSLASH))
+#define C_1PASS_AF LGUI(LSFT(KC_BSLASH))
 
 #define C_L1 LT(1, KC_SPACE)
 #define C_L2 LT(2, KC_TAB)
@@ -146,8 +147,8 @@ _______, _______, _______, _______, C_L3   ,                                    
 
 [NAVI] = LAYOUT_ergodox_pretty(
 _______, _______    , _______   , _______    , _______     , _______, _______,      _______, _______  , _______     , _______    , _______   , _______    , _______,
-_______, C_NAV_ALFD , C_ACT_ALFD, KC_MEH     , KC_HYPR     , C_MOOM , _______,      _______, KC_PGUP  , KC_HOME     , KC_UP      , KC_END    , KC_INSERT  , _______,
-_______, KC_LCTRL   , KC_LALT   , KC_LGUI    , KC_LSHIFT   , C_1PASS,                        KC_PGDOWN, KC_LEFT     , KC_DOWN    , KC_RIGHT  , KC_CAPSLOCK, _______,
+_______, XXXXXXX    , XXXXXXX   , KC_MEH     , KC_HYPR     , XXXXXXX, _______,      _______, KC_PGUP  , KC_HOME     , KC_UP      , KC_END    , KC_INSERT  , _______,
+_______, KC_LCTRL   , KC_LALT   , KC_LGUI    , KC_LSHIFT   , XXXXXXX,                        KC_PGDOWN, KC_LEFT     , KC_DOWN    , KC_RIGHT  , KC_CAPSLOCK, _______,
 _______, KC_MAC_UNDO, KC_MAC_CUT, KC_MAC_COPY, KC_MAC_PASTE, C_REDO , _______,      _______, C_REDO   , KC_MAC_PASTE, KC_MAC_COPY, KC_MAC_CUT, KC_MAC_UNDO, _______,
 _______, _______    , _______   , _______    , XXXXXXX     ,                                            KC_DELETE   , _______    , _______   , _______    , _______,
 
@@ -157,22 +158,22 @@ _______, _______    , _______   , _______    , XXXXXXX     ,                    
 ),
 
 [MOUS] = LAYOUT_ergodox_pretty(
-_______, _______ , _______, _______, _______  , _______, _______,      _______, _______      , _______      , _______    , _______       , _______    , _______,
-_______, XXXXXXX , XXXXXXX, XXXXXXX, XXXXXXX  , XXXXXXX, _______,      _______, KC_MS_WH_UP  , KC_MS_WH_LEFT, KC_MS_UP   , KC_MS_WH_RIGHT, XXXXXXX    , _______,
-_______, KC_LCTRL, KC_LALT, KC_LGUI, KC_LSHIFT, XXXXXXX,                        KC_MS_WH_DOWN, KC_MS_LEFT   , KC_MS_DOWN , KC_MS_RIGHT   , XXXXXXX    , _______,
-_______, XXXXXXX , XXXXXXX, XXXXXXX, XXXXXXX  , XXXXXXX, _______,      _______, C_REDO       , KC_MAC_PASTE , KC_MAC_COPY, KC_MAC_CUT    , KC_MAC_UNDO, _______,
-_______, _______ , _______, _______, _______  ,                                                KC_MS_BTN2   , _______    , _______       , _______    , _______,
+_______, _______ , _______, _______   , _______   , _______   , _______,      _______, _______      , _______      , _______    , _______       , _______    , _______,
+_______, XXXXXXX , XXXXXXX, C_NAV_ALFD, C_ACT_ALFD, C_MOOM    , _______,      _______, KC_MS_WH_UP  , KC_MS_WH_LEFT, KC_MS_UP   , KC_MS_WH_RIGHT, XXXXXXX    , _______,
+_______, KC_LCTRL, KC_LALT, KC_LGUI   , KC_LSHIFT , C_1PASS   ,                        KC_MS_WH_DOWN, KC_MS_LEFT   , KC_MS_DOWN , KC_MS_RIGHT   , XXXXXXX    , _______,
+_______, XXXXXXX , XXXXXXX, XXXXXXX   , XXXXXXX   , C_1PASS_AF, _______,      _______, C_REDO       , KC_MAC_PASTE , KC_MAC_COPY, KC_MAC_CUT    , KC_MAC_UNDO, _______,
+_______, _______ , _______, _______   , _______   ,                                                   KC_MS_BTN2   , _______    , _______       , _______    , _______,
 
-                                                XXXXXXX, XXXXXXX,      _______, _______      ,
-                                                         _______,      _______,
-                                     XXXXXXX  , _______, XXXXXXX,      _______, KC_MS_BTN1   , KC_MS_BTN3
+                                                    XXXXXXX   , XXXXXXX,      _______, _______      ,
+                                                                _______,      _______,
+                                        XXXXXXX   , _______   , XXXXXXX,      _______, KC_MS_BTN1   , KC_MS_BTN3
 ),
 
 [MDIA] = LAYOUT_ergodox_pretty(
 _______, _______ , _______    , _______, _______  , _______ , _______,      _______, _______           , _______            , _______          , _______        , _______            , _______,
-_______, RESET   , WEBUSB_PAIR, XXXXXXX, C_MCR_1P , C_MCR_2P, _______,      _______, RGB_TOG           , KC_BRIGHTNESS_UP   , RGB_HUI          , RGB_SAI        , RGB_VAI            , _______,
+_______, RESET   , WEBUSB_PAIR, XXXXXXX, C_MCR_1R , C_MCR_1P, _______,      _______, RGB_TOG           , KC_BRIGHTNESS_UP   , RGB_HUI          , RGB_SAI        , RGB_VAI            , _______,
 _______, KC_LCTRL, KC_LALT    , KC_LGUI, KC_LSHIFT, C_MCR_ST,                        TOGGLE_LAYER_COLOR, KC_MEDIA_PREV_TRACK, KC_AUDIO_VOL_DOWN, KC_AUDIO_VOL_UP, KC_MEDIA_NEXT_TRACK, _______,
-_______, VRSN    , XXXXXXX    , XXXXXXX, C_MCR_1R , C_MCR_2R, _______,      _______, RGB_MOD           , KC_BRIGHTNESS_DOWN , RGB_HUD          , RGB_SAD        , RGB_VAD            , _______,
+_______, VRSN    , XXXXXXX    , XXXXXXX, C_MCR_2R , C_MCR_2P, _______,      _______, RGB_MOD           , KC_BRIGHTNESS_DOWN , RGB_HUD          , RGB_SAD        , RGB_VAD            , _______,
 _______, _______ , _______    , _______, _______  ,                                                      KC_AUDIO_MUTE      , _______          , _______        , _______            , _______,
 
                                                     XXXXXXX , XXXXXXX,      _______, _______           ,

@@ -1,4 +1,4 @@
-/* Copyright 2021 Your Name (@yourgithub)
+/* Copyright 2021 Your Name (@akaralar)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +15,7 @@
  */
 
 #define IGNORE_MOD_TAP_INTERRUPT
-#define PERMISSIVE_HOLD
+// #define PERMISSIVE_HOLD
 #define TAPPING_FORCE_HOLD
 
 #undef RGB_DISABLE_TIMEOUT
