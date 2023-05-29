@@ -14,20 +14,21 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#define IGNORE_MOD_TAP_INTERRUPT
 #define QUICK_TAP_TERM 0
 
-#undef RGB_DISABLE_TIMEOUT
-#define RGB_DISABLE_TIMEOUT 300000
+#define HOLD_ON_OTHER_KEY_PRESS_PER_KEY
+#define PERMISSIVE_HOLD_PER_KEY
+
+#define RGB_MATRIX_TIMEOUT 300000
 
 #define USB_SUSPEND_WAKEUP_DELAY 0
 #undef MOUSEKEY_WHEEL_DELAY
 #define MOUSEKEY_WHEEL_DELAY 0
 
-#define RGB_MATRIX_STARTUP_SPD 60
+#define RGB_MATRIX_DEFAULT_SPD 60
 
 // Activate Caps Word by pressing both shift keys
 #define BOTH_SHIFTS_TURNS_ON_CAPS_WORD
 
-// Turn off Caps Word after 2 secondsf.
-#define CAPS_WORD_IDLE_TIMEOUT 2000 
+// Turn off Caps Word after 5 seconds.
+#define CAPS_WORD_IDLE_TIMEOUT 5000

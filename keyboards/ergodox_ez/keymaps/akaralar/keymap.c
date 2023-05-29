@@ -16,36 +16,23 @@
 
 #include QMK_KEYBOARD_H
 #include "version.h"
-#include "raw_hid.h"
 
 enum layers {
-    BASE,  // default layer
-    NAVI,  // navigation layer
-    MOUS,  // mouse layer
-    MDIA,  // media keys layer
-    NUMB,  // numbers layer
-    CODE,  // code symbols layer
-    FUNC,  // Function keys layer
-    SPAN,  // Spanish accented letters layer
+    BASE, // default layer
+    NAVI, // navigation layer
+    MOUS, // mouse layer
+    MDIA, // media keys layer
+    NUMB, // numbers layer
+    CODE, // code symbols layer
+    FUNC, // Function keys layer
+    SPAN, // Spanish accented letters layer
 };
 
-#define KC_MAC_UNDO LGUI(KC_Z)
-#define KC_MAC_CUT LGUI(KC_X)
-#define KC_MAC_COPY LGUI(KC_C)
-#define KC_MAC_PASTE LGUI(KC_V)
-#define KC_MAC_REDO C_REDO
-#define KC_PC_UNDO LCTL(KC_Z)
-#define KC_PC_CUT LCTL(KC_X)
-#define KC_PC_COPY LCTL(KC_C)
-#define KC_PC_PASTE LCTL(KC_V)
-#define ES_LESS_MAC KC_GRAVE
-#define ES_GRTR_MAC LSFT(KC_GRAVE)
-#define ES_BSLS_MAC ALGR(KC_6)
-#define NO_PIPE_ALT KC_GRAVE
-#define NO_BSLS_ALT KC_EQUAL
-#define LSA_T(kc) MT(MOD_LSFT | MOD_LALT, kc)
-#define BP_NDSH_MAC ALGR(KC_8)
-#define SE_SECT_MAC ALGR(KC_6)
+#define KC_UNDO LGUI(KC_Z)
+#define KC_CUT LGUI(KC_X)
+#define KC_COPY LGUI(KC_C)
+#define KC_PASTE LGUI(KC_V)
+#define KC_REDO C_REDO
 
 enum C_keycodes {
 #ifdef ORYX_CONFIGURATOR
@@ -54,20 +41,6 @@ enum C_keycodes {
     VRSN = SAFE_RANGE,
 #endif
     RGB_SLD,
-    // ST_MACRO_0,
-    // ST_MACRO_1,
-    // ST_MACRO_2,
-    // ST_MACRO_3,
-    // ST_MACRO_4,
-    // ST_MACRO_5,
-    // ST_MACRO_6,
-    // ST_MACRO_7,
-    // ST_MACRO_8,
-    // ST_MACRO_9,
-    // ST_MACRO_10,
-    // ST_MACRO_11,
-    // ST_MACRO_12,
-    // ST_MACRO_13,
 };
 
 #define C_E MEH_T(KC_E)
@@ -133,259 +106,208 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      *                                `--------------------'  `--------------------'
      */
 
-[BASE] = LAYOUT_ergodox_pretty(
-_______, _______, _______, _______, _______, _______, _______,      _______  , _______, _______, _______ , _______, _______ , _______,
-_______, KC_Q   , KC_W   , C_E    , C_R    , KC_T   , _______,      _______  , KC_Y   , C_U    , C_I     , KC_O   , KC_P    , _______,
-_______, C_A    , C_S    , C_D    , C_F    , KC_G   ,                          KC_H   , C_J    , C_K     , C_L    , C_QUOTE , _______,
-_______, KC_Z   , KC_X   , KC_C   , KC_V   , KC_B   , _______,      _______  , KC_N   , KC_M   , KC_COMMA, KC_DOT , KC_SLASH, _______,
-_______, _______, _______, _______, C_L3   ,                                            C_L5   , _______ , _______, _______ , _______,
+    [BASE] = LAYOUT_ergodox_pretty(
+    _______, _______, _______, _______, _______, _______, _______,      _______  , _______, _______, _______ , _______, _______ , _______,
+    _______, KC_Q   , KC_W   , C_E    , C_R    , KC_T   , _______,      _______  , KC_Y   , C_U    , C_I     , KC_O   , KC_P    , _______,
+    _______, C_A    , C_S    , C_D    , C_F    , KC_G   ,                          KC_H   , C_J    , C_K     , C_L    , C_QUOTE , _______,
+    _______, KC_Z   , KC_X   , KC_C   , KC_V   , KC_B   , _______,      _______  , KC_N   , KC_M   , KC_COMMA, KC_DOT , KC_SLASH, _______,
+    _______, _______, _______, _______, C_L3   ,                                            C_L5   , _______ , _______, _______ , _______,
 
-                                             _______, _______,      _______  , _______,
-                                                      _______,      KC_F24   ,
-                                    C_L1   , C_L2   , _______,      KC_DELETE, C_L6   , C_L4
-),
+                                                 _______, _______,      _______  , _______,
+                                                          _______,      KC_F24   ,
+                                        C_L1   , C_L2   , _______,      KC_DELETE, C_L6   , C_L4
+    ),
 
-[NAVI] = LAYOUT_ergodox_pretty(
-_______, _______    , _______   , _______    , _______     , _______, _______,      _______, _______ , _______     , _______    , _______   , _______     , _______,
-_______, XXXXXXX    , XXXXXXX   , KC_MEH     , KC_HYPR     , XXXXXXX, _______,      _______, KC_PGUP , KC_HOME     , KC_UP      , KC_END    , KC_INSERT   , _______,
-_______, KC_LCTL    , KC_LALT   , KC_LGUI    , KC_LSFT     , XXXXXXX,                        KC_PGDN , KC_LEFT     , KC_DOWN    , KC_RIGHT  , KC_CAPS_LOCK, _______,
-_______, KC_MAC_UNDO, KC_MAC_CUT, KC_MAC_COPY, KC_MAC_PASTE, C_REDO , _______,      _______, C_REDO  , KC_MAC_PASTE, KC_MAC_COPY, KC_MAC_CUT, KC_MAC_UNDO , _______,
-_______, _______    , _______   , _______    , XXXXXXX     ,                                           KC_DELETE   , _______    , _______   , _______     , _______,
+    [NAVI] = LAYOUT_ergodox_pretty(
+    _______, _______, _______, _______, _______ , _______, _______,      _______, _______ , _______  , _______, _______ , _______     , _______,
+    _______, XXXXXXX, XXXXXXX, KC_MEH , KC_HYPR , XXXXXXX, _______,      _______, KC_PGUP , KC_HOME  , KC_UP  , KC_END  , KC_INSERT   , _______,
+    _______, KC_LCTL, KC_LALT, KC_LGUI, KC_LSFT , XXXXXXX,                        KC_PGDN , KC_LEFT  , KC_DOWN, KC_RIGHT, KC_CAPS_LOCK, _______,
+    _______, KC_UNDO, KC_CUT , KC_COPY, KC_PASTE, KC_REDO, _______,      _______, KC_REDO , KC_PASTE , KC_COPY, KC_CUT  , KC_UNDO     , _______,
+    _______, _______, _______, _______, XXXXXXX ,                                           KC_DELETE, _______, _______ , _______     , _______,
 
-                                                             XXXXXXX, XXXXXXX,      _______, _______ ,
-                                                                      _______,      _______,
-                                               _______     , XXXXXXX, XXXXXXX,      _______, KC_ENTER, KC_BSPC
-),
+                                                  XXXXXXX, XXXXXXX,      _______, _______ ,
+                                                           _______,      _______,
+                                        _______ , XXXXXXX, XXXXXXX,      _______, KC_ENTER, KC_BSPC
+    ),
 
-[MOUS] = LAYOUT_ergodox_pretty(
-_______, _______, _______, _______   , _______   , _______   , _______,      _______, _______      , _______      , _______    , _______       , _______    , _______,
-_______, XXXXXXX, XXXXXXX, C_NAV_ALFD, C_ACT_ALFD, C_MOOM    , _______,      _______, KC_MS_WH_UP  , KC_MS_WH_LEFT, KC_MS_UP   , KC_MS_WH_RIGHT, XXXXXXX    , _______,
-_______, KC_LCTL, KC_LALT, KC_LGUI   , KC_LSFT   , C_1PASS   ,                        KC_MS_WH_DOWN, KC_MS_LEFT   , KC_MS_DOWN , KC_MS_RIGHT   , XXXXXXX    , _______,
-_______, XXXXXXX, XXXXXXX, XXXXXXX   , XXXXXXX   , C_1PASS_AF, _______,      _______, C_REDO       , KC_MAC_PASTE , KC_MAC_COPY, KC_MAC_CUT    , KC_MAC_UNDO, _______,
-_______, _______, _______, _______   , _______   ,                                                   KC_MS_BTN2   , _______    , _______       , _______    , _______,
+    [MOUS] = LAYOUT_ergodox_pretty(
+    _______, _______, _______, _______   , _______   , _______   , _______,      _______, _______      , _______      , _______   , _______       , _______, _______,
+    _______, XXXXXXX, XXXXXXX, C_ACT_ALFD, C_NAV_ALFD, C_MOOM    , _______,      _______, KC_MS_WH_UP  , KC_MS_WH_LEFT, KC_MS_UP  , KC_MS_WH_RIGHT, XXXXXXX, _______,
+    _______, KC_LCTL, KC_LALT, KC_LGUI   , KC_LSFT   , C_1PASS   ,                        KC_MS_WH_DOWN, KC_MS_LEFT   , KC_MS_DOWN, KC_MS_RIGHT   , XXXXXXX, _______,
+    _______, XXXXXXX, XXXXXXX, XXXXXXX   , XXXXXXX   , C_1PASS_AF, _______,      _______, C_REDO       , KC_PASTE     , KC_COPY   , KC_CUT        , KC_UNDO, _______,
+    _______, _______, _______, _______   , _______   ,                                                   KC_MS_BTN2   , _______   , _______       , _______, _______,
 
-                                                   XXXXXXX   , XXXXXXX,      _______, _______      ,
-                                                               _______,      _______,
-                                       XXXXXXX   , _______   , XXXXXXX,      _______, KC_MS_BTN1   , KC_MS_BTN3
-),
+                                                       XXXXXXX   , XXXXXXX,      _______, _______      ,
+                                                                   _______,      _______,
+                                           XXXXXXX   , _______   , XXXXXXX,      _______, KC_MS_BTN1   , KC_MS_BTN3
+    ),
 
-[MDIA] = LAYOUT_ergodox_pretty(
-_______, _______, _______    , _______, _______, _______, _______,      _______, _______           , _______            , _______          , _______        , _______            , _______,
-_______, QK_BOOT, WEBUSB_PAIR, XXXXXXX, DM_REC1, DM_PLY1, _______,      _______, RGB_TOG           , KC_BRIGHTNESS_UP   , RGB_HUI          , RGB_SAI        , RGB_VAI            , _______,
-_______, KC_LCTL, KC_LALT    , KC_LGUI, KC_LSFT, DM_RSTP,                        TOGGLE_LAYER_COLOR, KC_MEDIA_PREV_TRACK, KC_AUDIO_VOL_DOWN, KC_AUDIO_VOL_UP, KC_MEDIA_NEXT_TRACK, _______,
-_______, VRSN   , XXXXXXX    , XXXXXXX, DM_REC2, DM_PLY2, _______,      _______, RGB_MOD           , KC_BRIGHTNESS_DOWN , RGB_HUD          , RGB_SAD        , RGB_VAD            , _______,
-_______, _______, _______    , _______, _______,                                                     KC_AUDIO_MUTE      , _______          , _______        , _______            , _______,
+    [MDIA] = LAYOUT_ergodox_pretty(
+    _______, _______, _______    , _______, _______, _______, _______,      _______, _______           , _______            , _______          , _______        , _______            , _______,
+    _______, QK_BOOT, WEBUSB_PAIR, XXXXXXX, DM_REC1, DM_PLY1, _______,      _______, RGB_TOG           , KC_BRIGHTNESS_UP   , RGB_HUI          , RGB_SAI        , RGB_VAI            , _______,
+    _______, KC_LCTL, KC_LALT    , KC_LGUI, KC_LSFT, DM_RSTP,                        TOGGLE_LAYER_COLOR, KC_MEDIA_PREV_TRACK, KC_AUDIO_VOL_DOWN, KC_AUDIO_VOL_UP, KC_MEDIA_NEXT_TRACK, _______,
+    _______, VRSN   , XXXXXXX    , XXXXXXX, DM_REC2, DM_PLY2, _______,      _______, RGB_MOD           , KC_BRIGHTNESS_DOWN , RGB_HUD          , RGB_SAD        , RGB_VAD            , _______,
+    _______, _______, _______    , _______, _______,                                                     KC_AUDIO_MUTE      , _______          , _______        , _______            , _______,
 
-                                                 XXXXXXX, XXXXXXX,      _______, _______           ,
-                                                          _______,      _______,
-                                        XXXXXXX, XXXXXXX, XXXXXXX,      _______, KC_MEDIA_STOP     , KC_MEDIA_PLAY_PAUSE
-),
+                                                     XXXXXXX, XXXXXXX,      _______, _______           ,
+                                                              _______,      _______,
+                                            XXXXXXX, XXXXXXX, XXXXXXX,      _______, KC_MEDIA_STOP     , KC_MEDIA_PLAY_PAUSE
+    ),
 
-[NUMB] = LAYOUT_ergodox_pretty(
-_______, _______ , _______, _______, _______, _______ , _______,      _______, _______, _______, _______ , _______, _______ , _______,
-_______, KC_LBRC , KC_7   , KC_8   , KC_9   , KC_RBRC , _______,      _______, XXXXXXX, KC_HYPR, KC_MEH  , XXXXXXX, XXXXXXX , _______,
-_______, KC_SCLN , KC_4   , KC_5   , KC_6   , KC_EQUAL,                        XXXXXXX, KC_RSFT, KC_RGUI , KC_RALT, KC_RCTL , _______,
-_______, KC_GRAVE, KC_1   , KC_2   , KC_3   , KC_BSLS , _______,      _______, XXXXXXX, XXXXXXX, KC_COMMA, KC_DOT , KC_SLASH, _______,
-_______, _______ , _______, _______, KC_0   ,                                           XXXXXXX, _______ , _______, _______ , _______,
+    [NUMB] = LAYOUT_ergodox_pretty(
+    _______, _______ , _______, _______, _______, _______ , _______,      _______, _______, _______, _______ , _______, _______ , _______,
+    _______, KC_LBRC , KC_7   , KC_8   , KC_9   , KC_RBRC , _______,      _______, XXXXXXX, KC_HYPR, KC_MEH  , KC_RALT, XXXXXXX , _______,
+    _______, KC_SCLN , KC_4   , KC_5   , KC_6   , KC_EQUAL,                        XXXXXXX, KC_RSFT, KC_RGUI , KC_LALT, KC_RCTL , _______,
+    _______, KC_GRAVE, KC_1   , KC_2   , KC_3   , KC_BSLS , _______,      _______, XXXXXXX, XXXXXXX, KC_COMMA, KC_DOT , KC_SLASH, _______,
+    _______, _______ , _______, _______, KC_0   ,                                           XXXXXXX, _______ , _______, _______ , _______,
 
-                                              XXXXXXX , XXXXXXX,      _______, _______,
-                                                        _______,      _______,
-                                     _______, KC_MINUS, XXXXXXX,      _______, XXXXXXX, _______
-),
+                                                  XXXXXXX , XXXXXXX,      _______, _______,
+                                                            _______,      _______,
+                                         _______, KC_MINUS, XXXXXXX,      _______, XXXXXXX, _______
+    ),
 
-[CODE] = LAYOUT_ergodox_pretty(
-_______, _______, _______ , _______, _______ , _______ , _______,      _______, _______ , _______, _______ , _______ , _______ , _______,
-_______, KC_SCLN, KC_PLUS , KC_LABK, KC_RABK , KC_PIPE , _______,      _______, KC_QUOTE, KC_RBRC, KC_LBRC , KC_ASTR , KC_TILD , _______,
-_______, KC_COLN, KC_MINUS, KC_LPRN, KC_RPRN , KC_GRAVE,                        KC_DQUO , KC_RCBR, KC_LCBR , KC_SLASH, KC_COMMA, _______,
-_______, KC_AT  , KC_UNDS , KC_DLR , KC_EXLM , KC_PERC , _______,      _______, KC_AMPR , KC_QUES, KC_EQUAL, KC_BSLS , KC_CIRC , _______,
-_______, _______, _______ , _______, KC_HASH ,                                            XXXXXXX, _______ , _______ , _______ , _______,
+    [CODE] = LAYOUT_ergodox_pretty(
+    _______, _______, _______ , _______, _______ , _______ , _______,      _______, _______ , _______, _______ , _______ , _______ , _______,
+    _______, KC_SCLN, KC_PLUS , KC_LABK, KC_RABK , KC_PIPE , _______,      _______, KC_QUOTE, KC_RBRC, KC_LBRC , KC_ASTR , KC_TILD , _______,
+    _______, KC_COLN, KC_MINUS, KC_LPRN, KC_RPRN , KC_GRAVE,                        KC_DQUO , KC_RCBR, KC_LCBR , KC_SLASH, KC_COMMA, _______,
+    _______, KC_AT  , KC_UNDS , KC_DLR , KC_EXLM , KC_PERC , _______,      _______, KC_AMPR , KC_QUES, KC_EQUAL, KC_BSLS , KC_CIRC , _______,
+    _______, _______, _______ , _______, KC_HASH ,                                            XXXXXXX, _______ , _______ , _______ , _______,
 
-                                               XXXXXXX , XXXXXXX,      _______, _______ ,
-                                                         _______,      _______,
-                                     _______ , KC_DOT  , XXXXXXX,      _______, _______ , XXXXXXX
-),
+                                                   XXXXXXX , XXXXXXX,      _______, _______ ,
+                                                             _______,      _______,
+                                         _______ , KC_DOT  , XXXXXXX,      _______, _______ , XXXXXXX
+    ),
 
-[FUNC] = LAYOUT_ergodox_pretty(
-_______, _______, _______, _______, _______  , _______, _______,      _______, _______, _______, _______, _______, _______, _______,
-_______, KC_F12 , KC_F7  , KC_F8  , KC_F9    , XXXXXXX, _______,      _______, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, _______,
-_______, KC_F11 , KC_F4  , KC_F5  , KC_F6    , XXXXXXX,                        XXXXXXX, KC_RSFT, KC_RGUI, KC_LALT, KC_RCTL, _______,
-_______, KC_F10 , KC_F1  , KC_F2  , KC_F3    , XXXXXXX, _______,      _______, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, _______,
-_______, _______, _______, _______, KC_ESCAPE,                                          _______, _______, _______, _______, _______,
+    [FUNC] = LAYOUT_ergodox_pretty(
+    _______, _______, _______, _______, _______  , _______, _______,      _______, _______, _______, _______, _______, _______, _______,
+    _______, KC_F12 , KC_F7  , KC_F8  , KC_F9    , XXXXXXX, _______,      _______, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, _______,
+    _______, KC_F11 , KC_F4  , KC_F5  , KC_F6    , XXXXXXX,                        XXXXXXX, KC_RSFT, KC_RGUI, KC_LALT, KC_RCTL, _______,
+    _______, KC_F10 , KC_F1  , KC_F2  , KC_F3    , XXXXXXX, _______,      _______, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, _______,
+    _______, _______, _______, _______, KC_ESCAPE,                                          _______, _______, _______, _______, _______,
 
-                                               XXXXXXX, XXXXXXX,      _______, _______,
-                                                        _______,      _______,
-                                    KC_SPACE , KC_TAB , XXXXXXX,      _______, XXXXXXX, XXXXXXX
-)
+                                                   XXXXXXX, XXXXXXX,      _______, _______,
+                                                            _______,      _______,
+                                        KC_SPACE , KC_TAB , XXXXXXX,      _______, XXXXXXX, XXXXXXX
+    )
 };
 
 // clang-format on
 
-/*  This part is related to RGB matrix and fails to compile if the board has 
-    RGB matrix disabled */
-#ifdef RGB_MATRIX_ENABLE
-void keyboard_post_init_user(void) {
-    rgb_matrix_enable();
-}    
-
-const uint8_t PROGMEM ledmap[][RGB_MATRIX_LED_COUNT][3] = {
-    [0] = { {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {8,255,255}, {8,255,255}, {8,255,255}, {8,255,255}, {8,255,255}, {8,255,255}, {8,255,255}, {8,255,255}, {8,255,255}, {8,255,255}, {8,255,255}, {8,255,255}, {8,255,255}, {8,255,255}, {8,255,255}, {8,255,255}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {8,255,255}, {8,255,255}, {8,255,255}, {8,255,255}, {8,255,255}, {8,255,255}, {8,255,255}, {8,255,255}, {8,255,255}, {8,255,255}, {8,255,255}, {8,255,255}, {8,255,255}, {8,255,255}, {8,255,255}, {8,255,255}, {0,0,0}, {0,0,0}, {0,0,0} },
-
-    [1] = { {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {163,218,204}, {163,218,204}, {163,218,204}, {163,218,204}, {163,218,204}, {163,218,204}, {163,218,204}, {163,218,204}, {163,218,204}, {163,218,204}, {163,218,204}, {163,218,204}, {163,218,204}, {163,218,204}, {163,218,204}, {163,218,204}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {163,218,204}, {163,218,204}, {163,218,204}, {163,218,204}, {163,218,204}, {0,0,0}, {163,218,204}, {163,218,204}, {163,218,204}, {163,218,204}, {163,218,204}, {163,218,204}, {163,218,204}, {163,218,204}, {163,218,204}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0} },
-
-    [2] = { {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {122,255,255}, {122,255,255}, {122,255,255}, {122,255,255}, {0,0,0}, {122,255,255}, {122,255,255}, {122,255,255}, {122,255,255}, {0,0,0}, {122,255,255}, {122,255,255}, {122,255,255}, {122,255,255}, {122,255,255}, {122,255,255}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {122,255,255}, {122,255,255}, {122,255,255}, {122,255,255}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0} },
-
-    [3] = { {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {41,255,255}, {41,255,255}, {41,255,255}, {41,255,255}, {41,255,255}, {41,255,255}, {41,255,255}, {41,255,255}, {41,255,255}, {41,255,255}, {41,255,255}, {41,255,255}, {41,255,255}, {41,255,255}, {41,255,255}, {41,255,255}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {41,255,255}, {41,255,255}, {0,0,0}, {0,0,0}, {41,255,255}, {41,255,255}, {41,255,255}, {41,255,255}, {41,255,255}, {41,255,255}, {41,255,255}, {41,255,255}, {0,0,0}, {0,0,0}, {41,255,255}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0} },
-
-    [4] = { {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,245,245}, {0,245,245}, {0,0,0}, {0,0,0}, {0,0,0}, {0,245,245}, {0,245,245}, {0,245,245}, {0,245,245}, {0,0,0}, {0,0,0}, {0,245,245}, {0,245,245}, {0,245,245}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,245,245}, {0,245,245}, {0,245,245}, {0,245,245}, {0,245,245}, {0,245,245}, {0,245,245}, {0,245,245}, {0,245,245}, {0,245,245}, {0,245,245}, {0,245,245}, {0,245,245}, {0,245,245}, {0,245,245}, {0,245,245}, {0,0,0}, {0,0,0}, {0,0,0} },
-
-    [5] = { {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {74,255,255}, {74,255,255}, {74,255,255}, {74,255,255}, {74,255,255}, {74,255,255}, {74,255,255}, {74,255,255}, {74,255,255}, {74,255,255}, {74,255,255}, {74,255,255}, {74,255,255}, {74,255,255}, {74,255,255}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {74,255,255}, {74,255,255}, {74,255,255}, {74,255,255}, {74,255,255}, {74,255,255}, {74,255,255}, {74,255,255}, {74,255,255}, {74,255,255}, {74,255,255}, {74,255,255}, {74,255,255}, {74,255,255}, {74,255,255}, {74,255,255}, {0,0,0}, {0,0,0}, {0,0,0} },
-
-    [6] = { {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {211,218,204}, {211,218,204}, {211,218,204}, {211,218,204}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {211,218,204}, {211,218,204}, {211,218,204}, {211,218,204}, {0,0,0}, {211,218,204}, {211,218,204}, {211,218,204}, {211,218,204}, {0,0,0}, {211,218,204}, {211,218,204}, {211,218,204}, {211,218,204}, {211,218,204}, {0,0,0}, {0,0,0}, {0,0,0} },
-};
-
-void set_layer_color(int layer) {
-  for (int i = 0; i < RGB_MATRIX_LED_COUNT; i++) {
-    HSV hsv = {
-      .h = pgm_read_byte(&ledmap[layer][i][0]),
-      .s = pgm_read_byte(&ledmap[layer][i][1]),
-      .v = pgm_read_byte(&ledmap[layer][i][2]),
-    };
-    if (!hsv.h && !hsv.s && !hsv.v) {
-        rgb_matrix_set_color( i, 0, 0, 0 );
-    } else {
-        RGB rgb = hsv_to_rgb( hsv );
-        float f = (float)rgb_matrix_config.hsv.v / UINT8_MAX;
-        rgb_matrix_set_color( i, f * rgb.r, f * rgb.g, f * rgb.b );
+bool get_permissive_hold(uint16_t keycode, keyrecord_t *record) {
+    switch (keycode) {
+        case QK_LAYER_TAP ... QK_LAYER_TAP_MAX:
+            return true;
+        default:
+            return false;
     }
-  }
+}
+bool get_hold_on_other_key_press(uint16_t keycode, keyrecord_t *record) {
+    switch (keycode) {
+        default:
+            return false;
+    }
 }
 
-bool rgb_matrix_indicators_user(void) {
-  if (keyboard_config.disable_layer_led) { return false; }
-  switch (biton32(layer_state)) {
-    case 0:
-      set_layer_color(0);
-      break;
-    case 1:
-      set_layer_color(1);
-      break;
-    case 2:
-      set_layer_color(2);
-      break;
-    case 3:
-      set_layer_color(3);
-      break;
-    case 4:
-      set_layer_color(4);
-      break;
-    case 5:
-      set_layer_color(5);
-      break;
-    case 6:
-      set_layer_color(6);
-      break;
-    case 7:
-      set_layer_color(7);
-      break;
-   default:
-    if (rgb_matrix_get_flags() == LED_FLAG_NONE)
-      rgb_matrix_set_color_all(0, 0, 0);
-    break;
-  }
-
-  return false;
-}
-// End block related to RGB features
-#endif
-
+// Custom Keycodes defined in this file
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
-        // case ST_MACRO_0:
-        //     if (record->event.pressed) {
-        //         SEND_STRING(SS_LALT(SS_TAP(X_E)) SS_DELAY(100) SS_TAP(X_A));
-        //     }
-        //     break;
-        // case ST_MACRO_1:
-        //     if (record->event.pressed) {
-        //         SEND_STRING(SS_LALT(SS_TAP(X_E)) SS_DELAY(100) SS_TAP(X_E));
-        //     }
-        //     break;
-        // case ST_MACRO_2:
-        //     if (record->event.pressed) {
-        //         SEND_STRING(SS_LALT(SS_TAP(X_E)) SS_DELAY(100) SS_TAP(X_I));
-        //     }
-        //     break;
-        // case ST_MACRO_3:
-        //     if (record->event.pressed) {
-        //         SEND_STRING(SS_LALT(SS_TAP(X_E)) SS_DELAY(100) SS_TAP(X_O));
-        //     }
-        //     break;
-        // case ST_MACRO_4:
-        //     if (record->event.pressed) {
-        //         SEND_STRING(SS_LALT(SS_TAP(X_N)) SS_DELAY(100) SS_TAP(X_N));
-        //     }
-        //     break;
-        // case ST_MACRO_5:
-        //     if (record->event.pressed) {
-        //         SEND_STRING(SS_LALT(SS_TAP(X_U)) SS_DELAY(100) SS_TAP(X_U));
-        //     }
-        //     break;
-        // case ST_MACRO_6:
-        //     if (record->event.pressed) {
-        //         SEND_STRING(SS_LALT(SS_TAP(X_E)) SS_DELAY(100) SS_TAP(X_U));
-        //     }
-        //     break;
-        // case ST_MACRO_7:
-        //     if (record->event.pressed) {
-        //         SEND_STRING(SS_LALT(SS_TAP(X_E)) SS_DELAY(100) SS_RSFT(SS_TAP(X_E)));
-        //     }
-        //     break;
-        // case ST_MACRO_8:
-        //     if (record->event.pressed) {
-        //         SEND_STRING(SS_LALT(SS_TAP(X_E)) SS_DELAY(100) SS_RSFT(SS_TAP(X_A)));
-        //     }
-        //     break;
-        // case ST_MACRO_9:
-        //     if (record->event.pressed) {
-        //         SEND_STRING(SS_LALT(SS_TAP(X_N)) SS_DELAY(100) SS_LSFT(SS_TAP(X_N)));
-        //     }
-        //     break;
-        // case ST_MACRO_10:
-        //     if (record->event.pressed) {
-        //         SEND_STRING(SS_LALT(SS_TAP(X_E)) SS_DELAY(100) SS_LSFT(SS_TAP(X_O)));
-        //     }
-        //     break;
-        // case ST_MACRO_11:
-        //     if (record->event.pressed) {
-        //         SEND_STRING(SS_LALT(SS_TAP(X_E)) SS_DELAY(100) SS_LSFT(SS_TAP(X_I)));
-        //     }
-        //     break;
-        // case ST_MACRO_12:
-        //     if (record->event.pressed) {
-        //         SEND_STRING(SS_LALT(SS_TAP(X_E)) SS_DELAY(100) SS_LSFT(SS_TAP(X_U)));
-        //     }
-        //     break;
-        // case ST_MACRO_13:
-        //     if (record->event.pressed) {
-        //         SEND_STRING(SS_LALT(SS_TAP(X_U)) SS_DELAY(100) SS_LSFT(SS_TAP(X_U)));
-        //     }
-        //     break;
         case RGB_SLD:
             if (record->event.pressed) {
 #ifdef RGB_MATRIX_ENABLE
                 rgblight_mode(1);
 #endif
             }
-          return false;
+            return false;
         case VRSN:
             if (record->event.pressed) {
                 SEND_STRING(QMK_KEYBOARD "/" QMK_KEYMAP " @ " QMK_VERSION);
                 return false;
             }
     }
-
     return true;
 }
+
+/*  This part is related to RGB matrix and fails to compile if the board has
+    RGB matrix disabled */
+#if RGB_MATRIX_ENABLE
+void keyboard_post_init_user(void) {
+    rgb_matrix_enable();
+}
+
+const uint8_t PROGMEM ledmap[][RGB_MATRIX_LED_COUNT][3] = {
+    [0] = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {8, 255, 255}, {8, 255, 255}, {8, 255, 255}, {8, 255, 255}, {8, 255, 255}, {8, 255, 255}, {8, 255, 255}, {8, 255, 255}, {8, 255, 255}, {8, 255, 255}, {8, 255, 255}, {8, 255, 255}, {8, 255, 255}, {8, 255, 255}, {8, 255, 255}, {8, 255, 255}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {8, 255, 255}, {8, 255, 255}, {8, 255, 255}, {8, 255, 255}, {8, 255, 255}, {8, 255, 255}, {8, 255, 255}, {8, 255, 255}, {8, 255, 255}, {8, 255, 255}, {8, 255, 255}, {8, 255, 255}, {8, 255, 255}, {8, 255, 255}, {8, 255, 255}, {8, 255, 255}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}},
+
+    [1] = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {163, 218, 204}, {163, 218, 204}, {163, 218, 204}, {163, 218, 204}, {163, 218, 204}, {163, 218, 204}, {163, 218, 204}, {163, 218, 204}, {163, 218, 204}, {163, 218, 204}, {163, 218, 204}, {163, 218, 204}, {163, 218, 204}, {163, 218, 204}, {163, 218, 204}, {163, 218, 204}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {163, 218, 204}, {163, 218, 204}, {163, 218, 204}, {163, 218, 204}, {163, 218, 204}, {0, 0, 0}, {163, 218, 204}, {163, 218, 204}, {163, 218, 204}, {163, 218, 204}, {163, 218, 204}, {163, 218, 204}, {163, 218, 204}, {163, 218, 204}, {163, 218, 204}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}},
+
+    [2] = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {122, 255, 255}, {122, 255, 255}, {122, 255, 255}, {122, 255, 255}, {0, 0, 0}, {122, 255, 255}, {122, 255, 255}, {122, 255, 255}, {122, 255, 255}, {0, 0, 0}, {122, 255, 255}, {122, 255, 255}, {122, 255, 255}, {122, 255, 255}, {122, 255, 255}, {122, 255, 255}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {122, 255, 255}, {122, 255, 255}, {122, 255, 255}, {122, 255, 255}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}},
+
+    [3] = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {41, 255, 255}, {41, 255, 255}, {41, 255, 255}, {41, 255, 255}, {41, 255, 255}, {41, 255, 255}, {41, 255, 255}, {41, 255, 255}, {41, 255, 255}, {41, 255, 255}, {41, 255, 255}, {41, 255, 255}, {41, 255, 255}, {41, 255, 255}, {41, 255, 255}, {41, 255, 255}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {41, 255, 255}, {41, 255, 255}, {0, 0, 0}, {0, 0, 0}, {41, 255, 255}, {41, 255, 255}, {41, 255, 255}, {41, 255, 255}, {41, 255, 255}, {41, 255, 255}, {41, 255, 255}, {41, 255, 255}, {0, 0, 0}, {0, 0, 0}, {41, 255, 255}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}},
+
+    [4] = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 245, 245}, {0, 245, 245}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 245, 245}, {0, 245, 245}, {0, 245, 245}, {0, 245, 245}, {0, 0, 0}, {0, 0, 0}, {0, 245, 245}, {0, 245, 245}, {0, 245, 245}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 245, 245}, {0, 245, 245}, {0, 245, 245}, {0, 245, 245}, {0, 245, 245}, {0, 245, 245}, {0, 245, 245}, {0, 245, 245}, {0, 245, 245}, {0, 245, 245}, {0, 245, 245}, {0, 245, 245}, {0, 245, 245}, {0, 245, 245}, {0, 245, 245}, {0, 245, 245}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}},
+
+    [5] = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {74, 255, 255}, {74, 255, 255}, {74, 255, 255}, {74, 255, 255}, {74, 255, 255}, {74, 255, 255}, {74, 255, 255}, {74, 255, 255}, {74, 255, 255}, {74, 255, 255}, {74, 255, 255}, {74, 255, 255}, {74, 255, 255}, {74, 255, 255}, {74, 255, 255}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {74, 255, 255}, {74, 255, 255}, {74, 255, 255}, {74, 255, 255}, {74, 255, 255}, {74, 255, 255}, {74, 255, 255}, {74, 255, 255}, {74, 255, 255}, {74, 255, 255}, {74, 255, 255}, {74, 255, 255}, {74, 255, 255}, {74, 255, 255}, {74, 255, 255}, {74, 255, 255}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}},
+
+    [6] = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {211, 218, 204}, {211, 218, 204}, {211, 218, 204}, {211, 218, 204}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {211, 218, 204}, {211, 218, 204}, {211, 218, 204}, {211, 218, 204}, {0, 0, 0}, {211, 218, 204}, {211, 218, 204}, {211, 218, 204}, {211, 218, 204}, {0, 0, 0}, {211, 218, 204}, {211, 218, 204}, {211, 218, 204}, {211, 218, 204}, {211, 218, 204}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}},
+};
+
+void set_layer_color(int layer) {
+    for (int i = 0; i < RGB_MATRIX_LED_COUNT; i++) {
+        HSV hsv = {
+            .h = pgm_read_byte(&ledmap[layer][i][0]),
+            .s = pgm_read_byte(&ledmap[layer][i][1]),
+            .v = pgm_read_byte(&ledmap[layer][i][2]),
+        };
+        if (!hsv.h && !hsv.s && !hsv.v) {
+            rgb_matrix_set_color(i, 0, 0, 0);
+        } else {
+            RGB   rgb = hsv_to_rgb(hsv);
+            float f   = (float)rgb_matrix_config.hsv.v / UINT8_MAX;
+            rgb_matrix_set_color(i, f * rgb.r, f * rgb.g, f * rgb.b);
+        }
+    }
+}
+
+bool rgb_matrix_indicators_user(void) {
+    if (keyboard_config.disable_layer_led) {
+        return false;
+    }
+    switch (biton32(layer_state)) {
+        case 0:
+            set_layer_color(0);
+            break;
+        case 1:
+            set_layer_color(1);
+            break;
+        case 2:
+            set_layer_color(2);
+            break;
+        case 3:
+            set_layer_color(3);
+            break;
+        case 4:
+            set_layer_color(4);
+            break;
+        case 5:
+            set_layer_color(5);
+            break;
+        case 6:
+            set_layer_color(6);
+            break;
+        case 7:
+            set_layer_color(7);
+            break;
+        default:
+            if (rgb_matrix_get_flags() == LED_FLAG_NONE) rgb_matrix_set_color_all(0, 0, 0);
+            break;
+    }
+
+    return false;
+}
+
+// End block related to RGB features
+#endif
+
+// LED light behaviour for Caps Lock & Caps Word
 
 void matrix_scan_user() {
     led_t led_state = host_keyboard_led_state();
@@ -404,12 +326,8 @@ void matrix_scan_user() {
         uint8_t layer = get_highest_layer(layer_state);
         if (layer != 2 && layer != 4 && layer != 6 && layer != 7) {
             ergodox_right_led_2_off();
-        }        
+        }
     }
-}
-
-void raw_hid_receive(uint8_t *data, uint8_t length) {
-    raw_hid_send(data, length);
 }
 
 layer_state_t layer_state_set_user(layer_state_t state) {
