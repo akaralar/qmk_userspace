@@ -75,12 +75,6 @@ enum C_keycodes {
 #define C_L6 LT(6, KC_EQUAL)
 #define C_L7 LT(7, KC_ENTER)
 
-#define C_MCR_ST DYN_REC_STOP
-#define C_MCR_1R DYN_REC_START1
-#define C_MCR_2R DYN_REC_START2
-#define C_MCR_1P DYN_MACRO_PLAY1
-#define C_MCR_2P DYN_MACRO_PLAY2
-
 // clang-format off
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
