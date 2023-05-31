@@ -17,6 +17,9 @@
 #include QMK_KEYBOARD_H
 #include "version.h"
 
+// For more info about achordion, see https://getreuer.info/posts/keyboards/achordion/index.html
+#include "features/achordion.h"
+
 enum layers {
     BASE, // default layer
     NAVI, // navigation layer
@@ -28,12 +31,6 @@ enum layers {
     FUNC, // Function keys layer
 };
 
-#define KC_UNDO LGUI(KC_Z)
-#define KC_CUT LGUI(KC_X)
-#define KC_COPY LGUI(KC_C)
-#define KC_PASTE LGUI(KC_V)
-#define KC_REDO C_REDO
-
 enum C_keycodes {
 #ifdef ORYX_CONFIGURATOR
     VRSN = EZ_SAFE_RANGE,
@@ -43,157 +40,212 @@ enum C_keycodes {
     RGB_SLD,
 };
 
-#define C_E MEH_T(KC_E)
-#define C_R ALL_T(KC_R)
 
-#define C_A MT(MOD_LCTL, KC_A)
-#define C_S MT(MOD_LALT, KC_S)
-#define C_D MT(MOD_LGUI, KC_D)
-#define C_F MT(MOD_LSFT, KC_F)
+// macOS keycodes
+#define KC_CUT LGUI(KC_X)
+#define KC_COPY LGUI(KC_C)
+#define KC_PSTE LGUI(KC_V)
+#define KC_UNDO LGUI(KC_Z)
+#define KC_REDO LGUI(LSFT(KC_Z))
 
-#define C_U ALL_T(KC_U)
-#define C_I MEH_T(KC_I)
+// mod-tap keys
+#define MT_E MEH_T(KC_E)
+#define MT_R ALL_T(KC_R)
+#define MT_U ALL_T(KC_U)
+#define MT_I MEH_T(KC_I)
+#define MT_F MT(MOD_LSFT, KC_F)
+#define MT_D MT(MOD_LGUI, KC_D)
+#define MT_S MT(MOD_LALT, KC_S)
+#define MT_A MT(MOD_LCTL, KC_A)
+#define MT_J MT(MOD_RSFT, KC_J)
+#define MT_K MT(MOD_RGUI, KC_K)
+#define MT_L MT(MOD_LALT, KC_L)
+#define MT_QUOT MT(MOD_RCTL, KC_QUOTE)
 
-#define C_QUOTE MT(MOD_RCTL, KC_QUOTE)
-#define C_L MT(MOD_LALT, KC_L)
-#define C_K MT(MOD_RGUI, KC_K)
-#define C_J MT(MOD_RSFT, KC_J)
+// Application shortcuts
+#define MOOM LALT(LCTL(LSFT(KC_GRAVE))) // Moom
+#define ALF_NAV LGUI(LCTL(KC_SLASH))    // Alfred file navigation
+#define ALF_ACT RGUI(RCTL(KC_BSLS))     // Alfred action selection
+#define ONEP_QA LALT(LGUI(KC_BSLS))      // 1password quick access
+#define ONEP_AF LGUI(LSFT(KC_BSLS))  // 1password autofill
 
-#define C_REDO LGUI(LSFT(KC_Z))
-
-#define C_MOOM LALT(LCTL(LSFT(KC_GRAVE)))
-#define C_NAV_ALFD LGUI(LCTL(KC_SLASH))
-#define C_ACT_ALFD RGUI(RCTL(KC_BSLS))
-#define C_1PASS LALT(LGUI(KC_BSLS))
-#define C_1PASS_AF LGUI(LSFT(KC_BSLS))
-
+// Layer-tap keys
 #define LT_NAVI LT(NAVI, KC_SPACE)
 #define LT_MOUS LT(MOUS, KC_TAB)
 #define LT_MDIA LT(MDIA, KC_ESCAPE)
 #define LT_NUMB LT(NUMB, KC_BSPC)
-#define MO_SYMB MO(SYMB)
 #define LT_SNUM LT(SNUM, KC_EQUAL)
 #define LT_FUNC LT(FUNC, KC_ENTER)
+
+// Layer switching
+#define LS_SYMB MO(SYMB)
+
+// ZSA specific keys
+#define ZSA_USB WEBUSB_PAIR
+#define ZSA_TOG TOGGLE_LAYER_COLOR
 
 // clang-format off
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
+    [BASE] = LAYOUT_ergodox(
+        _______, _______, _______, _______, _______, _______, _______,
+        _______, KC_Q   , KC_W   , MT_E   , MT_R   , KC_T   , _______,
+        _______, MT_A   , MT_S   , MT_D   , MT_F   , KC_G   ,
+        _______, KC_Z   , KC_X   , KC_C   , KC_V   , KC_B   , _______,
+        _______, _______, _______, _______, LT_MDIA,
+                                                     _______, _______,
+                                                              _______,
+                                            LT_NAVI, LT_MOUS, _______,
 
-    /*
-     * ,--------------------------------------------------.    ,--------------------------------------------------.
-     * |    0   |   1  |   2  |   3  |   4  |   5  |  6   |    |  38  |  39  |  40  |  41  |  42  |  43  |   44   |
-     * |--------+------+------+------+------+------+------|    |------+------+------+------+------+------+--------|
-     * |    7   |   8  |   9  |  10  |  11  |  12  |  13  |    |  45  |  46  |  47  |  48  |  49  |  50  |   51   |
-     * |--------+------+------+------+------+------|      |    |      |------+------+------+------+------+--------|
-     * |   14   |  15  |  16  |  17  |  18  |  19  |------|    |------|  52  |  53  |  54  |  55  |  56  |   57   |
-     * |--------+------+------+------+------+------|  26  |    |  58  |------+------+------+------+------+--------|
-     * |   20   |  21  |  22  |  23  |  24  |  25  |      |    |      |  59  |  60  |  61  |  62  |  63  |   64   |
-     * `--------+------+------+------+------+-------------'    `-------------+------+------+------+------+--------'
-     *   |  27  |  28  |  29  |  30  |  31  |                                |  65  |  66  |  67  |  68  |  69  |
-     *   `----------------------------------'                                `----------------------------------'
-     *                                       ,-------------.  ,-------------.
-     *                                       |  32  |  33  |  |  70  |  71  |
-     *                                ,------+------+------|  |------+------+------.
-     *                                |      |      |  34  |  |  72  |      |      |
-     *                                |  35  |  36  |------|  |------|  74  |  75  |
-     *                                |      |      |  37  |  |  73  |      |      |
-     *                                `--------------------'  `--------------------'
-     */
-
-    [BASE] = LAYOUT_ergodox_pretty(
-    _______, _______, _______, _______, _______, _______, _______,      _______  , _______, _______, _______ , _______, _______ , _______,
-    _______, KC_Q   , KC_W   , C_E    , C_R    , KC_T   , _______,      _______  , KC_Y   , C_U    , C_I     , KC_O   , KC_P    , _______,
-    _______, C_A    , C_S    , C_D    , C_F    , KC_G   ,                          KC_H   , C_J    , C_K     , C_L    , C_QUOTE , _______,
-    _______, KC_Z   , KC_X   , KC_C   , KC_V   , KC_B   , _______,      _______  , KC_N   , KC_M   , KC_COMMA, KC_DOT , KC_SLASH, _______,
-    _______, _______, _______, _______, LT_MDIA,                                            MO_SYMB, _______ , _______, _______ , _______,
-
-                                                 _______, _______,      _______  , _______,
-                                                          _______,      KC_F24   ,
-                                        LT_NAVI, LT_MOUS, _______,      KC_DELETE, LT_FUNC, LT_NUMB
+        _______, _______, _______, _______, _______, _______, _______,
+        _______, KC_Y   , MT_U   , MT_I   , KC_O   , KC_P   , _______,
+                 KC_H   , MT_J   , MT_K   , MT_L   , MT_QUOT, _______,
+        _______, KC_N   , KC_M   , KC_COMM, KC_DOT , KC_SLSH, _______,
+                          LS_SYMB, _______, _______, _______, _______,
+        _______, _______,
+        KC_F24 ,
+        KC_DEL , LT_FUNC, LT_NUMB
     ),
 
-    [NAVI] = LAYOUT_ergodox_pretty(
-    _______, _______, _______, _______, _______ , _______, _______,      _______, _______ , _______  , _______, _______ , _______     , _______,
-    _______, XXXXXXX, XXXXXXX, KC_MEH , KC_HYPR , XXXXXXX, _______,      _______, KC_PGUP , KC_HOME  , KC_UP  , KC_END  , KC_INSERT   , _______,
-    _______, KC_LCTL, KC_LALT, KC_LGUI, KC_LSFT , XXXXXXX,                        KC_PGDN , KC_LEFT  , KC_DOWN, KC_RIGHT, KC_CAPS_LOCK, _______,
-    _______, KC_UNDO, KC_CUT , KC_COPY, KC_PASTE, KC_REDO, _______,      _______, KC_REDO , KC_PASTE , KC_COPY, KC_CUT  , KC_UNDO     , _______,
-    _______, _______, _______, _______, XXXXXXX ,                                           KC_DELETE, _______, _______ , _______     , _______,
+    [NAVI] = LAYOUT_ergodox(
+        _______, _______, _______, _______, _______, _______, _______,
+        _______, XXXXXXX, XXXXXXX, KC_MEH , KC_HYPR, XXXXXXX, _______,
+        _______, KC_LCTL, KC_LALT, KC_LGUI, KC_LSFT, XXXXXXX,
+        _______, KC_UNDO, KC_CUT , KC_COPY, KC_PSTE, KC_REDO, _______,
+        _______, _______, _______, _______, XXXXXXX,
+                                                     XXXXXXX, XXXXXXX,
+                                                              _______,
+                                           _______ , XXXXXXX, XXXXXXX,
 
-                                                  XXXXXXX, XXXXXXX,      _______, _______ ,
-                                                           _______,      _______,
-                                        _______ , XXXXXXX, XXXXXXX,      _______, KC_ENTER, KC_BSPC
+        _______, _______, _______, _______, _______, _______, _______,
+        _______, KC_PGUP, KC_HOME, KC_UP  , KC_END , KC_INS , _______,
+                 KC_PGDN, KC_LEFT, KC_DOWN, KC_RGHT, KC_CAPS, _______,
+        _______, KC_REDO, KC_PSTE, KC_COPY, KC_CUT , KC_UNDO, _______,
+                          _______, _______, _______, _______, _______,
+        _______, _______,
+        _______,
+        _______, KC_ENT , KC_BSPC
     ),
 
-    [MOUS] = LAYOUT_ergodox_pretty(
-    _______, _______, _______, _______   , _______   , _______   , _______,      _______, _______      , _______      , _______   , _______       , _______, _______,
-    _______, XXXXXXX, XXXXXXX, C_ACT_ALFD, C_NAV_ALFD, C_MOOM    , _______,      _______, KC_MS_WH_UP  , KC_MS_WH_LEFT, KC_MS_UP  , KC_MS_WH_RIGHT, XXXXXXX, _______,
-    _______, KC_LCTL, KC_LALT, KC_LGUI   , KC_LSFT   , C_1PASS   ,                        KC_MS_WH_DOWN, KC_MS_LEFT   , KC_MS_DOWN, KC_MS_RIGHT   , XXXXXXX, _______,
-    _______, XXXXXXX, XXXXXXX, XXXXXXX   , XXXXXXX   , C_1PASS_AF, _______,      _______, C_REDO       , KC_PASTE     , KC_COPY   , KC_CUT        , KC_UNDO, _______,
-    _______, _______, _______, _______   , _______   ,                                                   KC_MS_BTN2   , _______   , _______       , _______, _______,
+    [MOUS] = LAYOUT_ergodox(
+        _______, _______, _______, _______, _______, _______, _______,
+        _______, XXXXXXX, XXXXXXX, ALF_ACT, ALF_NAV, MOOM   , _______,
+        _______, KC_LCTL, KC_LALT, KC_LGUI, KC_LSFT, ONEP_QA,
+        _______, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, ONEP_AF, _______,
+        _______, _______, _______, _______, _______,
+                                                     XXXXXXX, XXXXXXX,
+                                                              _______,
+                                            XXXXXXX, _______, XXXXXXX,
 
-                                                       XXXXXXX   , XXXXXXX,      _______, _______      ,
-                                                                   _______,      _______,
-                                           XXXXXXX   , _______   , XXXXXXX,      _______, KC_MS_BTN1   , KC_MS_BTN3
+        _______, _______, _______, _______, _______, _______, _______,
+        _______, KC_WH_U, KC_WH_L, KC_MS_U, KC_WH_R, XXXXXXX, _______,
+                 KC_WH_D, KC_MS_L, KC_MS_D, KC_MS_R, XXXXXXX, _______,
+        _______, KC_REDO, KC_PSTE, KC_COPY, KC_CUT , KC_UNDO, _______,
+                          KC_BTN2, _______, _______, _______, _______,
+        _______, _______,
+        _______,
+        _______, KC_BTN1, KC_BTN3
     ),
 
-    [MDIA] = LAYOUT_ergodox_pretty(
-    _______, _______, _______    , _______, _______, _______, _______,      _______, _______           , _______            , _______          , _______        , _______            , _______,
-    _______, QK_BOOT, WEBUSB_PAIR, XXXXXXX, DM_REC1, DM_PLY1, _______,      _______, RGB_TOG           , KC_BRIGHTNESS_UP   , RGB_HUI          , RGB_SAI        , RGB_VAI            , _______,
-    _______, KC_LCTL, KC_LALT    , KC_LGUI, KC_LSFT, DM_RSTP,                        TOGGLE_LAYER_COLOR, KC_MEDIA_PREV_TRACK, KC_AUDIO_VOL_DOWN, KC_AUDIO_VOL_UP, KC_MEDIA_NEXT_TRACK, _______,
-    _______, VRSN   , XXXXXXX    , XXXXXXX, DM_REC2, DM_PLY2, _______,      _______, RGB_MOD           , KC_BRIGHTNESS_DOWN , RGB_HUD          , RGB_SAD        , RGB_VAD            , _______,
-    _______, _______, _______    , _______, _______,                                                     KC_AUDIO_MUTE      , _______          , _______        , _______            , _______,
+    [MDIA] = LAYOUT_ergodox(
+        _______, _______, _______, _______, _______, _______, _______,
+        _______, QK_BOOT, ZSA_USB, XXXXXXX, DM_REC1, DM_PLY1, _______,
+        _______, KC_LCTL, KC_LALT, KC_LGUI, KC_LSFT, DM_RSTP,
+        _______, VRSN   , XXXXXXX, XXXXXXX, DM_REC2, DM_PLY2, _______,
+        _______, _______, _______, _______, _______,
+                                                     XXXXXXX, XXXXXXX,
+                                                              _______,
+                                            XXXXXXX, XXXXXXX, XXXXXXX,
 
-                                                     XXXXXXX, XXXXXXX,      _______, _______           ,
-                                                              _______,      _______,
-                                            XXXXXXX, XXXXXXX, XXXXXXX,      _______, KC_MEDIA_STOP     , KC_MEDIA_PLAY_PAUSE
+        _______, _______, _______, _______, _______, _______, _______,
+        _______, RGB_TOG, KC_BRIU, RGB_HUI, RGB_SAI, RGB_VAI, _______,
+                 ZSA_TOG, KC_MPRV, KC_VOLD, KC_VOLU, KC_MNXT, _______,
+        _______, RGB_MOD, KC_BRID, RGB_HUD, RGB_SAD, RGB_VAD, _______,
+                          KC_MUTE, _______, _______, _______, _______,
+        _______, _______,
+        _______,
+        _______, KC_MSTP, KC_MPLY
     ),
 
-    [NUMB] = LAYOUT_ergodox_pretty(
-    _______, _______ , _______, _______, _______, _______ , _______,      _______, _______, _______, _______ , _______, _______ , _______,
-    _______, KC_LBRC , KC_7   , KC_8   , KC_9   , KC_RBRC , _______,      _______, XXXXXXX, KC_HYPR, KC_MEH  , KC_RALT, XXXXXXX , _______,
-    _______, KC_SCLN , KC_4   , KC_5   , KC_6   , KC_EQUAL,                        XXXXXXX, KC_RSFT, KC_RGUI , KC_LALT, KC_RCTL , _______,
-    _______, KC_GRAVE, KC_1   , KC_2   , KC_3   , KC_BSLS , _______,      _______, XXXXXXX, XXXXXXX, KC_COMMA, KC_DOT , KC_SLASH, _______,
-    _______, _______ , _______, _______, KC_0   ,                                           XXXXXXX, _______ , _______, _______ , _______,
+    [NUMB] = LAYOUT_ergodox(
+        _______, _______, _______, _______, _______, _______, _______,
+        _______, KC_LBRC, KC_7   , KC_8   , KC_9   , KC_RBRC, _______,
+        _______, KC_SCLN, KC_4   , KC_5   , KC_6   , KC_EQL ,
+        _______, KC_GRV , KC_1   , KC_2   , KC_3   , KC_BSLS, _______,
+        _______, _______, _______, _______, KC_0   ,
+                                                     XXXXXXX, XXXXXXX,
+                                                              _______,
+                                           _______, KC_MINUS, XXXXXXX,
 
-                                                  XXXXXXX , XXXXXXX,      _______, _______,
-                                                            _______,      _______,
-                                         _______, KC_MINUS, XXXXXXX,      _______, XXXXXXX, _______
+        _______, _______, _______, _______, _______, _______, _______,
+        _______, XXXXXXX, KC_HYPR, KC_MEH , KC_RALT, XXXXXXX, _______,
+                 XXXXXXX, KC_RSFT, KC_RGUI, KC_LALT, KC_RCTL, _______,
+        _______, XXXXXXX, XXXXXXX, _______, _______, _______, _______,
+                          XXXXXXX, _______, _______, _______, _______,
+        _______, _______,
+        _______,
+        _______, XXXXXXX, _______
     ),
 
-    [SYMB] = LAYOUT_ergodox_pretty(
-    _______, _______, _______ , _______, _______, _______ , _______,      _______, _______ , _______, _______ , _______, _______ , _______,
-    _______, KC_TILD, KC_PLUS , KC_RBRC, KC_LBRC, KC_HASH , _______,      _______, KC_CIRC , KC_BSLS, KC_DQUO , KC_ASTR, KC_PERC , _______,
-    _______, KC_UNDS, KC_SLASH, KC_LPRN, KC_RPRN, KC_AMPR ,                        KC_PIPE , KC_RCBR, KC_LCBR , KC_COLN, KC_COMMA, _______,
-    _______, KC_DLR , KC_QUES , KC_LABK, KC_RABK, KC_GRAVE, _______,      _______, KC_QUOTE, LT_SNUM, KC_MINUS, KC_EXLM, KC_SCLN , _______,
-    _______, _______, _______ , _______, KC_AT  ,                                            XXXXXXX, _______ , _______, _______ , _______,
+    [SYMB] = LAYOUT_ergodox(
+        _______, _______, _______, _______, _______, _______, _______,
+        _______, KC_TILD, KC_PLUS, KC_RBRC, KC_LBRC, KC_HASH, _______,
+        _______, KC_UNDS, KC_SLSH, KC_LPRN, KC_RPRN, KC_AMPR,
+        _______, KC_DLR , KC_QUES, KC_LABK, KC_RABK, KC_GRV , _______,
+        _______, _______, _______, _______, KC_AT  ,
+                                                     XXXXXXX, XXXXXXX,
+                                                              _______,
+                                            _______, KC_DOT , XXXXXXX,
 
-                                                   XXXXXXX, XXXXXXX,      _______, _______,
-                                                            _______,      _______,
-                                         _______ , KC_DOT , XXXXXXX,      _______, _______, XXXXXXX
+        _______, _______, _______, _______, _______, _______, _______,
+        _______, KC_CIRC, KC_BSLS, KC_DQUO, KC_ASTR, KC_PERC, _______,
+                 KC_PIPE, KC_RCBR, KC_LCBR, KC_COLN, KC_COMM, _______,
+        _______, KC_QUOT, LT_SNUM, KC_MINS, KC_EXLM, KC_SCLN, _______,
+                          XXXXXXX, _______, _______, _______, _______,
+        _______, _______,
+        _______,
+        _______, _______, XXXXXXX
     ),
 
-    [SNUM] = LAYOUT_ergodox_pretty(
-    _______, _______, _______, _______, _______, _______, _______,       _______, _______, _______, _______, _______, _______, _______,
-    _______, KC_NO  , KC_7   , KC_8   , KC_9   , KC_NO  , _______,       _______, KC_NO  , KC_NO  , KC_NO  , KC_NO  , KC_NO  , _______,
-    _______, KC_NO  , KC_4   , KC_5   , KC_6   , KC_NO  ,                         KC_NO  , _______, KC_NO  , KC_NO  , KC_NO  , _______,
-    _______, KC_NO  , KC_1   , KC_2   , KC_3   , KC_NO  , _______,       _______, KC_NO  , KC_NO  , KC_NO  , KC_NO  , KC_NO  , _______,
-    _______, _______, _______, _______, KC_0   ,                                           _______, _______, _______, _______, _______,
-                                                 _______, _______,       _______, _______,
-                                                          _______,       _______,
-                                        _______, KC_DOT,  _______,       _______, _______, _______
+    [SNUM] = LAYOUT_ergodox(
+        _______, _______, _______, _______, _______, _______, _______,
+        _______, KC_NO  , KC_7   , KC_8   , KC_9   , KC_NO  , _______,
+        _______, KC_NO  , KC_4   , KC_5   , KC_6   , KC_NO  ,
+        _______, KC_NO  , KC_1   , KC_2   , KC_3   , KC_NO  , _______,
+        _______, _______, _______, _______, KC_0   ,
+                                                     _______, _______,
+                                                              _______,
+                                            _______, KC_DOT,  _______,
+
+        _______, _______, _______, _______, _______, _______, _______,
+        _______, KC_NO  , KC_NO  , KC_NO  , KC_NO  , KC_NO  , _______,
+                 KC_NO  , _______, KC_NO  , KC_NO  , KC_NO  , _______,
+        _______, KC_NO  , KC_NO  , KC_NO  , KC_NO  , KC_NO  , _______,
+                          _______, _______, _______, _______, _______,
+        _______, _______,
+        _______,
+        _______, _______, _______
     ),
 
-    [FUNC] = LAYOUT_ergodox_pretty(
-    _______, _______, _______, _______, _______  , _______, _______,      _______, _______, _______, _______, _______, _______, _______,
-    _______, KC_F12 , KC_F7  , KC_F8  , KC_F9    , XXXXXXX, _______,      _______, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, _______,
-    _______, KC_F11 , KC_F4  , KC_F5  , KC_F6    , XXXXXXX,                        XXXXXXX, KC_RSFT, KC_RGUI, KC_LALT, KC_RCTL, _______,
-    _______, KC_F10 , KC_F1  , KC_F2  , KC_F3    , XXXXXXX, _______,      _______, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, _______,
-    _______, _______, _______, _______, KC_ESCAPE,                                          _______, _______, _______, _______, _______,
+    [FUNC] = LAYOUT_ergodox(
+        _______, _______, _______, _______, _______, _______, _______,
+        _______, KC_F12 , KC_F7  , KC_F8  , KC_F9  , XXXXXXX, _______,
+        _______, KC_F11 , KC_F4  , KC_F5  , KC_F6  , XXXXXXX,
+        _______, KC_F10 , KC_F1  , KC_F2  , KC_F3  , XXXXXXX, _______,
+        _______, _______, _______, _______, KC_ESC ,
+                                                     XXXXXXX, XXXXXXX,
+                                                              _______,
+                                            KC_SPC , KC_TAB , XXXXXXX,
 
-                                                   XXXXXXX, XXXXXXX,      _______, _______,
-                                                            _______,      _______,
-                                        KC_SPACE , KC_TAB , XXXXXXX,      _______, XXXXXXX, XXXXXXX
+        _______, _______, _______, _______, _______, _______, _______,
+        _______, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, _______,
+                 XXXXXXX, KC_RSFT, KC_RGUI, KC_LALT, KC_RCTL, _______,
+        _______, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, _______,
+                          _______, _______, _______, _______, _______,
+        _______, _______,
+        _______,
+        _______, XXXXXXX, XXXXXXX
     )
 };
 
@@ -214,8 +266,14 @@ bool get_hold_on_other_key_press(uint16_t keycode, keyrecord_t *record) {
     }
 }
 
-// Custom Keycodes defined in this file
+
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+    // First pass the keycode and record to achordion for tap-hold decision
+    // if (!process_achordion(keycode, record)) { return false; }
+
+    // Other macros
+
+    // Custom Keycodes defined in this file
     switch (keycode) {
         case RGB_SLD:
             if (record->event.pressed) {
@@ -236,6 +294,8 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 // LED light behaviour for Caps Lock & Caps Word
 
 void matrix_scan_user() {
+    // achordion_task();
+
     led_t led_state = host_keyboard_led_state();
     if (led_state.caps_lock) {
         ergodox_right_led_3_on();
@@ -299,6 +359,7 @@ layer_state_t layer_state_set_user(layer_state_t state) {
 
 /*  This part is related to RGB matrix and fails to compile if the board has
     RGB matrix disabled */
+
 #if RGB_MATRIX_ENABLE
 void keyboard_post_init_user(void) {
     rgb_matrix_enable();
