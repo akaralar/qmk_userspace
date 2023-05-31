@@ -8,5 +8,6 @@ ORYX_ENABLE = no
 DYNAMIC_MACRO_ENABLE = yes
 PROGRAMMABLE_BUTTON_ENABLE = yes
 SRC = matrix.c
+SRC += features/achordion.c
 CAPS_WORD_ENABLE = yes
 RGB_MATRIX_ENABLE = yes
