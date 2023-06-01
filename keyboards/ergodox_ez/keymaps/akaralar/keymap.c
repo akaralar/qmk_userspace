@@ -357,6 +357,18 @@ uint16_t achordion_timeout(uint16_t tap_hold_keycode) {
     return g_tapping_term + 200;
 }
 
+bool achordion_eager_mod(uint8_t mod) {
+  switch (mod) {
+    case MOD_LSFT:
+    case MOD_RSFT:
+    case MOD_LGUI:
+    case MOD_RGUI:
+      return true;  // Eagerly apply Shift and Cmd mods.
+    default:
+      return false;
+  }
+}
+
 // Custom keycode handling
 bool process_custom_keycodes(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
