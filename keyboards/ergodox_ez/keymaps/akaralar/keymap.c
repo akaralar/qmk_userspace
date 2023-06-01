@@ -19,6 +19,8 @@
 
 // For more info about achordion, see https://getreuer.info/posts/keyboards/achordion/index.html
 #include "features/achordion.h"
+// For more info about custom shift keys, see https://getreuer.info/posts/keyboards/custom-shift-keys/index.html
+#include "features/custom_shift_keys.h"
 
 enum layers {
     BASE, // default layer
@@ -295,16 +297,14 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 // clang-format on
 
-// Key overrides for ? and ! in the alpha layer
-const key_override_t question_mark_override = ko_make_basic(MOD_MASK_SHIFT, KC_COMM, KC_QUES);
-const key_override_t exclamation_mark_override = ko_make_basic(MOD_MASK_SHIFT, KC_DOT, KC_EXLM);
-const key_override_t disable_shift_slash_override = ko_make_basic(MOD_MASK_SHIFT, KC_SLSH, KC_NO);
-const key_override_t **key_overrides = (const key_override_t *[]) {
-  &question_mark_override,
-  &exclamation_mark_override,
-  &disable_shift_slash_override,
-  NULL
+// Custom shift keys for ? and ! in the alpha layer
+const custom_shift_key_t custom_shift_keys[] = {
+  {KC_COMM, KC_QUES}, // Shift + , is ?
+  {KC_DOT, KC_EXLM}, // Shift + . is !
+  {KC_SLSH, KC_SLSH}, // Shift + / is nothing
 };
+
+uint8_t NUM_CUSTOM_SHIFT_KEYS = sizeof(custom_shift_keys) / sizeof(custom_shift_key_t);
 
 // Mod-tap settings
 uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
@@ -354,7 +354,7 @@ bool achordion_chord(uint16_t tap_hold_keycode, keyrecord_t *tap_hold_record, ui
 }
 
 uint16_t achordion_timeout(uint16_t tap_hold_keycode) {
-    return g_tapping_term + 150; // Otherwise use a timeout of 800 ms.
+    return g_tapping_term + 200;
 }
 
 // Custom keycode handling
@@ -379,10 +379,13 @@ bool process_custom_keycodes(uint16_t keycode, keyrecord_t *record) {
 }
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-    // First pass the keycode and record to achordion for tap-hold decision
+    // Pass the keycode and record to achordion for tap-hold decision
     if (!process_achordion(keycode, record)) { return false; }
 
-    // Process custom Keycodes defined in this file
+    // Process custom shift keys
+    if (!process_custom_shift_keys(keycode, record)) { return false; }
+
+    // Process custom keycodes defined in this file
     if (!process_custom_keycodes(keycode, record)) { return false; }
 
     return true;
