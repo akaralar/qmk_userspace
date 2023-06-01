@@ -14,11 +14,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+// Disable key repeating for tap-hold keys
 #define QUICK_TAP_TERM 0
 
-#define HOLD_ON_OTHER_KEY_PRESS_PER_KEY
+// Tap-hold configuration for home row mods.
+#undef TAPPING_TERM
+#define TAPPING_TERM 185
+#define TAPPING_TERM_PER_KEY
 #define PERMISSIVE_HOLD_PER_KEY
 
+// Turn keyboard lights off after 5 minutes
 #define RGB_MATRIX_TIMEOUT 300000
 
 #undef MOUSEKEY_WHEEL_DELAY
