@@ -234,7 +234,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
     [SYMB] = LAYOUT_ergodox(
         _______, _______, _______, _______, _______, _______, _______,
-        _______, KC_TILD, KC_PLUS, KC_RBRC, KC_LBRC, KC_HASH, _______,
+        _______, KC_TILD, KC_PLUS, KC_LBRC, KC_RBRC, KC_HASH, _______,
         _______, KC_UNDS, KC_SLSH, KC_LPRN, KC_RPRN, KC_AMPR,
         _______, KC_DLR , KC_QUES, KC_LABK, KC_RABK, KC_GRV , _______,
         _______, _______, _______, _______, KC_AT  ,
@@ -295,6 +295,18 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 // clang-format on
 
+// Key overrides for ? and ! in the alpha layer
+const key_override_t question_mark_override = ko_make_basic(MOD_MASK_SHIFT, KC_COMM, KC_QUES);
+const key_override_t exclamation_mark_override = ko_make_basic(MOD_MASK_SHIFT, KC_DOT, KC_EXLM);
+const key_override_t disable_shift_slash_override = ko_make_basic(MOD_MASK_SHIFT, KC_SLSH, KC_NO);
+const key_override_t **key_overrides = (const key_override_t *[]) {
+  &question_mark_override,
+  &exclamation_mark_override,
+  &disable_shift_slash_override,
+  NULL
+};
+
+// Mod-tap settings
 uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
       case MT_A:
@@ -322,6 +334,7 @@ bool get_permissive_hold(uint16_t keycode, keyrecord_t *record) {
     }
 }
 
+// Achordion
 bool achordion_chord(uint16_t tap_hold_keycode, keyrecord_t *tap_hold_record, uint16_t other_keycode, keyrecord_t *other_record) {
     switch (tap_hold_keycode) {
         // Disable same hand prevention with layer switching keys
@@ -344,13 +357,8 @@ uint16_t achordion_timeout(uint16_t tap_hold_keycode) {
     return g_tapping_term + 150; // Otherwise use a timeout of 800 ms.
 }
 
-bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-    // First pass the keycode and record to achordion for tap-hold decision
-    if (!process_achordion(keycode, record)) { return false; }
-
-    // Other macros
-
-    // Custom Keycodes defined in this file
+// Custom keycode handling
+bool process_custom_keycodes(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
         case RGB_SLD:
             if (record->event.pressed) {
@@ -364,12 +372,24 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 SEND_STRING(QMK_KEYBOARD "/" QMK_KEYMAP " @ " QMK_VERSION);
                 return false;
             }
+
+        default:
+            return true;
     }
+}
+
+bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+    // First pass the keycode and record to achordion for tap-hold decision
+    if (!process_achordion(keycode, record)) { return false; }
+
+    // Process custom Keycodes defined in this file
+    if (!process_custom_keycodes(keycode, record)) { return false; }
+
     return true;
 }
 
 // LED light behaviour for Caps Lock & Caps Word
-void fix_leds(void) {
+void fix_leds_task(void) {
     led_t led_state = host_keyboard_led_state();
     if (led_state.caps_lock) {
         ergodox_right_led_3_on();
@@ -393,7 +413,7 @@ void fix_leds(void) {
 
 void matrix_scan_user() {
     achordion_task();
-    fix_leds();
+    fix_leds_task();
 }
 
 layer_state_t layer_state_set_user(layer_state_t state) {
