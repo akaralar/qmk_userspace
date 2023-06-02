@@ -19,7 +19,7 @@
 
 // Tap-hold configuration for home row mods.
 #undef TAPPING_TERM
-#define TAPPING_TERM 185
+#define TAPPING_TERM 175
 #define TAPPING_TERM_PER_KEY
 #define PERMISSIVE_HOLD_PER_KEY
 
