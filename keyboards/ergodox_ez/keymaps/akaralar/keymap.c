@@ -90,6 +90,7 @@ enum C_keycodes {
 #define ONEP_AF LGUI(LSFT(KC_BSLS))     // 1password autofill
 #define TH_QE MEH(KC_T)                 // Things quick entry
 #define TH_QEAF HYPR(KC_T)              // Things quick entry with autofill
+#define MAC_HDN LGUI(LSFT(KC_DOT))      // Toggle hidden files in macOS
 
 // clang-format off
 
@@ -178,7 +179,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         _______, _______, _______, _______, _______, _______, _______,
         _______, XXXXXXX, XXXXXXX, ALF_ACT, ALF_NAV, MOOM   , _______,
         _______, KC_LCTL, KC_LALT, KC_LGUI, KC_LSFT, ONEP_QA,
-        _______, XXXXXXX, XXXXXXX, TH_QE  , TH_QEAF, ONEP_AF, _______,
+        _______, XXXXXXX, MAC_HDN, TH_QE  , TH_QEAF, ONEP_AF, _______,
         _______, _______, _______, _______, _______,
                                                      _______, _______,
                                                               _______,
@@ -366,7 +367,8 @@ bool achordion_eager_mod(uint8_t mod) {
     case MOD_RSFT:
     case MOD_LGUI:
     case MOD_RGUI:
-      return true;  // Eagerly apply Shift and Cmd mods.
+    case MOD_LALT:
+      return true;  // Eagerly apply Shift, Cmd and Opt mods.
     default:
       return false;
   }
@@ -505,7 +507,7 @@ const bool PROGMEM rgb_on[][RGB_MATRIX_LED_COUNT] = {
         false, false, false, false, false,    false, false, false, false, false,
         false, false, true , true , true ,    true , true , true , true , false,
         true , true , true , true , true ,    true , true , true , true , false,
-        false, false, false, false, true ,    true , true , true , true , true ,
+        false, true , true , true , true ,    true , true , true , true , true ,
         false, false, false, false,                  true , false, false, false
     ),
     [MDIA] =  LED_LAYOUT_ergodox_pretty(
