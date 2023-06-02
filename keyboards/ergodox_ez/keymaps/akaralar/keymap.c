@@ -335,7 +335,10 @@ bool get_permissive_hold(uint16_t keycode, keyrecord_t *record) {
 }
 
 // Achordion
-bool achordion_chord(uint16_t tap_hold_keycode, keyrecord_t *tap_hold_record, uint16_t other_keycode, keyrecord_t *other_record) {
+bool achordion_chord(uint16_t tap_hold_keycode,
+                    keyrecord_t *tap_hold_record,
+                    uint16_t other_keycode,
+                    keyrecord_t *other_record) {
     switch (tap_hold_keycode) {
         // Disable same hand prevention with layer switching keys
         case QK_LAYER_TAP ... QK_LAYER_TAP_MAX:
@@ -390,19 +393,6 @@ bool process_custom_keycodes(uint16_t keycode, keyrecord_t *record) {
     }
 }
 
-bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-    // Pass the keycode and record to achordion for tap-hold decision
-    if (!process_achordion(keycode, record)) { return false; }
-
-    // Process custom shift keys
-    if (!process_custom_shift_keys(keycode, record)) { return false; }
-
-    // Process custom keycodes defined in this file
-    if (!process_custom_keycodes(keycode, record)) { return false; }
-
-    return true;
-}
-
 // LED light behaviour for Caps Lock & Caps Word
 void fix_leds_task(void) {
     led_t led_state = host_keyboard_led_state();
@@ -425,13 +415,7 @@ void fix_leds_task(void) {
     }
 }
 
-
-void matrix_scan_user() {
-    achordion_task();
-    fix_leds_task();
-}
-
-layer_state_t layer_state_set_user(layer_state_t state) {
+void led_state_set(layer_state_t state) {
     ergodox_board_led_off();
     ergodox_right_led_1_off();
     ergodox_right_led_2_off();
@@ -468,9 +452,31 @@ layer_state_t layer_state_set_user(layer_state_t state) {
         default:
             break;
     }
+}
 
+// User space functions
+bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+    // Pass the keycode and record to achordion for tap-hold decision
+    if (!process_achordion(keycode, record)) { return false; }
+
+    // Process custom shift keys
+    if (!process_custom_shift_keys(keycode, record)) { return false; }
+
+    // Process custom keycodes defined in this file
+    if (!process_custom_keycodes(keycode, record)) { return false; }
+
+    return true;
+}
+
+layer_state_t layer_state_set_user(layer_state_t state) {
+    led_state_set(state);
     return state;
 };
+
+void matrix_scan_user() {
+    achordion_task();
+    fix_leds_task();
+}
 
 /*  This part is related to RGB matrix and fails to compile if the board has
     RGB matrix disabled */
@@ -480,7 +486,7 @@ void keyboard_post_init_user(void) {
     rgb_matrix_enable();
 }
 
-const bool PROGMEM led_on[][RGB_MATRIX_LED_COUNT] = {
+const bool PROGMEM rgb_on[][RGB_MATRIX_LED_COUNT] = {
     [BASE] = LED_LAYOUT_ergodox_pretty(
         false, false, false, false, false,    false, false, false, false, false,
         true , true , true , true , true ,    true , true , true , true , true ,
@@ -539,7 +545,7 @@ const bool PROGMEM led_on[][RGB_MATRIX_LED_COUNT] = {
     ),
 };
 
-const uint8_t PROGMEM led_colors[][3] = {
+const uint8_t PROGMEM rgb_colors[][3] = {
     [BASE] = {8, 255, 255},
     [NAVI] = {163, 218, 204},
     [MOUS] = {122, 255, 255},
@@ -550,15 +556,15 @@ const uint8_t PROGMEM led_colors[][3] = {
     [FUNC] = {211, 218, 204}
 };
 
-void set_layer_color(int layer) {
+void set_layer_rgb_colors(int layer) {
     for (int i = 0; i < RGB_MATRIX_LED_COUNT; i++) {
-        if (!pgm_read_byte(&led_on[layer][i])) {
+        if (!pgm_read_byte(&rgb_on[layer][i])) {
             rgb_matrix_set_color(i, 0, 0, 0);
         } else {
             HSV hsv = {
-                .h = pgm_read_byte(&led_colors[layer][0]),
-                .s = pgm_read_byte(&led_colors[layer][1]),
-                .v = pgm_read_byte(&led_colors[layer][2]),
+                .h = pgm_read_byte(&rgb_colors[layer][0]),
+                .s = pgm_read_byte(&rgb_colors[layer][1]),
+                .v = pgm_read_byte(&rgb_colors[layer][2]),
             };
 
             if (!hsv.h && !hsv.s && !hsv.v) {
@@ -578,7 +584,7 @@ bool rgb_matrix_indicators_user(void) {
     }
     switch (biton32(layer_state)) {
         case BASE ... FUNC:
-            set_layer_color(biton32(layer_state));
+            set_layer_rgb_colors(biton32(layer_state));
             break;
         default:
             if (rgb_matrix_get_flags() == LED_FLAG_NONE) {
