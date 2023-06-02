@@ -72,15 +72,15 @@ enum C_keycodes {
 #define LT_SNUM LT(SNUM, KC_EQUAL)
 #define LT_FUNC LT(FUNC, KC_ENTER)
 
+// One-shot modifiers
+#define OS_LSFT OSM(MOD_LSFT)
+
 // Layer switching
 #define LS_SYMB MO(SYMB)
 
 // ZSA specific keys
 #define ZSA_USB WEBUSB_PAIR
 #define ZSA_TOG TOGGLE_LAYER_COLOR
-
-// One-shot modifiers
-#define OS_LSFT OSM(MOD_LSFT)
 
 // Application shortcuts
 #define MOOM LALT(LCTL(LSFT(KC_GRAVE))) // Moom
@@ -480,37 +480,94 @@ void keyboard_post_init_user(void) {
     rgb_matrix_enable();
 }
 
-const uint8_t PROGMEM ledmap[][RGB_MATRIX_LED_COUNT][3] = {
-    [BASE] = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {8, 255, 255}, {8, 255, 255}, {8, 255, 255}, {8, 255, 255}, {8, 255, 255}, {8, 255, 255}, {8, 255, 255}, {8, 255, 255}, {8, 255, 255}, {8, 255, 255}, {8, 255, 255}, {8, 255, 255}, {8, 255, 255}, {8, 255, 255}, {8, 255, 255}, {8, 255, 255}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {8, 255, 255}, {8, 255, 255}, {8, 255, 255}, {8, 255, 255}, {8, 255, 255}, {8, 255, 255}, {8, 255, 255}, {8, 255, 255}, {8, 255, 255}, {8, 255, 255}, {8, 255, 255}, {8, 255, 255}, {8, 255, 255}, {8, 255, 255}, {8, 255, 255}, {8, 255, 255}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}},
+const bool PROGMEM led_on[][RGB_MATRIX_LED_COUNT] = {
+    [BASE] = LED_LAYOUT_ergodox_pretty(
+        false, false, false, false, false,    false, false, false, false, false,
+        true , true , true , true , true ,    true , true , true , true , true ,
+        true , true , true , true , true ,    true , true , true , true , true ,
+        true , true , true , true , true ,    true , true , true , true , true ,
+        false, false, false, true ,                  true , false, false, false
+    ),
+    [NAVI] = LED_LAYOUT_ergodox_pretty(
+        false, false, false, false, false,    false, false, false, false, false,
+        false, false, true , true , false,    true , true , true , true , true ,
+        true , true , true , true , false,    true , true , true , true , true ,
+        true , true , true , true , true ,    true , true , true , true , true ,
+        false, false, false, false,                  true , false, false, false
+    ),
+    [MOUS] = LED_LAYOUT_ergodox_pretty(
+        false, false, false, false, false,    false, false, false, false, false,
+        false, false, true , true , true ,    true , true , true , true , false,
+        true , true , true , true , true ,    true , true , true , true , false,
+        false, false, false, false, true ,    true , true , true , true , true ,
+        false, false, false, false,                  true , false, false, false
+    ),
+    [MDIA] =  LED_LAYOUT_ergodox_pretty(
+        false, false, false, false, false,    false, false, false, false, false,
+        true , false, false, true , true ,    true , true , true , true , true ,
+        true , true , true , true , true ,    true , true , true , true , true ,
+        true , false, false, true , true ,    true , true , true , true , true ,
+        false, false, false, false,                  true , false, false, false
+    ),
+    [NUMB] =  LED_LAYOUT_ergodox_pretty(
+        false, false, false, false, false,    false, false, false, false, false,
+        true , true , true , true , true ,    false, true , true , false, false,
+        true , true , true , true , true ,    false, true , true , true , true ,
+        true , true , true , true , true ,    false, false, true , true , true ,
+        false, false, false, true ,                  false, false, false, false
+    ),
+    [SYMB] = LED_LAYOUT_ergodox_pretty(
+        false, false, false, false, false,    false, false, false, false, false,
+        true , true , true , true , true ,    true , true , true , true , true ,
+        true , true , true , true , true ,    true , true , true , true , true ,
+        true , true , true , true , true ,    true , true , true , true , true ,
+        false, false, false, true ,                  false, false, false, false
+    ),
+    [SNUM] = LED_LAYOUT_ergodox_pretty(
+        false, false, false, false, false,    false, false, false, false, false,
+        false, true , true , true , false,    false, false, false, false, false,
+        false, true , true , true , false,    false, false, false, false, false,
+        false, true , true , true , false,    false, false, false, false, false,
+        false, false, false, true ,                  false, false, false, false
+    ),
+    [FUNC] = LED_LAYOUT_ergodox_pretty(
+        false, false, false, false, false,    false, false, false, false, false,
+        true , true , true , true , false,    false, false, false, false, false,
+        true , true , true , true , false,    false, true , true , true , true ,
+        true , true , true , true , false,    false, false, false, false, false,
+        false, false, false, true ,                  false, false, false, false
+    ),
+};
 
-    [NAVI] = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {163, 218, 204}, {163, 218, 204}, {163, 218, 204}, {163, 218, 204}, {163, 218, 204}, {163, 218, 204}, {163, 218, 204}, {163, 218, 204}, {163, 218, 204}, {163, 218, 204}, {163, 218, 204}, {163, 218, 204}, {163, 218, 204}, {163, 218, 204}, {163, 218, 204}, {163, 218, 204}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {163, 218, 204}, {163, 218, 204}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {163, 218, 204}, {163, 218, 204}, {163, 218, 204}, {163, 218, 204}, {163, 218, 204}, {163, 218, 204}, {163, 218, 204}, {163, 218, 204}, {163, 218, 204}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}},
-
-    [MOUS] = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {122, 255, 255}, {122, 255, 255}, {122, 255, 255}, {122, 255, 255}, {0, 0, 0}, {122, 255, 255}, {122, 255, 255}, {122, 255, 255}, {122, 255, 255}, {0, 0, 0}, {122, 255, 255}, {122, 255, 255}, {122, 255, 255}, {122, 255, 255}, {122, 255, 255}, {122, 255, 255}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {122, 255, 255}, {122, 255, 255}, {122, 255, 255}, {0, 0, 0}, {0, 0, 0}, {122, 255, 255}, {122, 255, 255}, {122, 255, 255}, {122, 255, 255}, {122, 255, 255}, {122, 255, 255}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}},
-
-    [MDIA] = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {41, 255, 255}, {41, 255, 255}, {41, 255, 255}, {41, 255, 255}, {41, 255, 255}, {41, 255, 255}, {41, 255, 255}, {41, 255, 255}, {41, 255, 255}, {41, 255, 255}, {41, 255, 255}, {41, 255, 255}, {41, 255, 255}, {41, 255, 255}, {41, 255, 255}, {41, 255, 255}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {41, 255, 255}, {41, 255, 255}, {0, 0, 0}, {0, 0, 0}, {41, 255, 255}, {41, 255, 255}, {41, 255, 255}, {41, 255, 255}, {41, 255, 255}, {41, 255, 255}, {41, 255, 255}, {41, 255, 255}, {0, 0, 0}, {0, 0, 0}, {41, 255, 255}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}},
-
-    [NUMB] = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 245, 245}, {0, 245, 245}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 245, 245}, {0, 245, 245}, {0, 245, 245}, {0, 245, 245}, {0, 0, 0}, {0, 0, 0}, {0, 245, 245}, {0, 245, 245}, {0, 245, 245}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 245, 245}, {0, 245, 245}, {0, 245, 245}, {0, 245, 245}, {0, 245, 245}, {0, 245, 245}, {0, 245, 245}, {0, 245, 245}, {0, 245, 245}, {0, 245, 245}, {0, 245, 245}, {0, 245, 245}, {0, 245, 245}, {0, 245, 245}, {0, 245, 245}, {0, 245, 245}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}},
-
-    [SYMB] = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {74, 255, 255}, {74, 255, 255}, {74, 255, 255}, {74, 255, 255}, {74, 255, 255}, {74, 255, 255}, {74, 255, 255}, {74, 255, 255}, {74, 255, 255}, {74, 255, 255}, {74, 255, 255}, {74, 255, 255}, {74, 255, 255}, {74, 255, 255}, {74, 255, 255}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {74, 255, 255}, {74, 255, 255}, {74, 255, 255}, {74, 255, 255}, {74, 255, 255}, {74, 255, 255}, {74, 255, 255}, {74, 255, 255}, {74, 255, 255}, {74, 255, 255}, {74, 255, 255}, {74, 255, 255}, {74, 255, 255}, {74, 255, 255}, {74, 255, 255}, {74, 255, 255}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}},
-
-    [SNUM] = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {74, 255, 255}, {74, 255, 255}, {74, 255, 255}, {0, 0, 0}, {0, 0, 0}, {74, 255, 255}, {74, 255, 255}, {74, 255, 255}, {0, 0, 0}, {0, 0, 0}, {74, 255, 255}, {74, 255, 255}, {74, 255, 255}, {0, 0, 0}, {74, 255, 255}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}},
-
-    [FUNC] = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {211, 218, 204}, {211, 218, 204}, {211, 218, 204}, {211, 218, 204}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {211, 218, 204}, {211, 218, 204}, {211, 218, 204}, {211, 218, 204}, {0, 0, 0}, {211, 218, 204}, {211, 218, 204}, {211, 218, 204}, {211, 218, 204}, {0, 0, 0}, {211, 218, 204}, {211, 218, 204}, {211, 218, 204}, {211, 218, 204}, {211, 218, 204}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}},
+const uint8_t PROGMEM led_colors[][3] = {
+    [BASE] = {8, 255, 255},
+    [NAVI] = {163, 218, 204},
+    [MOUS] = {122, 255, 255},
+    [MDIA] = {41, 255, 255},
+    [NUMB] = {0, 245, 245},
+    [SYMB] = {74, 255, 255},
+    [SNUM] = {74, 255, 255},
+    [FUNC] = {211, 218, 204}
 };
 
 void set_layer_color(int layer) {
     for (int i = 0; i < RGB_MATRIX_LED_COUNT; i++) {
-        HSV hsv = {
-            .h = pgm_read_byte(&ledmap[layer][i][0]),
-            .s = pgm_read_byte(&ledmap[layer][i][1]),
-            .v = pgm_read_byte(&ledmap[layer][i][2]),
-        };
-        if (!hsv.h && !hsv.s && !hsv.v) {
+        if (!pgm_read_byte(&led_on[layer][i])) {
             rgb_matrix_set_color(i, 0, 0, 0);
         } else {
-            RGB   rgb = hsv_to_rgb(hsv);
-            float f   = (float)rgb_matrix_config.hsv.v / UINT8_MAX;
-            rgb_matrix_set_color(i, f * rgb.r, f * rgb.g, f * rgb.b);
+            HSV hsv = {
+                .h = pgm_read_byte(&led_colors[layer][0]),
+                .s = pgm_read_byte(&led_colors[layer][1]),
+                .v = pgm_read_byte(&led_colors[layer][2]),
+            };
+
+            if (!hsv.h && !hsv.s && !hsv.v) {
+                rgb_matrix_set_color(i, 0, 0, 0);
+            } else {
+                RGB   rgb = hsv_to_rgb(hsv);
+                float f   = (float)rgb_matrix_config.hsv.v / UINT8_MAX;
+                rgb_matrix_set_color(i, f * rgb.r, f * rgb.g, f * rgb.b);
+            }
         }
     }
 }
