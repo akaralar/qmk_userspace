@@ -23,7 +23,8 @@
 #include "features/custom_shift_keys.h"
 
 enum layers {
-    BASE, // default layer
+    QWER, // default qwerty layer
+    COLE, // default colemak layer
     NAVI, // navigation layer
     MOUS, // mouse layer
     MDIA, // media keys layer
@@ -50,19 +51,34 @@ enum C_keycodes {
 #define KC_REDO LGUI(LSFT(KC_Z))
 #define KC_FN KC_F24 // F24 is converted to fn key with karabiner
 
-// mod-tap keys
-#define MT_E MEH_T(KC_E)
-#define MT_R ALL_T(KC_R)
-#define MT_U ALL_T(KC_U)
-#define MT_I MEH_T(KC_I)
-#define MT_F MT(MOD_LSFT, KC_F)
-#define MT_D MT(MOD_LGUI, KC_D)
-#define MT_S MT(MOD_LALT, KC_S)
+// mod-tap keys same for qwerty and colemak
 #define MT_A MT(MOD_LCTL, KC_A)
-#define MT_J MT(MOD_RSFT, KC_J)
-#define MT_K MT(MOD_RGUI, KC_K)
-#define MT_L MT(MOD_LALT, KC_L)
-#define MT_QUOT MT(MOD_RCTL, KC_QUOTE)
+
+// mod-tap keys for qwerty
+#define MT_Q_E MEH_T(KC_E)
+#define MT_Q_R ALL_T(KC_R)
+#define MT_Q_U ALL_T(KC_U)
+#define MT_Q_I MEH_T(KC_I)
+#define MT_Q_F MT(MOD_LSFT, KC_F)
+#define MT_Q_D MT(MOD_LGUI, KC_D)
+#define MT_Q_S MT(MOD_LALT, KC_S)
+#define MT_Q_J MT(MOD_RSFT, KC_J)
+#define MT_Q_K MT(MOD_RGUI, KC_K)
+#define MT_Q_L MT(MOD_LALT, KC_L)
+#define MT_Q_QT MT(MOD_RCTL, KC_QUOTE)
+
+// mod-tap keys for colemak-dh
+#define MT_C_F MEH_T(KC_F)
+#define MT_C_P ALL_T(KC_P)
+#define MT_C_L ALL_T(KC_L)
+#define MT_C_U MEH_T(KC_U)
+#define MT_C_T MT(MOD_LSFT, KC_T)
+#define MT_C_S MT(MOD_LGUI, KC_S)
+#define MT_C_R MT(MOD_LALT, KC_R)
+#define MT_C_N MT(MOD_RSFT, KC_N)
+#define MT_C_E MT(MOD_RGUI, KC_E)
+#define MT_C_I MT(MOD_LALT, KC_I)
+#define MT_C_O MT(MOD_RCTL, KC_O)
 
 // Layer-tap keys
 #define LT_NAVI LT(NAVI, KC_SPACE)
@@ -77,6 +93,10 @@ enum C_keycodes {
 
 // Layer switching
 #define LS_SYMB MO(SYMB)
+
+// Changing default layer
+#define DF_QWER DF(QWER)
+#define DF_COLE DF(COLE)
 
 // ZSA specific keys
 #define ZSA_USB WEBUSB_PAIR
@@ -135,10 +155,10 @@ enum C_keycodes {
 
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
-    [BASE] = LAYOUT_ergodox(
+    [QWER] = LAYOUT_ergodox(
         _______, _______, _______, _______, _______, _______, _______,
-        _______, KC_Q   , KC_W   , MT_E   , MT_R   , KC_T   , _______,
-        _______, MT_A   , MT_S   , MT_D   , MT_F   , KC_G   ,
+        _______, KC_Q   , KC_W   , MT_Q_E , MT_Q_R , KC_T   , _______,
+        _______, MT_A , MT_Q_S , MT_Q_D , MT_Q_F , KC_G   ,
         _______, KC_Z   , KC_X   , KC_C   , KC_V   , KC_B   , _______,
         _______, _______, _______, _______, LT_MDIA,
                                                      _______, _______,
@@ -146,9 +166,29 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                             LT_NAVI, LT_MOUS, OS_LSFT,
 
         _______, _______, _______, _______, _______, _______, _______,
-        _______, KC_Y   , MT_U   , MT_I   , KC_O   , KC_P   , _______,
-                 KC_H   , MT_J   , MT_K   , MT_L   , MT_QUOT, _______,
+        _______, KC_Y   , MT_Q_U , MT_Q_I , KC_O   , KC_P   , _______,
+                 KC_H   , MT_Q_J , MT_Q_K , MT_Q_L , MT_Q_QT, _______,
         _______, KC_N   , KC_M   , KC_COMM, KC_DOT , KC_SLSH, _______,
+                          LS_SYMB, _______, _______, _______, _______,
+        _______, _______,
+        KC_FN  ,
+        KC_DEL , LT_FUNC, LT_NUMB
+    ),
+
+    [COLE] = LAYOUT_ergodox(
+        _______, _______, _______, _______, _______, _______, _______,
+        _______, KC_Q   , KC_W   , MT_C_F , MT_C_P , KC_B   , _______,
+        _______, MT_A , MT_C_R , MT_C_S , MT_C_T , KC_G   ,
+        _______, KC_Z   , KC_X   , KC_C   , KC_D   , KC_V   , _______,
+        _______, _______, _______, _______, LT_MDIA,
+                                                     _______, _______,
+                                                              _______,
+                                            LT_NAVI, LT_MOUS, OS_LSFT,
+
+        _______, _______, _______, _______, _______, _______, _______,
+        _______, KC_J   , MT_C_L , MT_C_U , KC_Y   , KC_QUOT, _______,
+                 KC_M   , MT_C_N , MT_C_E , MT_C_I , MT_C_O , _______,
+        _______, KC_K   , KC_H   , KC_COMM, KC_DOT , KC_SLSH, _______,
                           LS_SYMB, _______, _______, _______, _______,
         _______, _______,
         KC_FN  ,
@@ -199,7 +239,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         _______, _______, _______, _______, _______, _______, _______,
         _______, QK_BOOT, ZSA_USB, XXXXXXX, DM_REC1, DM_PLY1, _______,
         _______, KC_LCTL, KC_LALT, KC_LGUI, KC_LSFT, DM_RSTP,
-        _______, VRSN   , XXXXXXX, XXXXXXX, DM_REC2, DM_PLY2, _______,
+        _______, VRSN   , DF_COLE, DF_QWER, DM_REC2, DM_PLY2, _______,
         _______, _______, _______, _______, _______,
                                                      _______, _______,
                                                               _______,
@@ -309,14 +349,21 @@ uint8_t NUM_CUSTOM_SHIFT_KEYS = sizeof(custom_shift_keys) / sizeof(custom_shift_
 
 // Mod-tap settings
 uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
+    // Increase tapping term for ring and pinky fingers
     switch (keycode) {
-      case MT_A:
-      case MT_S:
-      case MT_L:
-      case MT_QUOT:
-          return g_tapping_term + 15;
-      default:
-          return g_tapping_term;
+        // A is same for both Qwerty and Colemak
+        case MT_A:
+        // Qwerty ring/pinky mod-taps
+        case MT_Q_S:
+        case MT_Q_L:
+        case MT_Q_QT:
+        // Colemak ring/pinky mod-taps
+        case MT_C_R:
+        case MT_C_I:
+        case MT_C_O:
+            return g_tapping_term + 15;
+        default:
+            return g_tapping_term;
     }
 }
 
@@ -325,10 +372,16 @@ bool get_permissive_hold(uint16_t keycode, keyrecord_t *record) {
         // Apply permissive hold to layer tap keys
         case QK_LAYER_TAP ... QK_LAYER_TAP_MAX:
         // Apply permissive hold to shift and cmd
-        case MT_D:
-        case MT_F:
-        case MT_J:
-        case MT_K:
+        // Qwerty shift and cmd mod-taps
+        case MT_Q_D:
+        case MT_Q_F:
+        case MT_Q_J:
+        case MT_Q_K:
+        // Colemak shift and cmd mod-taps
+        case MT_C_S:
+        case MT_C_T:
+        case MT_C_N:
+        case MT_C_E:
             return true;
         default:
             return false;
@@ -368,6 +421,7 @@ bool achordion_eager_mod(uint8_t mod) {
     case MOD_LGUI:
     case MOD_RGUI:
     case MOD_LALT:
+    case MOD_RALT:
       return true;  // Eagerly apply Shift, Cmd and Opt mods.
     default:
       return false;
@@ -402,7 +456,7 @@ void fix_leds_task(void) {
         ergodox_right_led_3_on();
     } else {
         uint8_t layer = get_highest_layer(layer_state);
-        if (layer != 3 && layer != 5 && layer != 6 && layer != 7) {
+        if (layer != MDIA && layer != SYMB && layer != SNUM && layer != FUNC) {
             ergodox_right_led_3_off();
         }
     }
@@ -411,7 +465,7 @@ void fix_leds_task(void) {
         ergodox_right_led_2_on();
     } else {
         uint8_t layer = get_highest_layer(layer_state);
-        if (layer != 2 && layer != 4 && layer != 6 && layer != 7) {
+        if (layer != MOUS && layer != NUMB && layer != SNUM && layer != FUNC) {
             ergodox_right_led_2_off();
         }
     }
@@ -425,28 +479,28 @@ void led_state_set(layer_state_t state) {
 
     uint8_t layer = get_highest_layer(state);
     switch (layer) {
-        case 1:
+        case NAVI:
             ergodox_right_led_1_on();
             break;
-        case 2:
+        case MOUS:
             ergodox_right_led_2_on();
             break;
-        case 3:
+        case MDIA:
             ergodox_right_led_3_on();
             break;
-        case 4:
+        case NUMB:
             ergodox_right_led_1_on();
             ergodox_right_led_2_on();
             break;
-        case 5:
+        case SYMB:
             ergodox_right_led_1_on();
             ergodox_right_led_3_on();
             break;
-        case 6:
+        case SNUM:
             ergodox_right_led_2_on();
             ergodox_right_led_3_on();
             break;
-        case 7:
+        case FUNC:
             ergodox_right_led_1_on();
             ergodox_right_led_2_on();
             ergodox_right_led_3_on();
@@ -489,7 +543,14 @@ void keyboard_post_init_user(void) {
 }
 
 const bool PROGMEM rgb_on[][RGB_MATRIX_LED_COUNT] = {
-    [BASE] = LED_LAYOUT_ergodox_pretty(
+    [QWER] = LED_LAYOUT_ergodox_pretty(
+        false, false, false, false, false,    false, false, false, false, false,
+        true , true , true , true , true ,    true , true , true , true , true ,
+        true , true , true , true , true ,    true , true , true , true , true ,
+        true , true , true , true , true ,    true , true , true , true , true ,
+        false, false, false, true ,                  true , false, false, false
+    ),
+    [COLE] = LED_LAYOUT_ergodox_pretty(
         false, false, false, false, false,    false, false, false, false, false,
         true , true , true , true , true ,    true , true , true , true , true ,
         true , true , true , true , true ,    true , true , true , true , true ,
@@ -548,7 +609,8 @@ const bool PROGMEM rgb_on[][RGB_MATRIX_LED_COUNT] = {
 };
 
 const uint8_t PROGMEM rgb_colors[][3] = {
-    [BASE] = {8, 255, 255},
+    [QWER] = {8, 255, 255},
+    [COLE] = {8, 255, 255},
     [NAVI] = {163, 218, 204},
     [MOUS] = {122, 255, 255},
     [MDIA] = {41, 255, 255},
@@ -585,7 +647,7 @@ bool rgb_matrix_indicators_user(void) {
         return false;
     }
     switch (biton32(layer_state)) {
-        case BASE ... FUNC:
+        case QWER ... FUNC:
             set_layer_rgb_colors(biton32(layer_state));
             break;
         default:
