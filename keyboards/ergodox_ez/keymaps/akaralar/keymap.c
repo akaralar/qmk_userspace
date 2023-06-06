@@ -19,8 +19,6 @@
 
 // For more info about achordion, see https://getreuer.info/posts/keyboards/achordion/index.html
 #include "features/achordion.h"
-// For more info about custom shift keys, see https://getreuer.info/posts/keyboards/custom-shift-keys/index.html
-#include "features/custom_shift_keys.h"
 
 enum layers {
     QWER, // default qwerty layer
@@ -338,15 +336,6 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 // clang-format on
 
-// Custom shift keys for ? and ! in the alpha layer
-const custom_shift_key_t custom_shift_keys[] = {
-  {KC_COMM, KC_QUES}, // Shift + , is ?
-  {KC_DOT, KC_EXLM}, // Shift + . is !
-  {KC_SLSH, KC_SLSH}, // Shift + / is nothing
-};
-
-uint8_t NUM_CUSTOM_SHIFT_KEYS = sizeof(custom_shift_keys) / sizeof(custom_shift_key_t);
-
 // Mod-tap settings
 uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
     // Increase tapping term for ring and pinky fingers
@@ -514,9 +503,6 @@ void led_state_set(layer_state_t state) {
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     // Pass the keycode and record to achordion for tap-hold decision
     if (!process_achordion(keycode, record)) { return false; }
-
-    // Process custom shift keys
-    if (!process_custom_shift_keys(keycode, record)) { return false; }
 
     // Process custom keycodes defined in this file
     if (!process_custom_keycodes(keycode, record)) { return false; }
