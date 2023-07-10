@@ -39,6 +39,14 @@ enum C_keycodes {
     VRSN = SAFE_RANGE,
 #endif
     RGB_SLD,
+    // Increase/decrease the difference from tapping term for ring/pinky fingers
+    DT_R_UP,
+    DT_R_DN,
+    // Increase/decrease the difference from tapping term for index fingers
+    DT_I_UP,
+    DT_I_DN,
+    // Print all the differences and the tapping term
+    DT_PALL
 };
 
 // macOS keycodes
@@ -109,6 +117,8 @@ enum C_keycodes {
 #define TH_QE MEH(KC_T)                 // Things quick entry
 #define TH_QEAF HYPR(KC_T)              // Things quick entry with autofill
 
+uint16_t index_tap_term_diff = 15;
+uint16_t ring_pinky_tap_term_diff = 15;
 
 // clang-format off
 
@@ -324,9 +334,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                             KC_SPC , KC_TAB , _______,
 
         _______, _______, _______, _______, _______, _______, _______,
-        _______, XXXXXXX, DT_UP  , XXXXXXX, XXXXXXX, XXXXXXX, _______,
-                 DT_PRNT, KC_RSFT, KC_RGUI, KC_LALT, KC_RCTL, _______,
-        _______, XXXXXXX, DT_DOWN, XXXXXXX, XXXXXXX, XXXXXXX, _______,
+        _______, XXXXXXX, DT_I_UP, DT_UP  , DT_R_UP, XXXXXXX, _______,
+                 DT_PALL, KC_RSFT, KC_RGUI, KC_LALT, KC_RCTL, _______,
+        _______, XXXXXXX, DT_I_DN, DT_DOWN, DT_R_DN, XXXXXXX, _______,
                           _______, _______, _______, _______, _______,
         _______, _______,
         _______,
@@ -338,8 +348,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 // Mod-tap settings
 uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
-    // Increase tapping term for ring and pinky fingers
     switch (keycode) {
+        // Increase tapping term for ring and pinky fingers
         // A is same for both Qwerty and Colemak
         case MT_A:
         // Qwerty ring/pinky mod-taps
@@ -350,7 +360,15 @@ uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
         case MT_C_R:
         case MT_C_I:
         case MT_C_O:
-            return g_tapping_term + 15;
+            return g_tapping_term + ring_pinky_tap_term_diff;
+        // Decrease tapping term for index fingers
+        // Qwerty index mod-taps
+        case MT_Q_F:
+        case MT_Q_J:
+        // Colemak index mod-taps
+        case MT_C_T:
+        case MT_C_N:
+            return g_tapping_term - index_tap_term_diff;
         default:
             return g_tapping_term;
     }
@@ -417,6 +435,21 @@ bool achordion_eager_mod(uint8_t mod) {
   }
 }
 
+static const char* get_tapping_term_str(uint16_t diff) {
+    const char *diff_str = get_u16_str(diff, ' ');
+    // Skip padding spaces
+    while (*diff_str == ' ') {
+        diff_str++;
+    }
+    return diff_str;
+}
+
+static void send_string_if_enabled(const char *string) {
+#ifdef SEND_STRING_ENABLE
+    send_string(string);
+#endif
+}
+
 // Custom keycode handling
 bool process_custom_keycodes(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
@@ -429,10 +462,39 @@ bool process_custom_keycodes(uint16_t keycode, keyrecord_t *record) {
             return false;
         case VRSN:
             if (record->event.pressed) {
-                SEND_STRING(QMK_KEYBOARD "/" QMK_KEYMAP " @ " QMK_VERSION);
-                return false;
+                send_string_if_enabled(QMK_KEYBOARD "/" QMK_KEYMAP " @ " QMK_VERSION);
             }
+            return false;
+        case DT_I_UP:
+            if (record->event.pressed) {
+                index_tap_term_diff += DYNAMIC_TAPPING_TERM_INCREMENT;
+            }
+            return false;
+        case DT_I_DN:
+            if (record->event.pressed) {
+                index_tap_term_diff -= DYNAMIC_TAPPING_TERM_INCREMENT;
+            }
+            return false;
+        case DT_R_UP:
+            if (record->event.pressed) {
+                ring_pinky_tap_term_diff += DYNAMIC_TAPPING_TERM_INCREMENT;
+            }
+            return false;
 
+        case DT_R_DN:
+            if (record->event.pressed) {
+                ring_pinky_tap_term_diff -= DYNAMIC_TAPPING_TERM_INCREMENT;
+            }
+            return false;
+        case DT_PALL:
+            if (record->event.pressed) {
+                send_string_if_enabled(get_tapping_term_str(g_tapping_term));
+                send_string_if_enabled(", i: ");
+                send_string_if_enabled(get_tapping_term_str(index_tap_term_diff));
+                send_string_if_enabled(", rp: ");
+                send_string_if_enabled(get_tapping_term_str(ring_pinky_tap_term_diff));
+            }
+            return false;
         default:
             return true;
     }
