@@ -108,7 +108,7 @@ enum C_keycodes {
 #define ONEP_AF LGUI(LSFT(KC_BSLS))     // 1password autofill
 #define TH_QE MEH(KC_T)                 // Things quick entry
 #define TH_QEAF HYPR(KC_T)              // Things quick entry with autofill
-#define MAC_HDN LGUI(LSFT(KC_DOT))      // Toggle hidden files in macOS
+
 
 // clang-format off
 
@@ -156,7 +156,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [QWER] = LAYOUT_ergodox(
         _______, _______, _______, _______, _______, _______, _______,
         _______, KC_Q   , KC_W   , MT_Q_E , MT_Q_R , KC_T   , _______,
-        _______, MT_A , MT_Q_S , MT_Q_D , MT_Q_F , KC_G   ,
+        _______, MT_A   , MT_Q_S , MT_Q_D , MT_Q_F , KC_G   ,
         _______, KC_Z   , KC_X   , KC_C   , KC_V   , KC_B   , _______,
         _______, _______, _______, _______, LT_MDIA,
                                                      _______, _______,
@@ -176,7 +176,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [COLE] = LAYOUT_ergodox(
         _______, _______, _______, _______, _______, _______, _______,
         _______, KC_Q   , KC_W   , MT_C_F , MT_C_P , KC_B   , _______,
-        _______, MT_A , MT_C_R , MT_C_S , MT_C_T , KC_G   ,
+        _______, MT_A   , MT_C_R , MT_C_S , MT_C_T , KC_G   ,
         _______, KC_Z   , KC_X   , KC_C   , KC_D   , KC_V   , _______,
         _______, _______, _______, _______, LT_MDIA,
                                                      _______, _______,
@@ -217,7 +217,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         _______, _______, _______, _______, _______, _______, _______,
         _______, XXXXXXX, XXXXXXX, ALF_ACT, ALF_NAV, MOOM   , _______,
         _______, KC_LCTL, KC_LALT, KC_LGUI, KC_LSFT, ONEP_QA,
-        _______, XXXXXXX, MAC_HDN, TH_QE  , TH_QEAF, ONEP_AF, _______,
+        _______, XXXXXXX, _______, TH_QE  , TH_QEAF, ONEP_AF, _______,
         _______, _______, _______, _______, _______,
                                                      _______, _______,
                                                               _______,
