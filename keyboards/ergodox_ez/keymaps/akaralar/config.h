@@ -19,9 +19,12 @@
 
 // Tap-hold configuration for home row mods.
 #undef TAPPING_TERM
-#define TAPPING_TERM 175
+#define TAPPING_TERM 180
 #define TAPPING_TERM_PER_KEY
 #define PERMISSIVE_HOLD_PER_KEY
+
+// Retro tapping for "=" key in symbol layer to switch to number layer
+#define RETRO_TAPPING_PER_KEY
 
 // Turn keyboard lights off after 5 minutes
 #define RGB_MATRIX_TIMEOUT 300000
