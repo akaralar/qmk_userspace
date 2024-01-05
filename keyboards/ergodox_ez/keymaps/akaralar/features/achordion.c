@@ -21,6 +21,7 @@
  */
 
 #include "achordion.h"
+#include "process_auto_shift.h"
 
 #if !defined(IS_QK_MOD_TAP)
 // Attempt to detect out-of-date QMK installation, which would fail with
@@ -132,7 +133,7 @@ bool process_achordion(uint16_t keycode, keyrecord_t* record) {
 
   if (keycode == tap_hold_keycode && !record->event.pressed) {
     // The active tap-hold key is being released.
-    if (achordion_state == STATE_HOLDING) {
+    if (achordion_state == STATE_HOLDING || IS_RETRO(tap_hold_keycode)) {
       dprintln("Achordion: Key released. Plumbing hold release.");
       tap_hold_record.event.pressed = false;
       // Plumb hold release event.
