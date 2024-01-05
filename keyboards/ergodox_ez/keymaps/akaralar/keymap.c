@@ -117,7 +117,7 @@ enum C_keycodes {
 #define TH_QE MEH(KC_T)                 // Things quick entry
 #define TH_QEAF HYPR(KC_T)              // Things quick entry with autofill
 
-uint16_t index_tap_term_diff = 15;
+uint16_t index_tap_term_diff = 20;
 uint16_t ring_pinky_tap_term_diff = 15;
 
 // clang-format off
@@ -395,6 +395,15 @@ bool get_permissive_hold(uint16_t keycode, keyrecord_t *record) {
     }
 }
 
+bool get_retro_tapping(uint16_t keycode, keyrecord_t *record) {
+    switch (keycode) {
+        case LT_SNUM:
+            return true;
+        default:
+            return false;
+    }
+}
+
 // Achordion
 bool achordion_chord(uint16_t tap_hold_keycode,
                     keyrecord_t *tap_hold_record,
@@ -423,13 +432,14 @@ uint16_t achordion_timeout(uint16_t tap_hold_keycode) {
 
 bool achordion_eager_mod(uint8_t mod) {
   switch (mod) {
+    // Eagerly apply Shift, Cmd and Opt mods.
     case MOD_LSFT:
     case MOD_RSFT:
     case MOD_LGUI:
     case MOD_RGUI:
     case MOD_LALT:
     case MOD_RALT:
-      return true;  // Eagerly apply Shift, Cmd and Opt mods.
+      return true;
     default:
       return false;
   }
