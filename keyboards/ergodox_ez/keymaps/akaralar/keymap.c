@@ -577,10 +577,6 @@ void led_state_set(layer_state_t state) {
 
 // User space functions
 
-void keyboard_post_init_user(void) {
-    enable_debug();
-}
-
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     // Pass the keycode and record to achordion for tap-hold decision
     if (!process_achordion(keycode, record)) { return false; }
@@ -630,6 +626,9 @@ void matrix_scan_user() {
 
 void keyboard_post_init_user(void) {
     rgb_matrix_enable();
+#ifdef CONSOLE_ENABLE
+    enable_debug();
+#endif
 }
 
 const bool PROGMEM rgb_on[][RGB_MATRIX_LED_COUNT] = {
