@@ -20,6 +20,10 @@
 // For more info about achordion, see https://getreuer.info/posts/keyboards/achordion/index.html
 #include "features/achordion.h"
 
+#ifdef CONSOLE_ENABLE
+#include "features/debug_helper.h"
+#endif
+
 enum layers {
     QWER, // default qwerty layer
     COLE, // default colemak layer
@@ -572,6 +576,11 @@ void led_state_set(layer_state_t state) {
 }
 
 // User space functions
+
+void keyboard_post_init_user(void) {
+    enable_debug();
+}
+
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     // Pass the keycode and record to achordion for tap-hold decision
     if (!process_achordion(keycode, record)) { return false; }
