@@ -12,3 +12,4 @@ SRC += features/achordion.c
 CAPS_WORD_ENABLE = yes
 RGB_MATRIX_ENABLE = yes
 DYNAMIC_TAPPING_TERM_ENABLE = yes
+UNICODE_ENABLE = no

@@ -26,6 +26,7 @@
 
 enum layers {
     QWER, // default qwerty layer
+    BARE, // Only letters without modtaps
     COLE, // default colemak layer
     NAVI, // navigation layer
     MOUS, // mouse layer
@@ -103,6 +104,7 @@ enum C_keycodes {
 
 // Layer switching
 #define LS_SYMB MO(SYMB)
+#define LS_BARE TT(BARE)
 
 // Changing default layer
 #define DF_QWER DF(QWER)
@@ -174,7 +176,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         _______, KC_Z   , KC_X   , KC_C   , KC_V   , KC_B   , _______,
         _______, _______, _______, _______, LT_MDIA,
                                                      _______, _______,
-                                                              _______,
+                                                              LS_BARE,
                                             LT_NAVI, LT_MOUS, OS_LSFT,
 
         _______, _______, _______, _______, _______, _______, _______,
@@ -185,6 +187,26 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         _______, _______,
         KC_FN  ,
         KC_DEL , LT_FUNC, LT_NUMB
+    ),
+
+    [BARE] = LAYOUT_ergodox(
+        _______, _______, _______, _______, _______, _______, _______,
+        _______, _______, _______, KC_E   , _______, _______, _______,
+        _______, KC_A   , KC_S   , _______, _______, _______,
+        _______, _______, _______, _______, _______, _______, _______,
+        _______, _______, _______, _______, _______,
+                                                     _______, _______,
+                                                              _______,
+                                            _______, _______, _______,
+
+        _______, _______, _______, _______, _______, _______, _______,
+        _______, _______, KC_U   , KC_I   , _______, _______, _______,
+                 _______, _______, _______, _______, _______, _______,
+        _______, _______, _______, _______, _______, _______, _______,
+                          _______, _______, _______, _______, _______,
+        _______, _______,
+        _______,
+        _______, _______, _______
     ),
 
     [COLE] = LAYOUT_ergodox(
@@ -275,7 +297,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         _______, _______, _______, _______, KC_0   ,
                                                      _______, _______,
                                                               _______,
-                                           _______, KC_MINUS, _______,
+                                            _______, KC_MINS, _______,
 
         _______, _______, _______, _______, _______, _______, _______,
         _______, XXXXXXX, KC_HYPR, KC_MEH , KC_RALT, XXXXXXX, _______,
@@ -401,6 +423,7 @@ bool get_permissive_hold(uint16_t keycode, keyrecord_t *record) {
 
 bool get_retro_tapping(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
+        // Enable retro tapping for "=" / snum layer switch key
         case LT_SNUM:
             return true;
         default:
@@ -514,28 +537,7 @@ bool process_custom_keycodes(uint16_t keycode, keyrecord_t *record) {
     }
 }
 
-// LED light behaviour for Caps Lock & Caps Word
-void fix_leds_task(void) {
-    led_t led_state = host_keyboard_led_state();
-    if (led_state.caps_lock) {
-        ergodox_right_led_3_on();
-    } else {
-        uint8_t layer = get_highest_layer(layer_state);
-        if (layer != MDIA && layer != SYMB && layer != SNUM && layer != FUNC) {
-            ergodox_right_led_3_off();
-        }
-    }
-
-    if (is_caps_word_on()) {
-        ergodox_right_led_2_on();
-    } else {
-        uint8_t layer = get_highest_layer(layer_state);
-        if (layer != MOUS && layer != NUMB && layer != SNUM && layer != FUNC) {
-            ergodox_right_led_2_off();
-        }
-    }
-}
-
+// LED lights
 void led_state_set(layer_state_t state) {
     ergodox_board_led_off();
     ergodox_right_led_1_off();
@@ -570,10 +572,37 @@ void led_state_set(layer_state_t state) {
             ergodox_right_led_2_on();
             ergodox_right_led_3_on();
             break;
+        case BARE:
+            ergodox_right_led_1_on();
+            ergodox_right_led_2_on();
+            ergodox_right_led_3_on();
         default:
             break;
     }
 }
+
+// Fix LED lights behaviour for Caps Lock & Caps Word
+void fix_leds_task(void) {
+    led_t led_state = host_keyboard_led_state();
+    if (led_state.caps_lock) {
+        ergodox_right_led_3_on();
+    } else {
+        uint8_t layer = get_highest_layer(layer_state);
+        if (layer != MDIA && layer != SYMB && layer != SNUM && layer != FUNC && layer != BARE) {
+            ergodox_right_led_3_off();
+        }
+    }
+
+    if (is_caps_word_on()) {
+        ergodox_right_led_2_on();
+    } else {
+        uint8_t layer = get_highest_layer(layer_state);
+        if (layer != MOUS && layer != NUMB && layer != SNUM && layer != FUNC && layer != BARE) {
+            ergodox_right_led_2_off();
+        }
+    }
+}
+
 
 // User space functions
 
@@ -639,6 +668,13 @@ const bool PROGMEM rgb_on[][RGB_MATRIX_LED_COUNT] = {
         true , true , true , true , true ,    true , true , true , true , true ,
         false, false, false, true ,                  true , false, false, false
     ),
+    [BARE] = LED_LAYOUT_ergodox_pretty(
+        false, false, false, false, false,    false, false, false, false, false,
+        false, false, true , false, false,    false, true , true , false, false,
+        true , true , false, false, false,    false, false, false, false, false,
+        false, false, false, false, false,    false, false, false, false, false,
+        false, false, false, false ,                false , false, false, false
+    ),
     [COLE] = LED_LAYOUT_ergodox_pretty(
         false, false, false, false, false,    false, false, false, false, false,
         true , true , true , true , true ,    true , true , true , true , true ,
@@ -699,6 +735,7 @@ const bool PROGMEM rgb_on[][RGB_MATRIX_LED_COUNT] = {
 
 const uint8_t PROGMEM rgb_colors[][3] = {
     [QWER] = {8, 255, 255},
+    [BARE] = {8, 255, 255},
     [COLE] = {8, 255, 255},
     [NAVI] = {163, 218, 204},
     [MOUS] = {122, 255, 255},
