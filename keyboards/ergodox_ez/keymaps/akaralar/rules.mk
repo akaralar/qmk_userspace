@@ -9,6 +9,7 @@ DYNAMIC_MACRO_ENABLE = yes
 PROGRAMMABLE_BUTTON_ENABLE = no
 SRC = matrix.c
 SRC += features/achordion.c
+SRC += features/debug_helper.c
 CAPS_WORD_ENABLE = yes
 RGB_MATRIX_ENABLE = yes
 DYNAMIC_TAPPING_TERM_ENABLE = yes
