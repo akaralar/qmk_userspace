@@ -606,6 +606,21 @@ void fix_leds_task(void) {
 
 // User space functions
 
+void keyboard_post_init_user(void) {
+#if RGB_MATRIX_ENABLE
+    rgb_matrix_enable();
+#endif
+
+#if CONSOLE_ENABLE
+    enable_debug_user();
+#endif
+};
+
+void matrix_scan_user() {
+    achordion_task();
+    fix_leds_task();
+};
+
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     // Pass the keycode and record to achordion for tap-hold decision
     if (!process_achordion(keycode, record)) { return false; }
@@ -620,11 +635,6 @@ layer_state_t layer_state_set_user(layer_state_t state) {
     led_state_set(state);
     return state;
 };
-
-void matrix_scan_user() {
-    achordion_task();
-    fix_leds_task();
-}
 
 /*  This part is related to RGB matrix and fails to compile if the board has
     RGB matrix disabled */
@@ -653,12 +663,6 @@ void matrix_scan_user() {
            L44, L43, L42, L41                     \
     }
 
-void keyboard_post_init_user(void) {
-    rgb_matrix_enable();
-#ifdef CONSOLE_ENABLE
-    enable_debug();
-#endif
-}
 
 const bool PROGMEM rgb_on[][RGB_MATRIX_LED_COUNT] = {
     [QWER] = LED_LAYOUT_ergodox_pretty(
