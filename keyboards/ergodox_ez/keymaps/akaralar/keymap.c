@@ -123,9 +123,6 @@ enum C_keycodes {
 #define TH_QE MEH(KC_T)                 // Things quick entry
 #define TH_QEAF HYPR(KC_T)              // Things quick entry with autofill
 
-uint16_t index_tap_term_diff = 20;
-uint16_t ring_pinky_tap_term_diff = 15;
-
 // clang-format off
 
 /* Matrix positions in Column:Row format
@@ -373,6 +370,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 // clang-format on
 
 // Mod-tap settings
+
+uint16_t index_tap_term_diff = 20;
+uint16_t ring_pinky_tap_term_diff = 15;
+
 uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
         // Increase tapping term for ring and pinky fingers
@@ -398,7 +399,7 @@ uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
         default:
             return g_tapping_term;
     }
-}
+};
 
 bool get_permissive_hold(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
@@ -419,7 +420,7 @@ bool get_permissive_hold(uint16_t keycode, keyrecord_t *record) {
         default:
             return false;
     }
-}
+};
 
 bool get_retro_tapping(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
@@ -429,7 +430,7 @@ bool get_retro_tapping(uint16_t keycode, keyrecord_t *record) {
         default:
             return false;
     }
-}
+};
 
 // Achordion
 bool achordion_chord(uint16_t tap_hold_keycode,
@@ -470,7 +471,7 @@ bool achordion_eager_mod(uint8_t mod) {
     default:
       return false;
   }
-}
+};
 
 static const char* get_tapping_term_str(uint16_t diff) {
     const char *diff_str = get_u16_str(diff, ' ');
@@ -479,13 +480,13 @@ static const char* get_tapping_term_str(uint16_t diff) {
         diff_str++;
     }
     return diff_str;
-}
+};
 
 static void send_string_if_enabled(const char *string) {
 #ifdef SEND_STRING_ENABLE
     send_string(string);
 #endif
-}
+};
 
 // Custom keycode handling
 bool process_custom_keycodes(uint16_t keycode, keyrecord_t *record) {
@@ -535,7 +536,7 @@ bool process_custom_keycodes(uint16_t keycode, keyrecord_t *record) {
         default:
             return true;
     }
-}
+};
 
 // LED lights
 void led_state_set(layer_state_t state) {
@@ -579,7 +580,7 @@ void led_state_set(layer_state_t state) {
         default:
             break;
     }
-}
+};
 
 // Fix LED lights behaviour for Caps Lock & Caps Word
 void fix_leds_task(void) {
@@ -601,7 +602,7 @@ void fix_leds_task(void) {
             ergodox_right_led_2_off();
         }
     }
-}
+};
 
 
 // User space functions
@@ -629,7 +630,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     if (!process_custom_keycodes(keycode, record)) { return false; }
 
     return true;
-}
+};
 
 layer_state_t layer_state_set_user(layer_state_t state) {
     led_state_set(state);
@@ -770,7 +771,7 @@ void set_layer_rgb_colors(int layer) {
             }
         }
     }
-}
+};
 
 bool rgb_matrix_indicators_user(void) {
     if (keyboard_config.disable_layer_led) {
@@ -788,7 +789,7 @@ bool rgb_matrix_indicators_user(void) {
     }
 
     return false;
-}
+};
 
 // End block related to RGB features
 #endif
