@@ -20,6 +20,9 @@
 // For more info about achordion, see https://getreuer.info/posts/keyboards/achordion/index.html
 #include "features/achordion.h"
 
+// For more info about custom shift keys, see https://getreuer.info/posts/keyboards/custom-shift-keys/index.html
+#include "features/custom_shift_keys.h"
+
 #ifdef CONSOLE_ENABLE
 #include "features/debug_helper.h"
 #endif
@@ -369,8 +372,15 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 // clang-format on
 
-// Mod-tap settings
+// Custom shift keys
+const custom_shift_key_t custom_shift_keys[] = {
+  {LT_NUMB , KC_DEL}, // Shift backspace is delete
+};
 
+uint8_t NUM_CUSTOM_SHIFT_KEYS =
+    sizeof(custom_shift_keys) / sizeof(custom_shift_key_t);
+
+// Mod-tap settings
 uint16_t index_tap_term_diff = 20;
 uint16_t ring_pinky_tap_term_diff = 15;
 
@@ -623,6 +633,9 @@ void matrix_scan_user() {
 };
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+    // Passs the keycode and record to custom shift keys
+    if (!process_custom_shift_keys(keycode, record)) { return false; }
+
     // Pass the keycode and record to achordion for tap-hold decision
     if (!process_achordion(keycode, record)) { return false; }
 
