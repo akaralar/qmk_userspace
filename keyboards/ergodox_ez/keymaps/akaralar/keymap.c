@@ -23,6 +23,9 @@
 // For more info about custom shift keys, see https://getreuer.info/posts/keyboards/custom-shift-keys/index.html
 #include "features/custom_shift_keys.h"
 
+// For more info about casemodes, see https://github.com/andrewjrae/kyria-keymap/
+#include "features/casemodes.h"
+
 #ifdef CONSOLE_ENABLE
 #include "features/debug_helper.h"
 #endif
@@ -54,7 +57,10 @@ enum C_keycodes {
     DT_I_UP,
     DT_I_DN,
     // Print all the differences and the tapping term
-    DT_PALL
+    DT_PALL,
+
+    // Keycode for activating casemodes
+    CM_TOGL
 };
 
 // macOS keycodes
@@ -176,8 +182,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         _______, KC_Z   , KC_X   , KC_C   , KC_V   , KC_B   , _______,
         _______, _______, _______, _______, LT_MDIA,
                                                      _______, _______,
-                                                              LS_BARE,
-                                            LT_NAVI, LT_MOUS, OS_LSFT,
+                                                              OS_LSFT,
+                                            LT_NAVI, LT_MOUS, LS_BARE,
 
         _______, _______, _______, _______, _______, _______, _______,
         _______, KC_Y   , MT_Q_U , MT_Q_I , KC_O   , KC_P   , _______,
@@ -185,8 +191,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         _______, KC_N   , KC_M   , KC_COMM, KC_DOT , KC_SLSH, _______,
                           LS_SYMB, _______, _______, _______, _______,
         _______, _______,
-        KC_FN  ,
-        KC_DEL , LT_FUNC, LT_NUMB
+        CM_TOGL,
+        KC_FN  , LT_FUNC, LT_NUMB
     ),
 
     [BARE] = LAYOUT_ergodox(
@@ -216,8 +222,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         _______, KC_Z   , KC_X   , KC_C   , KC_D   , KC_V   , _______,
         _______, _______, _______, _______, LT_MDIA,
                                                      _______, _______,
-                                                              _______,
-                                            LT_NAVI, LT_MOUS, OS_LSFT,
+                                                              OS_LSFT,
+                                            LT_NAVI, LT_MOUS, LS_BARE,
 
         _______, _______, _______, _______, _______, _______, _______,
         _______, KC_J   , MT_C_L , MT_C_U , KC_Y   , KC_QUOT, _______,
@@ -225,8 +231,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         _______, KC_K   , KC_H   , KC_COMM, KC_DOT , KC_SLSH, _______,
                           LS_SYMB, _______, _______, _______, _______,
         _______, _______,
-        KC_FN  ,
-        KC_DEL , LT_FUNC, LT_NUMB
+        CM_TOGL,
+        KC_FN  , LT_FUNC, LT_NUMB
     ),
 
     [NAVI] = LAYOUT_ergodox(
@@ -497,6 +503,31 @@ static void send_string_if_enabled(const char *string) {
     send_string(string);
 #endif
 };
+
+// Casemodes
+bool terminate_case_modes(uint16_t keycode, const keyrecord_t *record) {
+    switch (keycode) {
+        // Keycodes to ignore (don't disable case modes)
+        case KC_A ... KC_Z:
+        case KC_1 ... KC_0:
+        case KC_MINS:
+        case KC_UNDS:
+        case KC_BSPC:
+        case KC_DEL:
+        case CM_TOGL:
+            // If mod chording disable the mods
+            if (record->event.pressed && (get_mods() != 0)) {
+                return true;
+            }
+            break;
+        default:
+            if (record->event.pressed) {
+                return true;
+            }
+            break;
+    }
+    return false;
+}
 
 // Custom keycode handling
 bool process_custom_keycodes(uint16_t keycode, keyrecord_t *record) {

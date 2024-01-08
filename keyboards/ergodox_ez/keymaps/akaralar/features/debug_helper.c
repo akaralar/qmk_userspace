@@ -2,9 +2,16 @@
 #include  "print.h"
 
 uint16_t counter = 0;
-void debug_print(uint16_t keycode, keyrecord_t *record, const char* prefix) {
+void prefixed_print(uint16_t keycode, keyrecord_t *record, const char* prefix) {
 #ifdef CONSOLE_ENABLE
     uprintf("%2u %s kc: 0x%04X, col: %2u, row: %2u, pressed: %u, time: %5u, int: %u, count: %u, type: %u\n", counter, prefix, keycode, record->event.key.col, record->event.key.row, record->event.pressed, record->event.time, record->tap.interrupted, record->tap.count, record->event.type);
+    counter++;
+#endif
+}
+
+void prefixed_print_layer(layer_state_t state, const char* prefix) {
+#ifdef CONSOLE_ENABLE
+    uprintf("%2u %s layer: %2u\n", counter, prefix, state);
     counter++;
 #endif
 }
