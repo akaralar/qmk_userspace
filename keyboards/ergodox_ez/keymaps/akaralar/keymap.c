@@ -637,6 +637,16 @@ layer_state_t layer_state_set_user(layer_state_t state) {
     return state;
 };
 
+// Add empty functions for Magic Keycodes to save some space
+// see https://docs.qmk.fm/#/squeezing_avr?id=magic-functions
+uint16_t keycode_config(uint16_t keycode) {
+    return keycode;
+}
+
+uint8_t mod_config(uint8_t mod) {
+    return mod;
+}
+
 /*  This part is related to RGB matrix and fails to compile if the board has
     RGB matrix disabled */
 
