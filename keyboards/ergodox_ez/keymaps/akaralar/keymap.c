@@ -378,15 +378,20 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 // clang-format on
 
+//------------------------------------------------------------------------------
 // Custom shift keys
+//------------------------------------------------------------------------------
 const custom_shift_key_t custom_shift_keys[] = {
-  {LT_NUMB , KC_DEL}, // Shift backspace is delete
+  {LT_NUMB , KC_DEL}, // Shift + LT Backspace is delete
+  {KC_BSPC , KC_DEL}, // Shift + Normal backspace is delete
 };
 
 uint8_t NUM_CUSTOM_SHIFT_KEYS =
     sizeof(custom_shift_keys) / sizeof(custom_shift_key_t);
 
+//------------------------------------------------------------------------------
 // Mod-tap settings
+//------------------------------------------------------------------------------
 uint16_t index_tap_term_diff = 20;
 uint16_t ring_pinky_tap_term_diff = 15;
 
@@ -448,7 +453,9 @@ bool get_retro_tapping(uint16_t keycode, keyrecord_t *record) {
     }
 };
 
+//------------------------------------------------------------------------------
 // Achordion
+//------------------------------------------------------------------------------
 bool achordion_chord(uint16_t tap_hold_keycode,
                     keyrecord_t *tap_hold_record,
                     uint16_t other_keycode,
@@ -489,22 +496,18 @@ bool achordion_eager_mod(uint8_t mod) {
   }
 };
 
-static const char* get_tapping_term_str(uint16_t diff) {
-    const char *diff_str = get_u16_str(diff, ' ');
-    // Skip padding spaces
-    while (*diff_str == ' ') {
-        diff_str++;
-    }
-    return diff_str;
-};
-
-static void send_string_if_enabled(const char *string) {
-#ifdef SEND_STRING_ENABLE
-    send_string(string);
-#endif
-};
-
+//------------------------------------------------------------------------------
 // Casemodes
+//------------------------------------------------------------------------------
+
+enum case_mode {
+    CASE_SNAKE,
+    CASE_KEBAB,
+    CASE_CAMEL,
+};
+
+static enum case_mode case_mode = -1;
+
 bool terminate_case_modes(uint16_t keycode, const keyrecord_t *record) {
     switch (keycode) {
         // Keycodes to ignore (don't disable case modes)
@@ -529,21 +532,116 @@ bool terminate_case_modes(uint16_t keycode, const keyrecord_t *record) {
     return false;
 }
 
+//------------------------------------------------------------------------------
+// LED lights
+//------------------------------------------------------------------------------
+void led_state_set(layer_state_t state) {
+    ergodox_board_led_off();
+    ergodox_right_led_1_off();
+    ergodox_right_led_2_off();
+    ergodox_right_led_3_off();
+
+    uint8_t layer = get_highest_layer(layer_state);
+    switch (layer) {
+        case NAVI: {
+            ergodox_right_led_1_on();
+            break;
+        }
+        case BARE: {
+            ergodox_right_led_1_on();
+            ergodox_right_led_2_on();
+            ergodox_right_led_3_on();
+            break;
+        }
+        case MOUS: {
+            ergodox_right_led_2_on();
+            break;
+        }
+        case MDIA: {
+            ergodox_right_led_3_on();
+            break;
+        }
+        case NUMB: {
+            ergodox_right_led_1_on();
+            ergodox_right_led_2_on();
+            break;
+        }
+        case SYMB: {
+            ergodox_right_led_1_on();
+            ergodox_right_led_3_on();
+            break;
+        }
+        case SNUM: {
+            ergodox_right_led_2_on();
+            ergodox_right_led_3_on();
+            break;
+        }
+        case FUNC: {
+            ergodox_right_led_1_on();
+            ergodox_right_led_2_on();
+            ergodox_right_led_3_on();
+            break;
+        }
+        default:
+            break;
+    }
+
+    // Fix LED lights behaviour for Caps Lock
+    led_t led_state = host_keyboard_led_state();
+    if (led_state.caps_lock) {
+        ergodox_right_led_3_on();
+    }
+
+    // Fix LED lights behaviour for Caps Word
+    if (is_caps_word_on()) {
+        ergodox_right_led_2_on();
+    }
+
+    // Fix LED lights behaviour for case modes
+    if (get_xcase_state() != XCASE_OFF) {
+        switch (case_mode) {
+            case CASE_CAMEL:
+                ergodox_right_led_1_on();
+                break;
+            case CASE_SNAKE:
+                ergodox_right_led_2_on();
+                break;
+            case CASE_KEBAB:
+                ergodox_right_led_3_on();
+                break;
+            default:
+                break;
+        }
+    }
+};
+
+// Fix LED lights behaviour for when other things affect LEDs (like Caps Lock &
+// Caps Word and case modes)
+void fix_leds_task(void) {
+    led_state_set(layer_state);
+};
+
+//------------------------------------------------------------------------------
 // Custom keycode handling
-bool process_custom_keycodes(uint16_t keycode, keyrecord_t *record) {
-    switch (keycode) {
-        case RGB_SLD:
-            if (record->event.pressed) {
-#ifdef RGB_MATRIX_ENABLE
-                rgblight_mode(1);
+//------------------------------------------------------------------------------
+
+static const char* to_string(uint16_t diff) {
+    const char *diff_str = get_u16_str(diff, ' ');
+    // Skip padding spaces
+    while (*diff_str == ' ') {
+        diff_str++;
+    }
+    return diff_str;
+}
+
+static void send_string_if_enabled(const char *string) {
+#ifdef SEND_STRING_ENABLE
+    send_string(string);
 #endif
-            }
-            return false;
-        case VRSN:
-            if (record->event.pressed) {
-                send_string_if_enabled(QMK_KEYBOARD "/" QMK_KEYMAP " @ " QMK_VERSION);
-            }
-            return false;
+}
+
+bool process_tapping_term_keycodes(uint16_t keycode, keyrecord_t *record) {
+    switch (keycode) {
         case DT_I_UP:
             if (record->event.pressed) {
                 index_tap_term_diff += DYNAMIC_TAPPING_TERM_INCREMENT;
@@ -567,11 +665,78 @@ bool process_custom_keycodes(uint16_t keycode, keyrecord_t *record) {
             return false;
         case DT_PALL:
             if (record->event.pressed) {
-                send_string_if_enabled(get_tapping_term_str(g_tapping_term));
+                send_string_if_enabled(to_string(g_tapping_term));
                 send_string_if_enabled(", i: ");
-                send_string_if_enabled(get_tapping_term_str(index_tap_term_diff));
+                send_string_if_enabled(to_string(index_tap_term_diff));
                 send_string_if_enabled(", rp: ");
-                send_string_if_enabled(get_tapping_term_str(ring_pinky_tap_term_diff));
+                send_string_if_enabled(to_string(ring_pinky_tap_term_diff));
+            }
+            return false;
+        default:
+            return true;
+    }
+}
+
+bool process_casemodes_keycode(uint16_t keycode, keyrecord_t *record) {
+    switch (keycode) {
+        case CM_TOGL:
+            if (record->event.pressed) {
+                const uint8_t mods = get_mods();
+                const uint8_t oneshot_mods = get_oneshot_mods();
+
+                if ((mods | oneshot_mods) & MOD_MASK_SHIFT) {
+
+                    // Shift held, activate camel case
+                    unregister_mods(MOD_MASK_SHIFT);
+                    del_oneshot_mods(MOD_MASK_SHIFT);
+                    enable_xcase_with(OS_LSFT);
+                    register_mods(mods);
+
+                    case_mode = CASE_CAMEL;
+                } else if ((mods | oneshot_mods) & MOD_MASK_GUI) {
+
+                    // CMD held, activate snake case
+                    unregister_mods(MOD_MASK_GUI);
+                    del_oneshot_mods(MOD_MASK_GUI);
+                    enable_xcase_with(KC_UNDS);
+                    register_mods(mods);
+
+                    case_mode = CASE_SNAKE;
+                } else if ((mods | oneshot_mods) & MOD_MASK_ALT) {
+
+                    // ALT held, activate kebab case
+                    unregister_mods(MOD_MASK_ALT);
+                    del_oneshot_mods(MOD_MASK_ALT);
+                    enable_xcase_with(KC_MINS);
+                    register_mods(mods);
+
+                    case_mode = CASE_KEBAB;
+                }
+            }
+            return false;
+        default:
+            return true;
+    }
+}
+bool process_custom_keycodes(uint16_t keycode, keyrecord_t *record) {
+    // Handle if keycode is "dynamic tapping term per key" keycode
+    if (!process_tapping_term_keycodes(keycode, record)) { return false; }
+
+    // Handle if keycode is "casemodes" keycode
+    if (!process_casemodes_keycode(keycode, record)) { return false; }
+
+    switch (keycode) {
+        case RGB_SLD:
+            if (record->event.pressed) {
+#ifdef RGB_MATRIX_ENABLE
+                rgblight_mode(1);
+#endif
+            }
+            return false;
+        case VRSN:
+            if (record->event.pressed) {
+                const char* str = QMK_KEYBOARD "/" QMK_KEYMAP " @ " QMK_VERSION;
+                send_string_if_enabled(str);
             }
             return false;
         default:
@@ -579,75 +744,9 @@ bool process_custom_keycodes(uint16_t keycode, keyrecord_t *record) {
     }
 };
 
-// LED lights
-void led_state_set(layer_state_t state) {
-    ergodox_board_led_off();
-    ergodox_right_led_1_off();
-    ergodox_right_led_2_off();
-    ergodox_right_led_3_off();
-
-    uint8_t layer = get_highest_layer(state);
-    switch (layer) {
-        case NAVI:
-            ergodox_right_led_1_on();
-            break;
-        case MOUS:
-            ergodox_right_led_2_on();
-            break;
-        case MDIA:
-            ergodox_right_led_3_on();
-            break;
-        case NUMB:
-            ergodox_right_led_1_on();
-            ergodox_right_led_2_on();
-            break;
-        case SYMB:
-            ergodox_right_led_1_on();
-            ergodox_right_led_3_on();
-            break;
-        case SNUM:
-            ergodox_right_led_2_on();
-            ergodox_right_led_3_on();
-            break;
-        case FUNC:
-            ergodox_right_led_1_on();
-            ergodox_right_led_2_on();
-            ergodox_right_led_3_on();
-            break;
-        case BARE:
-            ergodox_right_led_1_on();
-            ergodox_right_led_2_on();
-            ergodox_right_led_3_on();
-        default:
-            break;
-    }
-};
-
-// Fix LED lights behaviour for Caps Lock & Caps Word
-void fix_leds_task(void) {
-    led_t led_state = host_keyboard_led_state();
-    if (led_state.caps_lock) {
-        ergodox_right_led_3_on();
-    } else {
-        uint8_t layer = get_highest_layer(layer_state);
-        if (layer != MDIA && layer != SYMB && layer != SNUM && layer != FUNC && layer != BARE) {
-            ergodox_right_led_3_off();
-        }
-    }
-
-    if (is_caps_word_on()) {
-        ergodox_right_led_2_on();
-    } else {
-        uint8_t layer = get_highest_layer(layer_state);
-        if (layer != MOUS && layer != NUMB && layer != SNUM && layer != FUNC && layer != BARE) {
-            ergodox_right_led_2_off();
-        }
-    }
-};
-
-
-// User space functions
-
+//------------------------------------------------------------------------------
+// QMK User space functions
+//------------------------------------------------------------------------------
 void keyboard_post_init_user(void) {
 #if RGB_MATRIX_ENABLE
     rgb_matrix_enable();
@@ -664,11 +763,14 @@ void matrix_scan_user() {
 };
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-    // Passs the keycode and record to custom shift keys
+    // Pass the keycode and record to custom shift keys
     if (!process_custom_shift_keys(keycode, record)) { return false; }
 
     // Pass the keycode and record to achordion for tap-hold decision
     if (!process_achordion(keycode, record)) { return false; }
+
+    // Pass the keycode and the record to casemodes
+    if (!process_case_modes(keycode, record)) { return false; }
 
     // Process custom keycodes defined in this file
     if (!process_custom_keycodes(keycode, record)) { return false; }
@@ -681,8 +783,10 @@ layer_state_t layer_state_set_user(layer_state_t state) {
     return state;
 };
 
+//------------------------------------------------------------------------------
 // Add empty functions for Magic Keycodes to save some space
 // see https://docs.qmk.fm/#/squeezing_avr?id=magic-functions
+//------------------------------------------------------------------------------
 uint16_t keycode_config(uint16_t keycode) {
     return keycode;
 }
@@ -691,9 +795,9 @@ uint8_t mod_config(uint8_t mod) {
     return mod;
 }
 
-/*  This part is related to RGB matrix and fails to compile if the board has
-    RGB matrix disabled */
-
+//------------------------------------------------------------------------------
+// RGB Matrix
+//------------------------------------------------------------------------------
 #if RGB_MATRIX_ENABLE
 
 /*  ---- LEFT HAND ----     ---- RIGHT HAND ---- */
