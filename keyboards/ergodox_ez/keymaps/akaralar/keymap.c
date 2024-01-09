@@ -82,12 +82,14 @@ enum C_keycodes {
 
 // mod-tap keys same for qwerty and colemak
 #define MT_A MT(MOD_LCTL, KC_A)
+#define MT_W MT(MOD_LSFT | MOD_LCTL | MOD_LGUI, KC_W)
 
 // mod-tap keys for qwerty
 #define MT_Q_E MEH_T(KC_E)
 #define MT_Q_R ALL_T(KC_R)
 #define MT_Q_U ALL_T(KC_U)
 #define MT_Q_I MEH_T(KC_I)
+#define MT_Q_O MT(MOD_RSFT | MOD_RCTL | MOD_RGUI, KC_O)
 #define MT_Q_F MT(MOD_LSFT, KC_F)
 #define MT_Q_D MT(MOD_LGUI, KC_D)
 #define MT_Q_S MT(MOD_LALT, KC_S)
@@ -101,6 +103,7 @@ enum C_keycodes {
 #define MT_C_P ALL_T(KC_P)
 #define MT_C_L ALL_T(KC_L)
 #define MT_C_U MEH_T(KC_U)
+#define MT_C_Y MT(MOD_RSFT | MOD_RCTL | MOD_RGUI, KC_Y)
 #define MT_C_T MT(MOD_LSFT, KC_T)
 #define MT_C_S MT(MOD_LGUI, KC_S)
 #define MT_C_R MT(MOD_LALT, KC_R)
@@ -186,7 +189,7 @@ enum C_keycodes {
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [QWER] = LAYOUT_ergodox(
         _______, _______, _______, _______, _______, _______, _______,
-        _______, KC_Q   , KC_W   , MT_Q_E , MT_Q_R , KC_T   , _______,
+        _______, KC_Q   , MT_W   , MT_Q_E , MT_Q_R , KC_T   , _______,
         _______, MT_A   , MT_Q_S , MT_Q_D , MT_Q_F , KC_G   ,
         _______, KC_Z   , KC_X   , KC_C   , KC_V   , KC_B   , _______,
         _______, _______, _______, _______, LT_MDIA,
@@ -195,7 +198,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                             LT_NAVI, LT_MOUS, LS_BARE,
 
         _______, _______, _______, _______, _______, _______, _______,
-        _______, KC_Y   , MT_Q_U , MT_Q_I , KC_O   , KC_P   , _______,
+        _______, KC_Y   , MT_Q_U , MT_Q_I , MT_Q_O , KC_P   , _______,
                  KC_H   , MT_Q_J , MT_Q_K , MT_Q_L , MT_Q_QT, _______,
         _______, KC_N   , KC_M   , KC_COMM, KC_DOT , KC_SLSH, _______,
                           LS_SYMB, _______, _______, _______, _______,
@@ -226,7 +229,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
     [COLE] = LAYOUT_ergodox(
         _______, _______, _______, _______, _______, _______, _______,
-        _______, KC_Q   , KC_W   , MT_C_F , MT_C_P , KC_B   , _______,
+        _______, KC_Q   , MT_W   , MT_C_F , MT_C_P , KC_B   , _______,
         _______, MT_A   , MT_C_R , MT_C_S , MT_C_T , KC_G   ,
         _______, KC_Z   , KC_X   , KC_C   , KC_D   , KC_V   , _______,
         _______, _______, _______, _______, LT_MDIA,
@@ -235,7 +238,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                             LT_NAVI, LT_MOUS, LS_BARE,
 
         _______, _______, _______, _______, _______, _______, _______,
-        _______, KC_J   , MT_C_L , MT_C_U , KC_Y   , KC_QUOT, _______,
+        _______, KC_J   , MT_C_L , MT_C_U , MT_C_Y , KC_QUOT, _______,
                  KC_M   , MT_C_N , MT_C_E , MT_C_I , MT_C_O , _______,
         _______, KC_K   , KC_H   , KC_COMM, KC_DOT , KC_SLSH, _______,
                           LS_SYMB, _______, _______, _______, _______,
@@ -409,22 +412,30 @@ uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
         // Increase tapping term for ring and pinky fingers
         // A is same for both Qwerty and Colemak
         case MT_A:
+        case MT_W:
+
         // Qwerty ring/pinky mod-taps
         case MT_Q_S:
         case MT_Q_L:
         case MT_Q_QT:
+        case MT_Q_O:
         // Colemak ring/pinky mod-taps
         case MT_C_R:
         case MT_C_I:
         case MT_C_O:
+        case MT_C_Y:
             return g_tapping_term + ring_pinky_tap_term_diff;
         // Decrease tapping term for index fingers
         // Qwerty index mod-taps
         case MT_Q_F:
         case MT_Q_J:
+        case MT_Q_R:
+        case MT_Q_U:
         // Colemak index mod-taps
         case MT_C_T:
         case MT_C_N:
+        case MT_C_P:
+        case MT_C_L:
             return g_tapping_term - index_tap_term_diff;
         default:
             return g_tapping_term;
