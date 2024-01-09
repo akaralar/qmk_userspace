@@ -480,8 +480,9 @@ bool achordion_chord(uint16_t tap_hold_keycode,
                     uint16_t other_keycode,
                     keyrecord_t *other_record) {
     switch (tap_hold_keycode) {
-        // Disable same hand prevention with layer switching keys
+        // Allow same hands with layer switching keys
         case QK_LAYER_TAP ... QK_LAYER_TAP_MAX:
+        // Allow same hands with the symbol layer
         case LS_SYMB:
             return true;
     }
