@@ -26,6 +26,8 @@
 // For more info about casemodes, see https://github.com/andrewjrae/kyria-keymap/
 #include "features/casemodes.h"
 
+#include "features/custom_caps_lock.h"
+
 #ifdef CONSOLE_ENABLE
 #include "features/debug_helper.h"
 #endif
@@ -50,17 +52,24 @@ enum C_keycodes {
     VRSN = SAFE_RANGE,
 #endif
     RGB_SLD,
+
     // Increase/decrease the difference from tapping term for ring/pinky fingers
     DT_R_UP,
     DT_R_DN,
+
     // Increase/decrease the difference from tapping term for index fingers
     DT_I_UP,
     DT_I_DN,
+
     // Print all the differences and the tapping term
     DT_PALL,
 
     // Keycode for activating casemodes
-    CM_TOGL
+    CM_TOGL,
+
+    // Keycode for caps lock.
+    // Regular caps lock is assigned as a macOS globe (fn) key in macOS
+    CPS_LCK
 };
 
 // macOS keycodes
@@ -69,7 +78,7 @@ enum C_keycodes {
 #define KC_PSTE LGUI(KC_V)
 #define KC_UNDO LGUI(KC_Z)
 #define KC_REDO LGUI(LSFT(KC_Z))
-#define KC_FN KC_F24 // F24 is converted to fn key with karabiner
+#define KC_FN KC_CAPS // caps lock is converted to fn key in the OS
 
 // mod-tap keys same for qwerty and colemak
 #define MT_A MT(MOD_LCTL, KC_A)
@@ -247,7 +256,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
         _______, _______, _______, _______, _______, _______, _______,
         _______, KC_PGUP, KC_HOME, KC_UP  , KC_END , KC_INS , _______,
-                 KC_PGDN, KC_LEFT, KC_DOWN, KC_RGHT, KC_CAPS, _______,
+                 KC_PGDN, KC_LEFT, KC_DOWN, KC_RGHT, CPS_LCK, _______,
         _______, KC_REDO, KC_PSTE, KC_COPY, KC_CUT , KC_UNDO, _______,
                           _______, _______, _______, _______, _______,
         _______, _______,
@@ -497,9 +506,33 @@ bool achordion_eager_mod(uint8_t mod) {
 };
 
 //------------------------------------------------------------------------------
+// Caps Word
+//------------------------------------------------------------------------------
+bool caps_word_press_user(uint16_t keycode) {
+    switch (keycode) {
+        // Keycodes that continue Caps Word, with shift applied.
+        case KC_A ... KC_Z:
+            add_weak_mods(MOD_BIT(KC_LSFT));  // Apply shift to next key.
+            return true;
+
+        // Keycodes that continue Caps Word, without shifting.
+        case KC_MINS:
+        case KC_1 ... KC_0:
+        case KC_BSPC:
+        case KC_DEL:
+        case KC_UNDS:
+            // When caps lock is enabled, we stop caps word on any key other
+            // than A-Z, to be re-enabled later when another A-Z key is pressed
+            return !is_caps_lock_on();
+
+        default:
+            return false;  // Deactivate Caps Word.
+    }
+}
+
+//------------------------------------------------------------------------------
 // Casemodes
 //------------------------------------------------------------------------------
-
 enum case_mode {
     CASE_SNAKE,
     CASE_KEBAB,
@@ -586,14 +619,11 @@ void led_state_set(layer_state_t state) {
             break;
     }
 
-    // Fix LED lights behaviour for Caps Lock
-    led_t led_state = host_keyboard_led_state();
-    if (led_state.caps_lock) {
+    // Fix LED lights behaviour for Caps Lock and Caps Word
+    // led_t led_state = host_keyboard_led_state();
+    if (is_caps_lock_on()) {
         ergodox_right_led_3_on();
-    }
-
-    // Fix LED lights behaviour for Caps Word
-    if (is_caps_word_on()) {
+    } else if (is_caps_word_on()) {
         ergodox_right_led_2_on();
     }
 
@@ -624,7 +654,6 @@ void fix_leds_task(void) {
 //------------------------------------------------------------------------------
 // Custom keycode handling
 //------------------------------------------------------------------------------
-
 static const char* to_string(uint16_t diff) {
     const char *diff_str = get_u16_str(diff, ' ');
     // Skip padding spaces
@@ -718,6 +747,7 @@ bool process_casemodes_keycode(uint16_t keycode, keyrecord_t *record) {
             return true;
     }
 }
+
 bool process_custom_keycodes(uint16_t keycode, keyrecord_t *record) {
     // Handle if keycode is "dynamic tapping term per key" keycode
     if (!process_tapping_term_keycodes(keycode, record)) { return false; }
@@ -737,6 +767,17 @@ bool process_custom_keycodes(uint16_t keycode, keyrecord_t *record) {
             if (record->event.pressed) {
                 const char* str = QMK_KEYBOARD "/" QMK_KEYMAP " @ " QMK_VERSION;
                 send_string_if_enabled(str);
+            }
+            return false;
+        case CPS_LCK:
+            if (record->event.pressed) {
+                caps_lock_toggle();
+                if (is_caps_lock_on()) {
+                    caps_word_on();
+                } else {
+                    caps_word_off();
+                }
+
             }
             return false;
         default:
@@ -763,6 +804,9 @@ void matrix_scan_user() {
 };
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+    // Pass the keycode and record to custom caps lock
+    if (!process_custom_caps_lock(keycode, record)) { return false; }
+
     // Pass the keycode and record to custom shift keys
     if (!process_custom_shift_keys(keycode, record)) { return false; }
 

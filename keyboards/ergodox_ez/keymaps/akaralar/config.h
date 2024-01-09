@@ -43,6 +43,9 @@
 // Turn off Caps Word after 5 seconds.
 #define CAPS_WORD_IDLE_TIMEOUT 5000
 
+// Type lowercase if shift is applied during Caps Word is on
+#define CAPS_WORD_INVERT_ON_SHIFT
+
 // Undefine features to save space
 #undef LOCKING_SUPPORT_ENABLE
 #undef LOCKING_RESYNC_ENABLE
