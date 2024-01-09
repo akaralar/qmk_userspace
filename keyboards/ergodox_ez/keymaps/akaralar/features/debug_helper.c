@@ -1,28 +1,25 @@
 #include "debug_helper.h"
+
+
+#ifdef CONSOLE_ENABLE
 #include  "print.h"
 
 void enable_debug_user() {
-#ifdef CONSOLE_ENABLE
   debug_enable=true;
 //   debug_matrix=true;
 //   debug_keyboard=true;
 //   debug_mouse=true;
-#endif
 }
 
 uint16_t counter = 0;
 void prefixed_print(uint16_t keycode, keyrecord_t *record, const char* prefix) {
-#ifdef CONSOLE_ENABLE
     uprintf("%4u %s kc: 0x%04X, col: %2u, row: %2u, pressed: %u, time: %5u, int: %u, count: %u, type: %u\n", counter, prefix, keycode, record->event.key.col, record->event.key.row, record->event.pressed, record->event.time, record->tap.interrupted, record->tap.count, record->event.type);
     counter++;
-#endif
 }
 
 void prefixed_print_layer(layer_state_t state, const char* prefix) {
-#ifdef CONSOLE_ENABLE
     uprintf("%4u %s layer: %2u\n", counter, prefix, state);
     counter++;
-#endif
 }
 
 void print_mods(void) {
@@ -48,8 +45,7 @@ void print_mods(void) {
 }
 
 void prefixed_print_all_mods(const char* prefix) {
-#ifdef CONSOLE_ENABLE
     uprintf("%4u %s layer: %2u, ", counter, prefix);
     print_mods();
-#endif
 }
+#endif // CONSOLE_ENABLE
