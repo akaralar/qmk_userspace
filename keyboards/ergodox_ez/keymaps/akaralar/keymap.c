@@ -209,8 +209,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
     [BARE] = LAYOUT_ergodox(
         _______, _______, _______, _______, _______, _______, _______,
-        _______, _______, _______, KC_E   , _______, _______, _______,
-        _______, KC_A   , KC_S   , _______, _______, _______,
+        _______, _______, KC_W   , KC_E   , KC_R   , _______, _______,
+        _______, KC_A   , KC_S   , KC_D   , KC_F   , _______,
         _______, _______, _______, _______, _______, _______, _______,
         _______, _______, _______, _______, _______,
                                                      _______, _______,
@@ -218,8 +218,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                             _______, _______, _______,
 
         _______, _______, _______, _______, _______, _______, _______,
-        _______, _______, KC_U   , KC_I   , _______, _______, _______,
-                 _______, _______, _______, _______, _______, _______,
+        _______, _______, KC_U   , KC_I   , KC_O   , _______, _______,
+                 _______, KC_J   , KC_K   , KC_L   , KC_QUOT, _______,
         _______, _______, _______, _______, _______, _______, _______,
                           _______, _______, _______, _______, _______,
         _______, _______,
@@ -888,8 +888,8 @@ const bool PROGMEM rgb_on[][RGB_MATRIX_LED_COUNT] = {
     ),
     [BARE] = LED_LAYOUT_ergodox_pretty(
         false, false, false, false, false,    false, false, false, false, false,
-        false, false, true , false, false,    false, true , true , false, false,
-        true , true , false, false, false,    false, false, false, false, false,
+        false, true , true , true , false,    false, true , true , true , false,
+        true , true , true , true , false,    false, true , true , true , true ,
         false, false, false, false, false,    false, false, false, false, false,
         false, false, false, false ,                false , false, false, false
     ),
