@@ -759,7 +759,8 @@ bool process_casemodes_keycode(uint16_t keycode, keyrecord_t *record) {
     }
 }
 
-bool process_custom_keycodes(uint16_t keycode, keyrecord_t *record) {
+static bool should_swallow_esc = false;
+bool process_other_keycodes(uint16_t keycode, keyrecord_t *record) {
     // Handle if keycode is "dynamic tapping term per key" keycode
     if (!process_tapping_term_keycodes(keycode, record)) { return false; }
 
@@ -791,9 +792,23 @@ bool process_custom_keycodes(uint16_t keycode, keyrecord_t *record) {
 
             }
             return false;
+
+        case LT_MDIA:
+            // Don't send the escape key when trying to exit caps word
+            if (is_caps_word_on() && !is_caps_lock_on()) {
+                if (record->event.pressed) {
+                    should_swallow_esc = true;
+                } else if (should_swallow_esc) {
+                    caps_word_off();
+                    should_swallow_esc = false;
+                }
+                return false;
+            }
         default:
             return true;
     }
+
+    return true;
 };
 
 //------------------------------------------------------------------------------
@@ -828,7 +843,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     if (!process_case_modes(keycode, record)) { return false; }
 
     // Process custom keycodes defined in this file
-    if (!process_custom_keycodes(keycode, record)) { return false; }
+    if (!process_other_keycodes(keycode, record)) { return false; }
 
     return true;
 };
