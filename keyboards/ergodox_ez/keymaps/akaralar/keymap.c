@@ -511,12 +511,6 @@ bool achordion_chord(uint16_t tap_hold_keycode,
             return true;
     }
 
-    // Also allow same-hand holds when the other key is in the rows below the
-    // alphas. The column for those are 4 and 5
-    if (other_record->event.key.col >= 4) {
-        return true;
-    }
-
     // Otherwise, follow the opposite hands rule.
     return achordion_opposite_hands(tap_hold_record, other_record);
 }
