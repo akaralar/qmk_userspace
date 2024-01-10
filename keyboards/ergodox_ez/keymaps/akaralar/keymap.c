@@ -504,13 +504,23 @@ bool achordion_chord(uint16_t tap_hold_keycode,
                     uint16_t other_keycode,
                     keyrecord_t *other_record) {
     switch (tap_hold_keycode) {
-        // Allow same hands with layer switching keys
+        // Allow same hand holds with layer switching keys
         case QK_LAYER_TAP ... QK_LAYER_TAP_MAX:
-        // Allow same hands with the symbol layer
+        // Allow same hand holds with the symbol layer
         case LS_SYMB:
             return true;
     }
 
+    switch (other_keycode) {
+        // Disallow same hand holds when tapped key is spacebar
+        case LT_NAVI:
+            return false;
+    }
+
+    // For other thumb keys, allow same-hand holds
+    if (other_record->event.key.col >= 4) {
+        return true;
+    }
     // Otherwise, follow the opposite hands rule.
     return achordion_opposite_hands(tap_hold_record, other_record);
 }
@@ -783,7 +793,7 @@ bool process_macros(uint16_t keycode, keyrecord_t *record) {
 
 static bool should_swallow_esc = false;
 bool process_other_keycodes(uint16_t keycode, keyrecord_t *record) {
-    // Handle if keycode is "dynamic tapping term per key" keycode
+    // Handle if keycode is "dynamic tapping term per key" adjustment keycode
     if (!process_tapping_term_keycodes(keycode, record)) { return false; }
 
     // Handle if keycode is "casemodes" keycode
