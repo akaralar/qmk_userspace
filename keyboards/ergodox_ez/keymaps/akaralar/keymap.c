@@ -52,24 +52,32 @@ enum C_keycodes {
     VRSN = SAFE_RANGE,
 #endif
     RGB_SLD,
-
     // Increase/decrease the difference from tapping term for ring/pinky fingers
     DT_R_UP,
     DT_R_DN,
-
     // Increase/decrease the difference from tapping term for index fingers
     DT_I_UP,
     DT_I_DN,
-
     // Print all the differences and the tapping term
     DT_PALL,
-
     // Keycode for activating casemodes
     CM_TOGL,
-
     // Keycode for caps lock.
     // Regular caps lock is assigned as a macOS globe (fn) key in macOS
-    CPS_LCK
+    CPS_LCK,
+    // Macro keycodes
+    M_UPDIR,
+    M_BRACKETS,
+    M_PARENS,
+    M_ABRACES,
+    M_CBRACES,
+    M_DQUOTES,
+    M_QUOTES,
+    M_UNDERS,
+    M_ASTRSKS,
+    M_GRAVES,
+    M_CBLOCK,
+    M_CBLOCK_S
 };
 
 // macOS keycodes
@@ -119,6 +127,22 @@ enum C_keycodes {
 #define LT_NUMB LT(NUMB, KC_BSPC)
 #define LT_SNUM LT(SNUM, KC_EQUAL)
 #define LT_FUNC LT(FUNC, KC_ENTER)
+
+// Fake layer-tap keys. These keys are used in macros and since some of them
+// are not basic keycodes, both tap and hold action is handled in the macros,
+// which means they don't send the keycode defined here.
+// See https://getreuer.info/posts/keyboards/triggers/index.html
+// Tapping sends a key and holding performs the macro
+#define FT_SLSH LT(SYMB, KC_0)
+#define FT_LBRC LT(SYMB, KC_1)
+#define FT_LPRN LT(SYMB, KC_2)
+#define FT_LABK LT(SYMB, KC_3)
+#define FT_LCBR LT(SYMB, KC_4)
+#define FT_DQUO LT(SYMB, KC_5)
+#define FT_QUOT LT(SYMB, KC_6)
+#define FT_UNDS LT(SYMB, KC_7)
+#define FT_ASTR LT(SYMB, KC_8)
+#define FT_GRV LT(SYMB, KC_9)
 
 // One-shot modifiers
 #define OS_LSFT OSM(MOD_LSFT)
@@ -328,18 +352,18 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
     [SYMB] = LAYOUT_ergodox(
         _______, _______, _______, _______, _______, _______, _______,
-        _______, KC_TILD, KC_PLUS, KC_LBRC, KC_RBRC, KC_HASH, _______,
-        _______, KC_UNDS, KC_SLSH, KC_LPRN, KC_RPRN, KC_AMPR,
-        _______, KC_DLR , KC_QUES, KC_LABK, KC_RABK, KC_GRV , _______,
+        _______, KC_TILD, KC_PLUS, FT_LBRC, KC_RBRC, KC_HASH, _______,
+        _______, FT_UNDS, FT_SLSH, FT_LPRN, KC_RPRN, KC_AMPR,
+        _______, KC_DLR , KC_QUES, FT_LABK, KC_RABK, FT_GRV , _______,
         _______, _______, _______, _______, KC_AT  ,
                                                      _______, _______,
                                                               _______,
                                             _______, KC_DOT , _______,
 
         _______, _______, _______, _______, _______, _______, _______,
-        _______, KC_CIRC, KC_BSLS, KC_DQUO, KC_ASTR, KC_PERC, _______,
-                 KC_PIPE, KC_RCBR, KC_LCBR, KC_COLN, KC_COMM, _______,
-        _______, KC_QUOT, LT_SNUM, KC_MINS, KC_EXLM, KC_SCLN, _______,
+        _______, KC_CIRC, KC_BSLS, FT_DQUO, FT_ASTR, KC_PERC, _______,
+                 KC_PIPE, KC_RCBR, FT_LCBR, KC_COLN, KC_COMM, _______,
+        _______, FT_QUOT, LT_SNUM, KC_MINS, KC_EXLM, KC_SCLN, _______,
                           XXXXXXX, _______, _______, _______, _______,
         _______, _______,
         _______,
@@ -577,92 +601,6 @@ bool terminate_case_modes(uint16_t keycode, const keyrecord_t *record) {
 }
 
 //------------------------------------------------------------------------------
-// LED lights
-//------------------------------------------------------------------------------
-void led_state_set(layer_state_t state) {
-    ergodox_board_led_off();
-    ergodox_right_led_1_off();
-    ergodox_right_led_2_off();
-    ergodox_right_led_3_off();
-
-    uint8_t layer = get_highest_layer(layer_state);
-    switch (layer) {
-        case NAVI: {
-            ergodox_right_led_1_on();
-            break;
-        }
-        case BARE: {
-            ergodox_right_led_1_on();
-            ergodox_right_led_2_on();
-            ergodox_right_led_3_on();
-            break;
-        }
-        case MOUS: {
-            ergodox_right_led_2_on();
-            break;
-        }
-        case MDIA: {
-            ergodox_right_led_3_on();
-            break;
-        }
-        case NUMB: {
-            ergodox_right_led_1_on();
-            ergodox_right_led_2_on();
-            break;
-        }
-        case SYMB: {
-            ergodox_right_led_1_on();
-            ergodox_right_led_3_on();
-            break;
-        }
-        case SNUM: {
-            ergodox_right_led_2_on();
-            ergodox_right_led_3_on();
-            break;
-        }
-        case FUNC: {
-            ergodox_right_led_1_on();
-            ergodox_right_led_2_on();
-            ergodox_right_led_3_on();
-            break;
-        }
-        default:
-            break;
-    }
-
-    // Fix LED lights behaviour for Caps Lock and Caps Word
-    // led_t led_state = host_keyboard_led_state();
-    if (is_caps_lock_on()) {
-        ergodox_right_led_3_on();
-    } else if (is_caps_word_on()) {
-        ergodox_right_led_2_on();
-    }
-
-    // Fix LED lights behaviour for case modes
-    if (get_xcase_state() != XCASE_OFF) {
-        switch (case_mode) {
-            case CASE_CAMEL:
-                ergodox_right_led_1_on();
-                break;
-            case CASE_SNAKE:
-                ergodox_right_led_2_on();
-                break;
-            case CASE_KEBAB:
-                ergodox_right_led_3_on();
-                break;
-            default:
-                break;
-        }
-    }
-};
-
-// Fix LED lights behaviour for when other things affect LEDs (like Caps Lock &
-// Caps Word and case modes)
-void fix_leds_task(void) {
-    led_state_set(layer_state);
-};
-
-//------------------------------------------------------------------------------
 // Custom keycode handling
 //------------------------------------------------------------------------------
 static const char* to_string(uint16_t diff) {
@@ -759,6 +697,96 @@ bool process_casemodes_keycode(uint16_t keycode, keyrecord_t *record) {
     }
 }
 
+void execute_macro_keycode(uint16_t keycode) {
+    switch (keycode) {
+        case M_CBLOCK:
+            SEND_STRING("```");
+            tap_code(KC_ENTER);
+            tap_code(KC_ENTER);
+            SEND_STRING("```");
+            tap_code(KC_UP);
+            return;
+        case M_CBLOCK_S:
+
+            SEND_STRING("```swift");
+            tap_code(KC_ENTER);
+            tap_code(KC_ENTER);
+            SEND_STRING("```");
+            tap_code(KC_UP);
+            return;
+    }
+
+    switch (keycode) {
+        // Holding down slash sends string and returns
+        case M_UPDIR:
+            SEND_STRING("../");
+            return;
+            // The rest, sends string, breaks out of the switch and sends left
+            // arrow after the switch
+        case M_BRACKETS:        SEND_STRING("[]");   break;
+        case M_PARENS:          SEND_STRING("()");   break;
+        case M_ABRACES:         SEND_STRING("<>");   break;
+        case M_CBRACES:         SEND_STRING("{}");   break;
+        case M_DQUOTES:         SEND_STRING("\"\""); break;
+        case M_QUOTES:          SEND_STRING("''");   break;
+        case M_UNDERS:          SEND_STRING("__");   break;
+        case M_ASTRSKS:         SEND_STRING("**");   break;
+        case M_GRAVES:          SEND_STRING("``");   break;
+        // Allow system to process other keycodes
+        default: return;
+    }
+    tap_code(KC_LEFT);
+    return;
+}
+
+bool process_tap_or_long_press_key(
+    keyrecord_t *record,
+    uint16_t tap_keycode,
+    uint16_t long_press_keycode
+) {
+    if (record->tap.count == 0) { // Key is being held.
+        if (record->event.pressed) {
+            execute_macro_keycode(long_press_keycode);
+        }
+        return false; // Skip default handling.
+    } else {
+        if (record->event.pressed) {
+            register_code16(tap_keycode);
+        } else {
+            unregister_code16(tap_keycode);
+        }
+        return false; // Skip default handling.
+    }
+}
+
+bool process_macros(uint16_t keycode, keyrecord_t *record) {
+    // Tap-hold macros in symbol layer
+    switch (keycode) {
+        case FT_SLSH:
+            return process_tap_or_long_press_key(record, KC_SLASH, M_UPDIR);
+        case FT_LBRC:
+            return process_tap_or_long_press_key(record, KC_LBRC, M_BRACKETS);
+        case FT_LPRN:
+            return process_tap_or_long_press_key(record, KC_LPRN, M_PARENS);
+        case FT_LABK:
+            return process_tap_or_long_press_key(record, KC_LABK, M_ABRACES);
+        case FT_LCBR:
+            return process_tap_or_long_press_key(record, KC_LCBR, M_CBRACES);
+        case FT_DQUO:
+            return process_tap_or_long_press_key(record, KC_DQUO, M_DQUOTES);
+        case FT_QUOT:
+            return process_tap_or_long_press_key(record, KC_QUOT, M_QUOTES);
+        case FT_UNDS:
+            return process_tap_or_long_press_key(record, KC_UNDS, M_UNDERS);
+        case FT_ASTR:
+            return process_tap_or_long_press_key(record, KC_ASTR, M_ASTRSKS);
+        case FT_GRV:
+            return process_tap_or_long_press_key(record, KC_GRV, M_GRAVES);
+    }
+
+    return true;
+}
+
 static bool should_swallow_esc = false;
 bool process_other_keycodes(uint16_t keycode, keyrecord_t *record) {
     // Handle if keycode is "dynamic tapping term per key" keycode
@@ -812,6 +840,92 @@ bool process_other_keycodes(uint16_t keycode, keyrecord_t *record) {
 };
 
 //------------------------------------------------------------------------------
+// LED lights
+//------------------------------------------------------------------------------
+void led_state_set(layer_state_t state) {
+    ergodox_board_led_off();
+    ergodox_right_led_1_off();
+    ergodox_right_led_2_off();
+    ergodox_right_led_3_off();
+
+    uint8_t layer = get_highest_layer(layer_state);
+    switch (layer) {
+        case NAVI: {
+            ergodox_right_led_1_on();
+            break;
+        }
+        case BARE: {
+            ergodox_right_led_1_on();
+            ergodox_right_led_2_on();
+            ergodox_right_led_3_on();
+            break;
+        }
+        case MOUS: {
+            ergodox_right_led_2_on();
+            break;
+        }
+        case MDIA: {
+            ergodox_right_led_3_on();
+            break;
+        }
+        case NUMB: {
+            ergodox_right_led_1_on();
+            ergodox_right_led_2_on();
+            break;
+        }
+        case SYMB: {
+            ergodox_right_led_1_on();
+            ergodox_right_led_3_on();
+            break;
+        }
+        case SNUM: {
+            ergodox_right_led_2_on();
+            ergodox_right_led_3_on();
+            break;
+        }
+        case FUNC: {
+            ergodox_right_led_1_on();
+            ergodox_right_led_2_on();
+            ergodox_right_led_3_on();
+            break;
+        }
+        default:
+            break;
+    }
+
+    // Fix LED lights behaviour for Caps Lock and Caps Word
+    // led_t led_state = host_keyboard_led_state();
+    if (is_caps_lock_on()) {
+        ergodox_right_led_3_on();
+    } else if (is_caps_word_on()) {
+        ergodox_right_led_2_on();
+    }
+
+    // Fix LED lights behaviour for case modes
+    if (get_xcase_state() != XCASE_OFF) {
+        switch (case_mode) {
+            case CASE_CAMEL:
+                ergodox_right_led_1_on();
+                break;
+            case CASE_SNAKE:
+                ergodox_right_led_2_on();
+                break;
+            case CASE_KEBAB:
+                ergodox_right_led_3_on();
+                break;
+            default:
+                break;
+        }
+    }
+};
+
+// Fix LED lights behaviour for when other things affect LEDs (like Caps Lock &
+// Caps Word and case modes)
+void fix_leds_task(void) {
+    led_state_set(layer_state);
+};
+
+//------------------------------------------------------------------------------
 // QMK User space functions
 //------------------------------------------------------------------------------
 void keyboard_post_init_user(void) {
@@ -841,6 +955,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
     // Pass the keycode and the record to casemodes
     if (!process_case_modes(keycode, record)) { return false; }
+
+    // Process keycodes for custom macros
+    if (!process_macros(keycode, record)) { return false; }
 
     // Process custom keycodes defined in this file
     if (!process_other_keycodes(keycode, record)) { return false; }
