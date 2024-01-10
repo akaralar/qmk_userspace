@@ -521,7 +521,7 @@ uint16_t achordion_timeout(uint16_t tap_hold_keycode) {
 
 bool achordion_eager_mod(uint8_t mod) {
   switch (mod) {
-    // Eagerly apply Shift, Cmd and Opt mods.
+    // Eagerly apply Shift, Cmd and Alt mods.
     case MOD_LSFT:
     case MOD_RSFT:
     case MOD_LGUI:
@@ -1070,9 +1070,9 @@ const bool PROGMEM rgb_on[][RGB_MATRIX_LED_COUNT] = {
     ),
     [FUNC] = LED_LAYOUT_ergodox_pretty(
         false, false, false, false, false,    false, false, false, false, false,
-        true , true , true , true , false,    false, false, false, false, false,
-        true , true , true , true , false,    false, true , true , true , true ,
-        true , true , true , true , false,    false, false, false, false, false,
+        true , true , true , true , false,    false, true , true , true , false,
+        true , true , true , true , false,    true , true , true , true , true ,
+        true , true , true , true , false,    false, true , true , true , false,
         false, false, false, true ,                  false, false, false, false
     ),
 };
