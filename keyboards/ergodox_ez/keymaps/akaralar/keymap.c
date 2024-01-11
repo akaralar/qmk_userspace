@@ -34,8 +34,9 @@
 
 enum layers {
     QWER, // default qwerty layer
-    BARE, // Only letters without modtaps
+    QLET, // Only letters without modtaps for qwerty
     COLE, // default colemak layer
+    CLET, // Only letters without modtaps for colemak
     NAVI, // navigation layer
     MOUS, // mouse layer
     MDIA, // media keys layer
@@ -151,7 +152,8 @@ enum C_keycodes {
 
 // Layer switching
 #define LS_SYMB MO(SYMB)
-#define LS_BARE TT(BARE)
+#define LS_QLET TT(QLET)
+#define LS_CLET TT(CLET)
 
 // Changing default layer
 #define DF_QWER DF(QWER)
@@ -228,11 +230,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         _______, KC_N   , KC_M   , KC_COMM, KC_DOT , KC_SLSH, _______,
                           LS_SYMB, _______, _______, _______, _______,
         _______, _______,
-        LS_BARE,
+        LS_QLET,
         KC_FN  , LT_FUNC, LT_NUMB
     ),
 
-    [BARE] = LAYOUT_ergodox(
+    [QLET] = LAYOUT_ergodox(
         _______, _______, _______, _______, _______, _______, _______,
         _______, _______, KC_W   , KC_E   , KC_R   , _______, _______,
         _______, KC_A   , KC_S   , KC_D   , KC_F   , _______,
@@ -268,8 +270,28 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         _______, KC_K   , KC_H   , KC_COMM, KC_DOT , KC_SLSH, _______,
                           LS_SYMB, _______, _______, _______, _______,
         _______, _______,
-        _______,
+        LS_CLET,
         KC_FN  , LT_FUNC, LT_NUMB
+    ),
+
+    [CLET] = LAYOUT_ergodox(
+        _______, _______, _______, _______, _______, _______, _______,
+        _______, _______, KC_W   , KC_F   , KC_P   , _______, _______,
+        _______, KC_A   , KC_R   , KC_S   , KC_T   , _______,
+        _______, _______, _______, _______, _______, _______, _______,
+        _______, _______, _______, _______, _______,
+                                                     _______, _______,
+                                                              _______,
+                                            _______, _______, _______,
+
+        _______, _______, _______, _______, _______, _______, _______,
+        _______, _______, KC_L   , KC_U   , KC_Y   , _______, _______,
+                 _______, KC_N   , KC_E   , KC_I   , KC_O, _______,
+        _______, _______, _______, _______, _______, _______, _______,
+                          _______, _______, _______, _______, _______,
+        _______, _______,
+        _______,
+        _______, _______, _______
     ),
 
     [NAVI] = LAYOUT_ergodox(
@@ -861,7 +883,7 @@ void led_state_set(layer_state_t state) {
             ergodox_right_led_1_on();
             break;
         }
-        case BARE: {
+        case CLET: {
             ergodox_right_led_1_on();
             ergodox_right_led_2_on();
             ergodox_right_led_3_on();
@@ -1025,7 +1047,7 @@ const bool PROGMEM rgb_on[][RGB_MATRIX_LED_COUNT] = {
         true , true , true , true , true ,    true , true , true , true , true ,
         false, false, false, true ,                  true , false, false, false
     ),
-    [BARE] = LED_LAYOUT_ergodox_pretty(
+    [QLET] = LED_LAYOUT_ergodox_pretty(
         false, false, false, false, false,    false, false, false, false, false,
         false, true , true , true , false,    false, true , true , true , false,
         true , true , true , true , false,    false, true , true , true , true ,
@@ -1038,6 +1060,13 @@ const bool PROGMEM rgb_on[][RGB_MATRIX_LED_COUNT] = {
         true , true , true , true , true ,    true , true , true , true , true ,
         true , true , true , true , true ,    true , true , true , true , true ,
         false, false, false, true ,                  true , false, false, false
+    ),
+    [CLET] = LED_LAYOUT_ergodox_pretty(
+        false, false, false, false, false,    false, false, false, false, false,
+        false, true , true , true , false,    false, true , true , true , false,
+        true , true , true , true , false,    false, true , true , true , true ,
+        false, false, false, false, false,    false, false, false, false, false,
+        false, false, false, false ,                false , false, false, false
     ),
     [NAVI] = LED_LAYOUT_ergodox_pretty(
         false, false, false, false, false,    false, false, false, false, false,
@@ -1092,8 +1121,9 @@ const bool PROGMEM rgb_on[][RGB_MATRIX_LED_COUNT] = {
 
 const uint8_t PROGMEM rgb_colors[][3] = {
     [QWER] = {8, 255, 255},
-    [BARE] = {8, 255, 255},
+    [QLET] = {8, 255, 255},
     [COLE] = {8, 255, 255},
+    [CLET] = {8, 255, 255},
     [NAVI] = {163, 218, 204},
     [MOUS] = {122, 255, 255},
     [MDIA] = {41, 255, 255},
