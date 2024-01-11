@@ -47,11 +47,8 @@ enum layers {
 };
 
 enum C_keycodes {
-#ifdef ORYX_CONFIGURATOR
     VRSN = EZ_SAFE_RANGE,
-#else
-    VRSN = SAFE_RANGE,
-#endif
+
     RGB_SLD,
     // Increase/decrease the difference from tapping term for ring/pinky fingers
     DT_R_UP,
@@ -160,7 +157,6 @@ enum C_keycodes {
 #define DF_COLE DF(COLE)
 
 // ZSA specific keys
-#define ZSA_USB WEBUSB_PAIR
 #define ZSA_TOG TOGGLE_LAYER_COLOR
 
 // Application shortcuts
@@ -336,7 +332,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
     [MDIA] = LAYOUT_ergodox(
         _______, _______, _______, _______, _______, _______, _______,
-        _______, QK_BOOT, ZSA_USB, XXXXXXX, DM_REC1, DM_PLY1, _______,
+        _______, QK_BOOT, _______, XXXXXXX, DM_REC1, DM_PLY1, _______,
         _______, KC_LCTL, KC_LALT, KC_LGUI, KC_LSFT, DM_RSTP,
         _______, VRSN   , DF_COLE, DF_QWER, DM_REC2, DM_PLY2, _______,
         _______, _______, _______, _______, _______,
