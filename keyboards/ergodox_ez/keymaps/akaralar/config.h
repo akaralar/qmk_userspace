@@ -14,6 +14,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#define ORYX_CONFIGURATOR
+#define USB_SUSPEND_WAKEUP_DELAY 0
+#define CAPS_LOCK_STATUS
+#define FIRMWARE_VERSION u8"yBAgx/KGDNl"
+#define RAW_USAGE_PAGE 0xFF60
+#define RAW_USAGE_ID 0x61
+
 // Support for up to 16 layers
 #define LAYER_STATE_16BIT
 
@@ -30,6 +37,7 @@
 #define RETRO_TAPPING_PER_KEY
 
 // Turn keyboard lights off after 5 minutes
+#undef RGB_MATRIX_TIMEOUT
 #define RGB_MATRIX_TIMEOUT 300000
 
 #undef MOUSEKEY_WHEEL_DELAY
