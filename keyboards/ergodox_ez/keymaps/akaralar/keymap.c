@@ -826,12 +826,15 @@ bool process_other_keycodes(uint16_t keycode, keyrecord_t *record) {
             return false;
 
         case LT_MDIA:
-            // Don't send the escape key when trying to exit caps word
-            if (is_caps_word_on() && !is_caps_lock_on()) {
+            // Don't send escape key when trying to exit caps word or case modes
+            if ((is_caps_word_on() && !is_caps_lock_on())
+                || get_xcase_state() != XCASE_OFF
+            ) {
                 if (record->event.pressed) {
                     should_swallow_esc = true;
                 } else if (should_swallow_esc) {
                     caps_word_off();
+                    disable_xcase();
                     should_swallow_esc = false;
                 }
                 return false;
