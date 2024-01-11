@@ -151,10 +151,8 @@ enum C_keycodes {
 #define LS_SYMB MO(SYMB)
 #define LS_QLET TT(QLET)
 #define LS_CLET TT(CLET)
-
-// Changing default layer
-#define DF_QWER DF(QWER)
-#define DF_COLE DF(COLE)
+// Toggling Colemak on / off
+#define LS_COLE TG(COLE)
 
 // ZSA specific keys
 #define ZSA_TOG TOGGLE_LAYER_COLOR
@@ -216,7 +214,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         _______, MT_A   , MT_Q_S , MT_Q_D , MT_Q_F , KC_G   ,
         _______, KC_Z   , KC_X   , KC_C   , KC_V   , KC_B   , _______,
         _______, _______, _______, _______, LT_MDIA,
-                                                     _______, _______,
+                                                     _______, LS_COLE,
                                                               OS_LSFT,
                                             LT_NAVI, LT_MOUS, CM_TOGL,
 
@@ -334,7 +332,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         _______, _______, _______, _______, _______, _______, _______,
         _______, QK_BOOT, _______, XXXXXXX, DM_REC1, DM_PLY1, _______,
         _______, KC_LCTL, KC_LALT, KC_LGUI, KC_LSFT, DM_RSTP,
-        _______, VRSN   , DF_COLE, DF_QWER, DM_REC2, DM_PLY2, _______,
+        _______, VRSN   , _______, _______, DM_REC2, DM_PLY2, _______,
         _______, _______, _______, _______, _______,
                                                      _______, _______,
                                                               _______,
@@ -453,7 +451,7 @@ uint16_t ring_pinky_tap_term_diff = 15;
 uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
         // Increase tapping term for ring and pinky fingers
-        // A is same for both Qwerty and Colemak
+        // A and W are same for both Qwerty and Colemak
         case MT_A:
         case MT_W:
 
