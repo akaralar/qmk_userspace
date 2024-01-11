@@ -143,6 +143,8 @@ enum C_keycodes {
 #define FT_UNDS LT(SYMB, KC_7)
 #define FT_ASTR LT(SYMB, KC_8)
 #define FT_GRV LT(SYMB, KC_9)
+#define FT_CBL LT(SYMB, KC_A)
+#define FT_CBLS LT(SYMB, KC_B)
 
 // One-shot modifiers
 #define OS_LSFT OSM(MOD_LSFT)
@@ -352,8 +354,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
     [SYMB] = LAYOUT_ergodox(
         _______, _______, _______, _______, _______, _______, _______,
-        _______, KC_TILD, KC_PLUS, FT_LBRC, KC_RBRC, KC_HASH, _______,
-        _______, FT_UNDS, FT_SLSH, FT_LPRN, KC_RPRN, KC_AMPR,
+        _______, KC_TILD, KC_PLUS, FT_LBRC, KC_RBRC, FT_CBLS, _______,
+        _______, FT_UNDS, FT_SLSH, FT_LPRN, KC_RPRN, FT_CBL ,
         _______, KC_DLR , KC_QUES, FT_LABK, KC_RABK, FT_GRV , _______,
         _______, _______, _______, _______, KC_AT  ,
                                                      _______, _______,
@@ -511,16 +513,11 @@ bool achordion_chord(uint16_t tap_hold_keycode,
             return true;
     }
 
-    switch (other_keycode) {
-        // Disallow same hand holds when tapped key is spacebar
-        case LT_NAVI:
-            return false;
-    }
-
-    // For other thumb keys, allow same-hand holds
-    if (other_record->event.key.col >= 4) {
+    // For thumb keys other than space, allow same-hand holds
+    if (other_record->event.key.col >= 4 && other_keycode != LT_NAVI) {
         return true;
     }
+
     // Otherwise, follow the opposite hands rule.
     return achordion_opposite_hands(tap_hold_record, other_record);
 }
@@ -703,6 +700,7 @@ bool process_casemodes_keycode(uint16_t keycode, keyrecord_t *record) {
 
 void execute_macro_keycode(uint16_t keycode) {
     switch (keycode) {
+        // Holding down ampersand sends markdown code block
         case M_CBLOCK:
             SEND_STRING("```");
             tap_code(KC_ENTER);
@@ -710,17 +708,15 @@ void execute_macro_keycode(uint16_t keycode) {
             SEND_STRING("```");
             tap_code(KC_UP);
             return;
+        // Holding down hash sends markdown code block for Swift code
         case M_CBLOCK_S:
-
             SEND_STRING("```swift");
             tap_code(KC_ENTER);
             tap_code(KC_ENTER);
             SEND_STRING("```");
             tap_code(KC_UP);
             return;
-    }
 
-    switch (keycode) {
         // Holding down slash sends string and returns
         case M_UPDIR:
             SEND_STRING("../");
@@ -786,6 +782,10 @@ bool process_macros(uint16_t keycode, keyrecord_t *record) {
             return process_tap_or_long_press_key(record, KC_ASTR, M_ASTRSKS);
         case FT_GRV:
             return process_tap_or_long_press_key(record, KC_GRV, M_GRAVES);
+        case FT_CBL:
+            return process_tap_or_long_press_key(record, KC_AMPR, M_CBLOCK);
+        case FT_CBLS:
+            return process_tap_or_long_press_key(record, KC_HASH, M_CBLOCK_S);
     }
 
     return true;
