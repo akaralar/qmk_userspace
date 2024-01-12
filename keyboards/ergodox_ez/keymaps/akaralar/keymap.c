@@ -402,17 +402,17 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         _______, _______, _______, _______, _______, _______, _______,
         _______, QK_BOOT, XXXXXXX, XXXXXXX, DM_REC1, DM_PLY1, _______,
         _______, KC_LCTL, KC_LALT, KC_LGUI, KC_LSFT, DM_RSTP,
-        _______, VRSN   , XXXXXXX, XXXXXXX, DM_REC2, DM_PLY2, _______,
+        _______, XXXXXXX, XXXXXXX, XXXXXXX, DM_REC2, DM_PLY2, _______,
         _______, _______, _______, _______, _______,
                                                      _______, _______,
                                                               _______,
                                             XXXXXXX, XXXXXXX, _______,
 
         _______, _______, _______, _______, _______, _______, _______,
-        _______, RGB_TOG, KC_BRIU, RGB_HUI, RGB_SAI, RGB_VAI, _______,
-                 ZSA_TOG, KC_MPRV, KC_VOLD, KC_VOLU, KC_MNXT, _______,
-        _______, RGB_MOD, KC_BRID, RGB_HUD, RGB_SAD, RGB_VAD, _______,
-                          KC_MUTE, _______, _______, _______, _______,
+        _______, KC_MNXT, KC_VOLU, KC_BRIU, RGB_BUP, XXXXXXX, _______,
+                 KC_MPRV, KC_VOLD, KC_BRID, RGB_BDN, XXXXXXX, _______,
+        _______, VRSN   , KC_MUTE, XXXXXXX, RGB_TGL, XXXXXXX, _______,
+                          XXXXXXX, _______, _______, _______, _______,
         _______, _______,
         _______,
         _______, KC_MSTP, KC_MPLY
@@ -1218,10 +1218,10 @@ const bool PROGMEM rgb_on[][RGB_MATRIX_LED_COUNT] = {
     ),
     [MDIA] =  LED_LAYOUT_ergodox_pretty(
         false, false, false, false, false,    false, false, false, false, false,
-        true , false, false, true , true ,    true , true , true , true , true ,
-        true , true , true , true , true ,    true , true , true , true , true ,
-        true , false, false, true , true ,    true , true , true , true , true ,
-        false, false, false, false,                  true , false, false, false
+        true , false, false, true , true ,    true , true , true , true , false,
+        true , true , true , true , true ,    true , true , true , true , false,
+        false, false, false, true , true ,    true , true , false, true , false,
+        false, false, false, false,                  false, false, false, false
     ),
     [NUMB] =  LED_LAYOUT_ergodox_pretty(
         false, false, false, false, false,    false, false, false, false, false,
