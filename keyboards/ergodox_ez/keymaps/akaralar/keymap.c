@@ -673,6 +673,14 @@ bool terminate_case_modes(uint16_t keycode, const keyrecord_t *record) {
         case KC_BSPC:
         case KC_DEL:
         case CM_TOGL:
+        // We use Esc key to exit Case Modes but we don't want to send Esc to
+        // the system. If we do not add the Esc key to the list of keys to be
+        // ignored by Case Modes, when case modes processes Esc key, it exits
+        // but sends the key as well.
+        // So we ignore the key here but later when we handle custom keycodes in
+        // `process_other_keycodes` we disable Case Modes manually.
+        case LS_MDIA:
+        case KC_ESC:
             // If mod chording disable the mods
             if (record->event.pressed && (get_mods() != 0)) {
                 return true;
@@ -922,13 +930,45 @@ bool process_macro_keycodes(uint16_t keycode, keyrecord_t *record) {
     return process_turkish_letter_macro(keycode, record);
 }
 
-static bool should_swallow_esc = false;
+static bool should_swallow_esc_release = false;
+bool process_swallowed_esc(uint16_t keycode, keyrecord_t *record) {
+    switch (keycode) {
+        case LS_MDIA:
+            if (record->tap.count != 0) { // key is being tapped
+                // Don't send escape key when trying to exit caps word or case
+                // modes
+                if (record->event.pressed
+                    && (
+                        (is_caps_word_on() && !is_caps_lock_on())
+                        || (get_xcase_state() != XCASE_OFF)
+                    )
+                ) {
+                    caps_word_off();
+                    disable_xcase();
+                    should_swallow_esc_release = true;
+                    return false; // skip default handling
+                }
+            }
+
+            // We should also swallow key release record
+            if (should_swallow_esc_release && !record->event.pressed) {
+                should_swallow_esc_release = false;
+                return false; // skip default handling
+            }
+    }
+
+    return true; // otherwise continue with default handling
+}
+
 bool process_other_keycodes(uint16_t keycode, keyrecord_t *record) {
     // Handle if keycode is "dynamic tapping term per key" adjustment keycode
     if (!process_tapping_term_keycodes(keycode, record)) { return false; }
 
     // Handle if keycode is "casemodes" keycode
     if (!process_casemodes_keycode(keycode, record)) { return false; }
+
+    // Handle Esc when it's being used to exit Caps Word or Case Modes
+    if (!process_swallowed_esc(keycode, record)) { return false; }
 
     switch (keycode) {
 #ifdef RGB_MATRIX_ENABLE
@@ -965,21 +1005,6 @@ bool process_other_keycodes(uint16_t keycode, keyrecord_t *record) {
 
             }
             return false;
-
-        case LS_MDIA:
-            // Don't send escape key when trying to exit caps word or case modes
-            if ((is_caps_word_on() && !is_caps_lock_on())
-                || get_xcase_state() != XCASE_OFF
-            ) {
-                if (record->event.pressed) {
-                    should_swallow_esc = true;
-                } else if (should_swallow_esc) {
-                    caps_word_off();
-                    disable_xcase();
-                    should_swallow_esc = false;
-                }
-                return false;
-            }
         default:
             return true;
     }
@@ -1092,17 +1117,19 @@ void matrix_scan_user() {
 };
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+    // Pass the keycode and record to achordion for tap-hold decision
+    if (!process_achordion(keycode, record)) { return false; }
+
+    // Process case modes after other key codes because we use Esc to quit
+    // case modes but we don't want to send the escape key. If case modes
+    // handles the key first, it will send the Esc key itself.
+    if (!process_case_modes(keycode, record)) { return false; }
+
     // Pass the keycode and record to custom caps lock
     if (!process_custom_caps_lock(keycode, record)) { return false; }
 
     // Pass the keycode and record to custom shift keys
     if (!process_custom_shift_keys(keycode, record)) { return false; }
-
-    // Pass the keycode and record to achordion for tap-hold decision
-    if (!process_achordion(keycode, record)) { return false; }
-
-    // Pass the keycode and the record to casemodes
-    if (!process_case_modes(keycode, record)) { return false; }
 
     // Process keycodes for custom macros
     if (!process_macro_keycodes(keycode, record)) { return false; }
