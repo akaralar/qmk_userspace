@@ -59,6 +59,9 @@
 #undef LOCKING_RESYNC_ENABLE
 #define NO_MUSIC_MODE
 
+// Disable RGB_* keycodes
+#define RGBLIGHT_DISABLE_KEYCODES
+
 // Undefine RGB matrix animations to save firmware space
 #undef ENABLE_RGB_MATRIX_ALPHAS_MODS
 #undef ENABLE_RGB_MATRIX_GRADIENT_UP_DOWN
