@@ -53,6 +53,14 @@ enum C_keycodes {
     // Regular caps lock is assigned as a macOS globe (fn) key in macOS
     CPS_LCK,
     // Macro keycodes
+    // Turkish letter macros
+    TC_C,
+    TC_G,
+    TC_I,
+    TC_O,
+    TC_S,
+    TC_U,
+    // Symbol Macros
     M_UPDIR,
     M_BRACKETS,
     M_PARENS,
@@ -833,6 +841,50 @@ bool process_tap_or_long_press_key(
 }
 
 
+typedef struct {
+    uint16_t diacritic_dead_key;
+    uint16_t key_to_add_diacritic;
+} turkish_diacritic_key;
+
+const turkish_diacritic_key turkish_diacritic_keys[] = {
+    {KC_C, KC_C},
+    {KC_B, KC_G},
+    {KC_W, KC_I},
+    {KC_U, KC_O},
+    {KC_C, KC_S},
+    {KC_U, KC_U},
+};
+
+bool process_turkish_letter_macro(uint16_t keycode, keyrecord_t *record) {
+    if (keycode < TC_C || keycode > TC_U) {
+        return true;
+    }
+
+    if (record->event.pressed) {
+        uint8_t mods = get_mods();
+        uint8_t oneshot_mods = get_oneshot_mods();
+        uint8_t weak_mods = get_weak_mods();
+
+        clear_mods();
+        clear_oneshot_mods();
+        clear_weak_mods();
+
+        turkish_diacritic_key keys = turkish_diacritic_keys[keycode - TC_C];
+        tap_code16(LALT(keys.diacritic_dead_key));
+
+        if (((mods | oneshot_mods | weak_mods) & MOD_MASK_SHIFT)
+            || is_caps_lock_on()
+            || is_caps_word_on()
+        ) {
+            tap_code16(LSFT(keys.key_to_add_diacritic));
+        } else {
+            tap_code16(keys.key_to_add_diacritic);
+        }
+    }
+
+    return false;
+}
+
 bool process_macro_keycodes(uint16_t keycode, keyrecord_t *record) {
     // Tap-hold macros in symbol layer
     switch (keycode) {
@@ -862,7 +914,7 @@ bool process_macro_keycodes(uint16_t keycode, keyrecord_t *record) {
             return process_tap_or_long_press_key(record, KC_HASH, M_CBLOCK_S);
     }
 
-    return true;
+    return process_turkish_letter_macro(keycode, record);
 }
 
 static bool should_swallow_esc = false;
@@ -933,12 +985,6 @@ void led_state_set(layer_state_t state) {
     switch (layer) {
         case NAVI: {
             ergodox_right_led_1_on();
-            break;
-        }
-        case CLET: {
-            ergodox_right_led_1_on();
-            ergodox_right_led_2_on();
-            ergodox_right_led_3_on();
             break;
         }
         case MOUS: {
