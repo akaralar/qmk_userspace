@@ -86,6 +86,9 @@ enum C_keycodes {
 #define KC_REDO LGUI(LSFT(KC_Z))
 #define KC_FN KC_CAPS // caps lock is converted to fn key in the OS
 
+// Custom modifiers in single key
+#define KC_CSG LCTL(LSFT(KC_LEFT_GUI))
+
 // mod-tap keys same for qwerty and colemak
 #define MT_A MT(MOD_LCTL, KC_A)
 #define MT_W MT(MOD_LSFT | MOD_LCTL | MOD_LGUI, KC_W)
@@ -292,7 +295,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
     [NAVI] = LAYOUT_ergodox(
         _______, _______, _______, _______, _______, _______, _______,
-        _______, XXXXXXX, XXXXXXX, KC_MEH , KC_HYPR, XXXXXXX, _______,
+        _______, XXXXXXX, KC_CSG , KC_MEH , KC_HYPR, XXXXXXX, _______,
         _______, KC_LCTL, KC_LALT, KC_LGUI, KC_LSFT, XXXXXXX,
         _______, KC_UNDO, KC_CUT , KC_COPY, KC_PSTE, KC_REDO, _______,
         _______, _______, _______, _______, XXXXXXX,
@@ -314,7 +317,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         _______, _______, _______, _______, _______, _______, _______,
         _______, EDT_SCR, PRT_SCR, ALF_NAV, ALF_ACT, MOOM   , _______,
         _______, KC_LCTL, KC_LALT, KC_LGUI, KC_LSFT, ONEP_QA,
-        _______, XXXXXXX, XXXXXXX, TH_QE  , TH_QEAF, _______, _______,
+        _______, XXXXXXX, XXXXXXX, TH_QE  , TH_QEAF, XXXXXXX, _______,
         _______, _______, _______, _______, _______,
                                                      _______, _______,
                                                               _______,
@@ -332,9 +335,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
     [MDIA] = LAYOUT_ergodox(
         _______, _______, _______, _______, _______, _______, _______,
-        _______, QK_BOOT, _______, XXXXXXX, DM_REC1, DM_PLY1, _______,
+        _______, QK_BOOT, XXXXXXX, XXXXXXX, DM_REC1, DM_PLY1, _______,
         _______, KC_LCTL, KC_LALT, KC_LGUI, KC_LSFT, DM_RSTP,
-        _______, VRSN   , _______, _______, DM_REC2, DM_PLY2, _______,
+        _______, VRSN   , XXXXXXX, XXXXXXX, DM_REC2, DM_PLY2, _______,
         _______, _______, _______, _______, _______,
                                                      _______, _______,
                                                               _______,
@@ -361,7 +364,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                             _______, KC_MINS, _______,
 
         _______, _______, _______, _______, _______, _______, _______,
-        _______, XXXXXXX, KC_HYPR, KC_MEH , KC_RALT, XXXXXXX, _______,
+        _______, XXXXXXX, KC_HYPR, KC_MEH , KC_CSG , XXXXXXX, _______,
                  XXXXXXX, KC_RSFT, KC_RGUI, KC_LALT, KC_RCTL, _______,
         _______, XXXXXXX, XXXXXXX, _______, _______, _______, _______,
                           XXXXXXX, _______, _______, _______, _______,
