@@ -37,8 +37,13 @@
 //------------------------------------------------------------------------------
 enum C_keycodes {
     VRSN = EZ_SAFE_RANGE,
-
-    RGB_SLD,
+#ifdef RGB_MATRIX_ENABLE
+    // Custom keycode to toggle rgb lights on / off
+    RGB_TGL,
+    // Custom keycodes for RGB matrix brightness
+    RGB_BUP,
+    RGB_BDN,
+#endif
     // Increase/decrease the difference from tapping term for ring/pinky fingers
     DT_R_UP,
     DT_R_DN,
@@ -926,13 +931,23 @@ bool process_other_keycodes(uint16_t keycode, keyrecord_t *record) {
     if (!process_casemodes_keycode(keycode, record)) { return false; }
 
     switch (keycode) {
-        case RGB_SLD:
-            if (record->event.pressed) {
 #ifdef RGB_MATRIX_ENABLE
-                rgblight_mode(1);
-#endif
+        case RGB_TGL:
+            if (record->event.pressed) {
+                rgblight_toggle_noeeprom();
             }
             return false;
+        case RGB_BUP:
+            if (record->event.pressed) {
+                rgb_matrix_increase_val_noeeprom();
+            }
+            return false;
+        case RGB_BDN:
+            if (record->event.pressed) {
+                rgb_matrix_decrease_val_noeeprom();
+            }
+            return false;
+#endif
         case VRSN:
             if (record->event.pressed) {
                 const char* str = QMK_KEYBOARD "/" QMK_KEYMAP " @ " QMK_VERSION;
@@ -1061,7 +1076,9 @@ void fix_leds_task(void) {
 //------------------------------------------------------------------------------
 void keyboard_post_init_user(void) {
 #if RGB_MATRIX_ENABLE
-    rgb_matrix_enable();
+    rgb_matrix_enable_noeeprom();
+#elif
+    rgb_matrix_disable_noeeprom();
 #endif
 
 #if CONSOLE_ENABLE
@@ -1246,10 +1263,10 @@ const uint8_t PROGMEM rgb_colors[][3] = {
     [NAVI] = {163, 218, 255},
     [MOUS] = {122, 255, 255},
     [MDIA] = {41, 255, 255},
-    [NUMB] = {0, 245, 245},
+    [NUMB] = {0, 245, 255},
     [SYMB] = {74, 255, 255},
     [SNUM] = {74, 255, 255},
-    [FUNC] = {211, 218, 204}
+    [FUNC] = {211, 218, 255}
 };
 
 void set_layer_rgb_colors(int layer) {
