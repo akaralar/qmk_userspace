@@ -792,7 +792,7 @@ bool process_casemodes_keycode(uint16_t keycode, keyrecord_t *record) {
     }
 }
 
-void execute_macro_keycode(uint16_t keycode) {
+void execute_symbol_macro(uint16_t keycode) {
     switch (keycode) {
         // Holding down ampersand sends markdown code block
         case M_CBLOCK:
@@ -840,7 +840,7 @@ bool process_tap_or_long_press_key(
 ) {
     if (record->tap.count == 0) { // Key is being held.
         if (record->event.pressed) {
-            execute_macro_keycode(long_press_keycode);
+            execute_symbol_macro(long_press_keycode);
         }
         return false; // Skip default handling.
     } else {
