@@ -853,7 +853,6 @@ bool process_tap_or_long_press_key(
     }
 }
 
-
 typedef struct {
     uint16_t diacritic_dead_key;
     uint16_t key_to_add_diacritic;
@@ -960,18 +959,9 @@ bool process_swallowed_esc(uint16_t keycode, keyrecord_t *record) {
     return true; // otherwise continue with default handling
 }
 
-bool process_other_keycodes(uint16_t keycode, keyrecord_t *record) {
-    // Handle if keycode is "dynamic tapping term per key" adjustment keycode
-    if (!process_tapping_term_keycodes(keycode, record)) { return false; }
-
-    // Handle if keycode is "casemodes" keycode
-    if (!process_casemodes_keycode(keycode, record)) { return false; }
-
-    // Handle Esc when it's being used to exit Caps Word or Case Modes
-    if (!process_swallowed_esc(keycode, record)) { return false; }
-
-    switch (keycode) {
 #ifdef RGB_MATRIX_ENABLE
+bool process_rgb_matrix_keycodes(uint16_t keycode, keyrecord_t *record) {
+    switch (keycode) {
         case RGB_TGL:
             if (record->event.pressed) {
                 rgblight_toggle_noeeprom();
@@ -987,7 +977,28 @@ bool process_other_keycodes(uint16_t keycode, keyrecord_t *record) {
                 rgb_matrix_decrease_val_noeeprom();
             }
             return false;
+        default:
+            return true;
+    }
+}
 #endif
+
+bool process_other_keycodes(uint16_t keycode, keyrecord_t *record) {
+    // Handle if keycode is "dynamic tapping term per key" adjustment keycode
+    if (!process_tapping_term_keycodes(keycode, record)) { return false; }
+
+    // Handle if keycode is "casemodes" keycode
+    if (!process_casemodes_keycode(keycode, record)) { return false; }
+
+    // Handle Esc when it's being used to exit Caps Word or Case Modes
+    if (!process_swallowed_esc(keycode, record)) { return false; }
+
+#ifdef RGB_MATRIX_ENABLE
+    // Process RGB Matrix keycodes
+    if (!process_rgb_matrix_keycodes(keycode, record)) { return false; }
+#endif
+
+    switch (keycode) {
         case VRSN:
             if (record->event.pressed) {
                 const char* str = QMK_KEYBOARD "/" QMK_KEYMAP " @ " QMK_VERSION;
