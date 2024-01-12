@@ -501,19 +501,26 @@ void execute_symbol_macro(uint16_t keycode) {
             SEND_STRING("```");
             tap_code(KC_UP);
             return;
-
         // Holding down slash sends string and returns
         case M_UPDIR:
             SEND_STRING("../");
             return;
-            // The rest, sends string, breaks out of the switch and sends left
-            // arrow after the switch
+
+        // Others sends keycodes, breaks out of the switch and sends left
+        // arrow after the switch
+        // For smart punctuation, we send the keycodes not the string
+        case M_DQUOTES:
+            tap_code16(KC_DQUO);
+            tap_code16(KC_DQUO);
+            break;
+        case M_QUOTES:
+            tap_code(KC_QUOT);
+            tap_code(KC_QUOT);
+            break;
         case M_BRACKETS:        SEND_STRING("[]");   break;
         case M_PARENS:          SEND_STRING("()");   break;
         case M_ABRACES:         SEND_STRING("<>");   break;
         case M_CBRACES:         SEND_STRING("{}");   break;
-        case M_DQUOTES:         SEND_STRING("\"\""); break;
-        case M_QUOTES:          SEND_STRING("''");   break;
         case M_UNDERS:          SEND_STRING("__");   break;
         case M_ASTRSKS:         SEND_STRING("**");   break;
         case M_GRAVES:          SEND_STRING("``");   break;
