@@ -32,20 +32,9 @@
 #include "features/debug_helper.h"
 #endif
 
-enum layers {
-    QWER, // default qwerty layer
-    QLET, // Only letters without modtaps for qwerty
-    COLE, // default colemak layer
-    CLET, // Only letters without modtaps for colemak
-    NAVI, // navigation layer
-    MOUS, // mouse layer
-    MDIA, // media keys layer
-    NUMB, // numbers layer
-    SYMB, // code symbols layer
-    SNUM, // numbers from symbols layer
-    FUNC, // Function keys layer
-};
-
+//------------------------------------------------------------------------------
+// Keycodes
+//------------------------------------------------------------------------------
 enum C_keycodes {
     VRSN = EZ_SAFE_RANGE,
 
@@ -77,14 +66,6 @@ enum C_keycodes {
     M_CBLOCK,
     M_CBLOCK_S
 };
-
-// macOS keycodes
-#define KC_CUT LGUI(KC_X)
-#define KC_COPY LGUI(KC_C)
-#define KC_PSTE LGUI(KC_V)
-#define KC_UNDO LGUI(KC_Z)
-#define KC_REDO LGUI(LSFT(KC_Z))
-#define KC_FN KC_CAPS // caps lock is converted to fn key in the OS
 
 // Custom modifiers in single key
 #define KC_CSG LCTL(LSFT(KC_LEFT_GUI))
@@ -121,13 +102,64 @@ enum C_keycodes {
 #define MT_C_I MT(MOD_LALT, KC_I)
 #define MT_C_O MT(MOD_RCTL, KC_O)
 
-// Layer-tap keys
-#define LT_NAVI LT(NAVI, KC_SPACE)
-#define LT_MOUS LT(MOUS, KC_TAB)
-#define LT_MDIA LT(MDIA, KC_ESCAPE)
-#define LT_NUMB LT(NUMB, KC_BSPC)
-#define LT_SNUM LT(SNUM, KC_EQUAL)
-#define LT_FUNC LT(FUNC, KC_ENTER)
+// One-shot modifiers
+#define OS_LSFT OSM(MOD_LSFT)
+
+// macOS keycodes
+#define KC_CUT LGUI(KC_X)
+#define KC_COPY LGUI(KC_C)
+#define KC_PSTE LGUI(KC_V)
+#define KC_UNDO LGUI(KC_Z)
+#define KC_REDO LGUI(LSFT(KC_Z))
+#define KC_FN KC_CAPS // caps lock is converted to fn key in the OS
+
+// Application shortcuts
+#define MOOM LALT(LCTL(LSFT(KC_GRAVE))) // Moom
+#define ALF_NAV LGUI(LCTL(KC_SLASH))    // Alfred file navigation
+#define ALF_ACT RGUI(RCTL(KC_BSLS))     // Alfred action selection
+#define ONEP_QA LALT(LGUI(KC_BSLS))     // 1password quick access
+#define ONEP_AF LGUI(LSFT(KC_BSLS))     // 1password autofill
+#define TH_QE MEH(KC_T)                 // Things quick entry
+#define TH_QEAF HYPR(KC_T)              // Things quick entry with autofill
+#define PRT_SCR LGUI(LSFT(KC_5))        // Show screenshot tool
+#define EDT_SCR LGUI(LSFT(KC_4))        // Show edit screenshot tool
+
+//------------------------------------------------------------------------------
+// Layers and layer keycodes
+//------------------------------------------------------------------------------
+enum layers {
+    QWER, // default qwerty layer
+    QLET, // Only letters without modtaps for qwerty
+    QTUR, // Turkish letters with diacritics
+    COLE, // default colemak layer
+    CLET, // Only letters without modtaps for colemak
+    CTUR, // Only letters without modtaps for colemak
+    NAVI, // navigation layer
+    MOUS, // mouse layer
+    MDIA, // media keys layer
+    NUMB, // numbers layer
+    SYMB, // code symbols layer
+    SNUM, // numbers from symbols layer
+    FUNC, // Function keys layer
+};
+
+// Layer switching keys
+// Layer-taps
+#define LS_NAVI LT(NAVI, KC_SPACE)
+#define LS_MOUS LT(MOUS, KC_TAB)
+#define LS_MDIA LT(MDIA, KC_ESCAPE)
+#define LS_NUMB LT(NUMB, KC_BSPC)
+#define LS_SNUM LT(SNUM, KC_EQUAL)
+#define LS_FUNC LT(FUNC, KC_ENTER)
+// One shots
+#define LS_SYMB OSL(SYMB) // For switching to symbol layer
+#define LS_QTUR OSL(QTUR) // For Turkish characters layer on Qwerty
+#define LS_CTUR OSL(CTUR) // For Turkish characters layer on Colemak
+// Toggling layers where mod-taps are removed from letter keys
+#define LS_QLET TT(QLET)
+#define LS_CLET TT(CLET)
+// Toggling Colemak on / off
+#define LS_COLE TG(COLE)
 
 // Fake layer-tap keys. These keys are used in macros and since some of them
 // are not basic keycodes, both tap and hold action is handled in the macros,
@@ -147,29 +179,9 @@ enum C_keycodes {
 #define FT_CBL LT(SYMB, KC_A)
 #define FT_CBLS LT(SYMB, KC_B)
 
-// One-shot modifiers
-#define OS_LSFT OSM(MOD_LSFT)
-
-// Layer switching
-#define LS_SYMB MO(SYMB)
-#define LS_QLET TT(QLET)
-#define LS_CLET TT(CLET)
-// Toggling Colemak on / off
-#define LS_COLE TG(COLE)
-
-// ZSA specific keys
-#define ZSA_TOG TOGGLE_LAYER_COLOR
-
-// Application shortcuts
-#define MOOM LALT(LCTL(LSFT(KC_GRAVE))) // Moom
-#define ALF_NAV LGUI(LCTL(KC_SLASH))    // Alfred file navigation
-#define ALF_ACT RGUI(RCTL(KC_BSLS))     // Alfred action selection
-#define ONEP_QA LALT(LGUI(KC_BSLS))     // 1password quick access
-#define ONEP_AF LGUI(LSFT(KC_BSLS))     // 1password autofill
-#define TH_QE MEH(KC_T)                 // Things quick entry
-#define TH_QEAF HYPR(KC_T)              // Things quick entry with autofill
-#define PRT_SCR LGUI(LSFT(KC_5))        // Show screenshot tool
-#define EDT_SCR LGUI(LSFT(KC_4))        // Show edit screenshot tool
+//------------------------------------------------------------------------------
+// Keymap
+//------------------------------------------------------------------------------
 
 // clang-format off
 
@@ -218,19 +230,19 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         _______, KC_Q   , MT_W   , MT_Q_E , MT_Q_R , KC_T   , _______,
         _______, MT_A   , MT_Q_S , MT_Q_D , MT_Q_F , KC_G   ,
         _______, KC_Z   , KC_X   , KC_C   , KC_V   , KC_B   , _______,
-        _______, _______, _______, _______, LT_MDIA,
+        _______, _______, _______, _______, LS_MDIA,
                                                      _______, LS_COLE,
                                                               OS_LSFT,
-                                            LT_NAVI, LT_MOUS, CM_TOGL,
+                                            LS_NAVI, LS_MOUS, CM_TOGL,
 
         _______, _______, _______, _______, _______, _______, _______,
         _______, KC_Y   , MT_Q_U , MT_Q_I , MT_Q_O , KC_P   , _______,
                  KC_H   , MT_Q_J , MT_Q_K , MT_Q_L , MT_Q_QT, _______,
         _______, KC_N   , KC_M   , KC_COMM, KC_DOT , KC_SLSH, _______,
                           LS_SYMB, _______, _______, _______, _______,
-        _______, _______,
-        LS_QLET,
-        KC_FN  , LT_FUNC, LT_NUMB
+        LS_QLET, _______,
+        KC_FN  ,
+        LS_QTUR, LS_FUNC, LS_NUMB
     ),
 
     [QLET] = LAYOUT_ergodox(
@@ -253,24 +265,44 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         _______, _______, _______
     ),
 
+    [QTUR] = LAYOUT_ergodox(
+        _______, _______, _______, _______, _______, _______, _______,
+        _______, _______, _______, _______, _______, _______, _______,
+        _______, _______, TC_S   , _______, _______, TC_G   ,
+        _______, _______, _______, TC_C   , _______, _______, _______,
+        _______, _______, _______, _______, _______,
+                                                     _______, _______,
+                                                              _______,
+                                            _______, _______, _______,
+
+        _______, _______, _______, _______, _______, _______, _______,
+        _______, _______, TC_U   , TC_I   , TC_O   , _______, _______,
+                 _______, _______, _______, _______, _______, _______,
+        _______, _______, _______, _______, _______, _______, _______,
+                          _______, _______, _______, _______, _______,
+        _______, _______,
+        _______,
+        _______, _______, _______
+    ),
+
     [COLE] = LAYOUT_ergodox(
         _______, _______, _______, _______, _______, _______, _______,
         _______, KC_Q   , MT_W   , MT_C_F , MT_C_P , KC_B   , _______,
         _______, MT_A   , MT_C_R , MT_C_S , MT_C_T , KC_G   ,
         _______, KC_Z   , KC_X   , KC_C   , KC_D   , KC_V   , _______,
-        _______, _______, _______, _______, LT_MDIA,
+        _______, _______, _______, _______, LS_MDIA,
                                                      _______, _______,
                                                               OS_LSFT,
-                                            LT_NAVI, LT_MOUS, CM_TOGL,
+                                            LS_NAVI, LS_MOUS, CM_TOGL,
 
         _______, _______, _______, _______, _______, _______, _______,
         _______, KC_J   , MT_C_L , MT_C_U , MT_C_Y , KC_QUOT, _______,
                  KC_M   , MT_C_N , MT_C_E , MT_C_I , MT_C_O , _______,
         _______, KC_K   , KC_H   , KC_COMM, KC_DOT , KC_SLSH, _______,
                           LS_SYMB, _______, _______, _______, _______,
-        _______, _______,
-        LS_CLET,
-        KC_FN  , LT_FUNC, LT_NUMB
+        LS_CLET, _______,
+        KC_FN  ,
+        LS_CTUR, LS_FUNC, LS_NUMB
     ),
 
     [CLET] = LAYOUT_ergodox(
@@ -285,7 +317,27 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
         _______, _______, _______, _______, _______, _______, _______,
         _______, _______, KC_L   , KC_U   , KC_Y   , _______, _______,
-                 _______, KC_N   , KC_E   , KC_I   , KC_O, _______,
+                 _______, KC_N   , KC_E   , KC_I   , KC_O   , _______,
+        _______, _______, _______, _______, _______, _______, _______,
+                          _______, _______, _______, _______, _______,
+        _______, _______,
+        _______,
+        _______, _______, _______
+    ),
+
+    [CTUR] = LAYOUT_ergodox(
+        _______, _______, _______, _______, _______, _______, _______,
+        _______, _______, _______, _______, _______, _______, _______,
+        _______, _______, _______, TC_S   , _______, TC_G   ,
+        _______, _______, _______, TC_C   , _______, _______, _______,
+        _______, _______, _______, _______, _______,
+                                                     _______, _______,
+                                                              _______,
+                                            _______, _______, _______,
+
+        _______, _______, _______, _______, _______, _______, _______,
+        _______, _______, _______, TC_U   , _______, _______, _______,
+                 _______, _______, _______, TC_I   , KC_O, _______,
         _______, _______, _______, _______, _______, _______, _______,
                           _______, _______, _______, _______, _______,
         _______, _______,
@@ -386,7 +438,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         _______, _______, _______, _______, _______, _______, _______,
         _______, KC_CIRC, KC_BSLS, FT_DQUO, FT_ASTR, KC_PERC, _______,
                  KC_PIPE, KC_RCBR, FT_LCBR, KC_COLN, KC_COMM, _______,
-        _______, FT_QUOT, LT_SNUM, KC_MINS, KC_EXLM, KC_SCLN, _______,
+        _______, FT_QUOT, LS_SNUM, KC_MINS, KC_EXLM, KC_SCLN, _______,
                           XXXXXXX, _______, _______, _______, _______,
         _______, _______,
         _______,
@@ -440,7 +492,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 // Custom shift keys
 //------------------------------------------------------------------------------
 const custom_shift_key_t custom_shift_keys[] = {
-  {LT_NUMB , KC_DEL}, // Shift + LT Backspace is delete
+  {LS_NUMB , KC_DEL}, // Shift + LT Backspace is delete
   {KC_BSPC , KC_DEL}, // Shift + Normal backspace is delete
 };
 
@@ -512,7 +564,7 @@ bool get_permissive_hold(uint16_t keycode, keyrecord_t *record) {
 bool get_retro_tapping(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
         // Enable retro tapping for "=" / snum layer switch key
-        case LT_SNUM:
+        case LS_SNUM:
             return true;
         default:
             return false;
@@ -535,7 +587,7 @@ bool achordion_chord(uint16_t tap_hold_keycode,
     }
 
     // For thumb keys other than space, allow same-hand holds
-    if (other_record->event.key.col >= 4 && other_keycode != LT_NAVI) {
+    if (other_record->event.key.col >= 4 && other_keycode != LS_NAVI) {
         return true;
     }
 
@@ -780,7 +832,8 @@ bool process_tap_or_long_press_key(
     }
 }
 
-bool process_macros(uint16_t keycode, keyrecord_t *record) {
+
+bool process_macro_keycodes(uint16_t keycode, keyrecord_t *record) {
     // Tap-hold macros in symbol layer
     switch (keycode) {
         case FT_SLSH:
@@ -846,7 +899,7 @@ bool process_other_keycodes(uint16_t keycode, keyrecord_t *record) {
             }
             return false;
 
-        case LT_MDIA:
+        case LS_MDIA:
             // Don't send escape key when trying to exit caps word or case modes
             if ((is_caps_word_on() && !is_caps_lock_on())
                 || get_xcase_state() != XCASE_OFF
@@ -911,6 +964,10 @@ void led_state_set(layer_state_t state) {
             ergodox_right_led_3_on();
             break;
         }
+        case CLET:
+        case QLET:
+        case CTUR:
+        case QTUR:
         case FUNC: {
             ergodox_right_led_1_on();
             ergodox_right_led_2_on();
@@ -985,7 +1042,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     if (!process_case_modes(keycode, record)) { return false; }
 
     // Process keycodes for custom macros
-    if (!process_macros(keycode, record)) { return false; }
+    if (!process_macro_keycodes(keycode, record)) { return false; }
 
     // Process custom keycodes defined in this file
     if (!process_other_keycodes(keycode, record)) { return false; }
@@ -1053,6 +1110,13 @@ const bool PROGMEM rgb_on[][RGB_MATRIX_LED_COUNT] = {
         false, false, false, false, false,    false, false, false, false, false,
         false, false, false, false ,                false , false, false, false
     ),
+    [QTUR] = LED_LAYOUT_ergodox_pretty(
+        false, false, false, false, false,    false, false, false, false, false,
+        false, false, false, false, false,    false, true , true , true , false,
+        false, true , false, false, true ,    false, false, false, false, false,
+        false, false, true , false, false,    false, false, false, false, false,
+        false, false, false, false ,                false , false, false, false
+    ),
     [COLE] = LED_LAYOUT_ergodox_pretty(
         false, false, false, false, false,    false, false, false, false, false,
         true , true , true , true , true ,    true , true , true , true , true ,
@@ -1067,6 +1131,14 @@ const bool PROGMEM rgb_on[][RGB_MATRIX_LED_COUNT] = {
         false, false, false, false, false,    false, false, false, false, false,
         false, false, false, false ,                false , false, false, false
     ),
+    [CTUR] = LED_LAYOUT_ergodox_pretty(
+        false, false, false, false, false,    false, false, false, false, false,
+        false, false, false, false, false,    false, false, true , false, false,
+        false, false, true , false, true ,    false, false, false, true , true ,
+        false, false, true , false, false,    false, false, false, false, false,
+        false, false, false, false ,                false , false, false, false
+    ),
+
     [NAVI] = LED_LAYOUT_ergodox_pretty(
         false, false, false, false, false,    false, false, false, false, false,
         false, false, true , true , false,    true , true , true , true , true ,
@@ -1121,9 +1193,11 @@ const bool PROGMEM rgb_on[][RGB_MATRIX_LED_COUNT] = {
 const uint8_t PROGMEM rgb_colors[][3] = {
     [QWER] = {8, 255, 255},
     [QLET] = {8, 255, 255},
+    [QTUR] = {8, 255, 255},
     [COLE] = {8, 255, 255},
     [CLET] = {8, 255, 255},
-    [NAVI] = {163, 218, 204},
+    [CTUR] = {8, 255, 255},
+    [NAVI] = {163, 218, 255},
     [MOUS] = {122, 255, 255},
     [MDIA] = {41, 255, 255},
     [NUMB] = {0, 245, 245},
