@@ -54,13 +54,14 @@
 // Type lowercase if shift is applied during Caps Word is on
 #define CAPS_WORD_INVERT_ON_SHIFT
 
+// Disable RGB_* keycodes
+#define RGBLIGHT_DISABLE_KEYCODES
+#define RGB_MATRIX_DISABLE_KEYCODES
+
 // Undefine features to save space
 #undef LOCKING_SUPPORT_ENABLE
 #undef LOCKING_RESYNC_ENABLE
 #define NO_MUSIC_MODE
-
-// Disable RGB_* keycodes
-#define RGBLIGHT_DISABLE_KEYCODES
 
 // Undefine RGB matrix animations to save firmware space
 #undef ENABLE_RGB_MATRIX_ALPHAS_MODS
