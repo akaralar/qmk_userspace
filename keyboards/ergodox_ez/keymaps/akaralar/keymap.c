@@ -204,8 +204,8 @@ uint8_t NUM_CUSTOM_SHIFT_KEYS =
 //------------------------------------------------------------------------------
 // Mod-tap settings
 //------------------------------------------------------------------------------
-uint16_t index_tap_term_diff = 20;
-uint16_t ring_pinky_tap_term_diff = 15;
+static uint16_t index_tap_term_diff = 20;
+static uint16_t ring_pinky_tap_term_diff = 15;
 
 uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
@@ -402,7 +402,10 @@ static void send_string_if_enabled(const char *string) {
 #endif
 }
 
-bool process_tapping_term_keycodes(uint16_t keycode, keyrecord_t *record) {
+static bool process_tapping_term_keycodes(
+    uint16_t keycode,
+    keyrecord_t *record
+) {
     switch (keycode) {
         case DT_I_UP:
             if (record->event.pressed) {
@@ -439,7 +442,7 @@ bool process_tapping_term_keycodes(uint16_t keycode, keyrecord_t *record) {
     }
 }
 
-bool process_casemodes_keycode(uint16_t keycode, keyrecord_t *record) {
+static bool process_casemodes_keycode(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
         case CM_TOGL:
             if (record->event.pressed) {
@@ -481,7 +484,7 @@ bool process_casemodes_keycode(uint16_t keycode, keyrecord_t *record) {
     }
 }
 
-void execute_symbol_macro(uint16_t keycode) {
+static void execute_symbol_macro(uint16_t keycode) {
     switch (keycode) {
         // Holding down ampersand sends markdown code block
         case M_CBLOCK:
@@ -529,7 +532,7 @@ void execute_symbol_macro(uint16_t keycode) {
     return;
 }
 
-bool process_tap_or_long_press_key(
+static bool process_tap_or_long_press_key(
     keyrecord_t *record,
     uint16_t tap_keycode,
     uint16_t long_press_keycode
@@ -554,7 +557,7 @@ typedef struct {
     uint16_t key_to_add_diacritic;
 } turkish_diacritic_key;
 
-const turkish_diacritic_key turkish_diacritic_keys[] = {
+static const turkish_diacritic_key turkish_diacritic_keys[] = {
     {KC_C, KC_C},
     {KC_B, KC_G},
     {KC_W, KC_I},
@@ -563,7 +566,7 @@ const turkish_diacritic_key turkish_diacritic_keys[] = {
     {KC_U, KC_U},
 };
 
-bool process_turkish_letter_macro(uint16_t keycode, keyrecord_t *record) {
+static bool process_tr_letter_macro(uint16_t keycode, keyrecord_t *record) {
     if (keycode < TC_C || keycode > TC_U) {
         return true;
     }
@@ -593,7 +596,7 @@ bool process_turkish_letter_macro(uint16_t keycode, keyrecord_t *record) {
     return false;
 }
 
-bool process_macro_keycodes(uint16_t keycode, keyrecord_t *record) {
+static bool process_macro_keycodes(uint16_t keycode, keyrecord_t *record) {
     // Tap-hold macros in symbol layer
     switch (keycode) {
         case FT_SLSH:
@@ -622,11 +625,11 @@ bool process_macro_keycodes(uint16_t keycode, keyrecord_t *record) {
             return process_tap_or_long_press_key(record, KC_HASH, M_CBLOCK_S);
     }
 
-    return process_turkish_letter_macro(keycode, record);
+    return process_tr_letter_macro(keycode, record);
 }
 
 static bool should_swallow_esc_release = false;
-bool process_swallowed_esc(uint16_t keycode, keyrecord_t *record) {
+static bool process_swallowed_esc(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
         case LS_MDIA:
             if (record->tap.count != 0) { // key is being tapped
@@ -656,7 +659,7 @@ bool process_swallowed_esc(uint16_t keycode, keyrecord_t *record) {
 }
 
 #ifdef RGB_MATRIX_ENABLE
-bool process_rgb_matrix_keycodes(uint16_t keycode, keyrecord_t *record) {
+static bool process_rgb_matrix_keycodes(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
         case RGB_TGL:
             if (record->event.pressed) {
@@ -679,7 +682,7 @@ bool process_rgb_matrix_keycodes(uint16_t keycode, keyrecord_t *record) {
 }
 #endif
 
-bool process_other_keycodes(uint16_t keycode, keyrecord_t *record) {
+static bool process_other_keycodes(uint16_t keycode, keyrecord_t *record) {
     // Handle if keycode is "dynamic tapping term per key" adjustment keycode
     if (!process_tapping_term_keycodes(keycode, record)) { return false; }
 
@@ -722,7 +725,7 @@ bool process_other_keycodes(uint16_t keycode, keyrecord_t *record) {
 //------------------------------------------------------------------------------
 // LED lights
 //------------------------------------------------------------------------------
-void led_state_set(layer_state_t state) {
+static void led_state_set(layer_state_t state) {
     ergodox_board_led_off();
     ergodox_right_led_1_off();
     ergodox_right_led_2_off();
