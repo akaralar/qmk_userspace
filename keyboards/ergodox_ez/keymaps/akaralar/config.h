@@ -33,9 +33,6 @@
 #define TAPPING_TERM_PER_KEY
 #define PERMISSIVE_HOLD_PER_KEY
 
-// Retro tapping for "=" key in symbol layer to switch to number layer
-#define RETRO_TAPPING_PER_KEY
-
 // Turn keyboard lights off after 5 minutes
 #undef RGB_MATRIX_TIMEOUT
 #define RGB_MATRIX_TIMEOUT 300000
