@@ -208,39 +208,21 @@ static uint16_t index_tap_term_diff = 20;
 static uint16_t ring_pinky_tap_term_diff = 15;
 
 uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
-    switch (keycode) {
-        // Increase tapping term for ring and pinky fingers
-        // A and W are same for both Qwerty and Colemak
-        case MT_A:
-        case MT_W:
+    // Only consider alpha keys block
+    if (record->event.key.col > 3) { return g_tapping_term; }
 
-        // Qwerty ring/pinky mod-taps
-        case MT_Q_S:
-        case MT_Q_L:
-        case MT_Q_QT:
-        case MT_Q_O:
-        // Colemak ring/pinky mod-taps
-        case MT_C_R:
-        case MT_C_I:
-        case MT_C_O:
-        case MT_C_Y:
+    switch (record->event.key.row) {
+        // Increase tapping term for ring and pinky fingers
+        case 0 ... 2:
+        case 11 ... 13:
             return g_tapping_term + ring_pinky_tap_term_diff;
         // Decrease tapping term for index fingers
-        // Qwerty index mod-taps
-        case MT_Q_F:
-        case MT_Q_J:
-        case MT_Q_R:
-        case MT_Q_U:
-        // Colemak index mod-taps
-        case MT_C_T:
-        case MT_C_N:
-        case MT_C_P:
-        case MT_C_L:
+        case 4 ... 9:
             return g_tapping_term - index_tap_term_diff;
         default:
             return g_tapping_term;
     }
-};
+}
 
 bool get_permissive_hold(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
