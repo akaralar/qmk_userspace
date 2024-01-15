@@ -126,6 +126,7 @@ enum C_keycodes {
 
 // Application shortcuts
 #define MOOM LALT(LCTL(LSFT(KC_GRAVE))) // Moom
+#define ALF_SEA LGUI(LALT(KC_SPC))      // Alfred search
 #define ALF_NAV LGUI(LCTL(KC_SLASH))    // Alfred file navigation
 #define ALF_ACT RGUI(RCTL(KC_BSLS))     // Alfred action selection
 #define ONEP_QA LALT(LGUI(KC_BSLS))     // 1password quick access
@@ -1028,7 +1029,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [NAVI] = LAYOUT_ergodox(
         _______, _______, _______, _______, _______, _______, _______,
         _______, XXXXXXX, KC_CSG , KC_MEH , KC_HYPR, XXXXXXX, _______,
-        _______, KC_LCTL, KC_LALT, KC_LGUI, KC_LSFT, XXXXXXX,
+        _______, KC_LCTL, KC_LALT, KC_LGUI, KC_LSFT, ALF_SEA,
         _______, KC_UNDO, KC_CUT , KC_COPY, KC_PSTE, KC_REDO, _______,
         _______, _______, _______, _______, XXXXXXX,
                                                      _______, _______,
@@ -1243,7 +1244,7 @@ const bool PROGMEM rgb_on[][RGB_MATRIX_LED_COUNT] = {
     [NAVI] = LED_LAYOUT_ergodox_pretty(
         false, false, false, false, false,    false, false, false, false, false,
         false, false, true , true , false,    true , true , true , true , true ,
-        true , true , true , true , false,    true , true , true , true , true ,
+        true , true , true , true , true ,    true , true , true , true , true ,
         true , true , true , true , true ,    true , true , true , true , true ,
         false, false, false, false,                  true , false, false, false
     ),
