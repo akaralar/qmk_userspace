@@ -226,8 +226,18 @@ uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
 
 bool get_permissive_hold(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
-        // Apply permissive hold to layer tap keys
-        case QK_LAYER_TAP ... QK_LAYER_TAP_MAX:
+        // Apply permissive hold to layer switching keys
+        case LS_NAVI:
+        case LS_MOUS:
+        case LS_MDIA:
+        case LS_NUMB:
+        case LS_SYMB:
+        case LS_SNUM:
+        case LS_FUNC:
+        case LS_QLET:
+        case LS_CLET:
+        case QK_ONE_SHOT_LAYER ... QK_ONE_SHOT_LAYER_MAX:
+
         // Apply permissive hold to shift and cmd
         // Qwerty shift and cmd mod-taps
         case MT_Q_D:
