@@ -15,10 +15,6 @@ UNICODE_ENABLE = no
 WEBUSB_ENABLE = no
 
 SRC = matrix.c
-SRC += features/achordion.c
-SRC += features/casemodes.c
-SRC += features/custom_caps_lock.c
-SRC += features/custom_shift_keys.c
 SRC += features/debug_helper.c
 
 # Disable the following to save space

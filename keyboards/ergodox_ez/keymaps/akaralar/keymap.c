@@ -17,17 +17,6 @@
 #include QMK_KEYBOARD_H
 #include "version.h"
 
-// For more info about achordion, see https://getreuer.info/posts/keyboards/achordion/index.html
-#include "features/achordion.h"
-
-// For more info about custom shift keys, see https://getreuer.info/posts/keyboards/custom-shift-keys/index.html
-#include "features/custom_shift_keys.h"
-
-// For more info about casemodes, see https://github.com/andrewjrae/kyria-keymap/
-#include "features/casemodes.h"
-
-#include "features/custom_caps_lock.h"
-
 #ifdef CONSOLE_ENABLE
 #include "features/debug_helper.h"
 #endif
@@ -192,79 +181,6 @@ enum layers {
 #define FT_CBL LT(SYMB, KC_A)
 #define FT_CBLS LT(SYMB, KC_B)
 
-//------------------------------------------------------------------------------
-// Custom shift keys
-//------------------------------------------------------------------------------
-const custom_shift_key_t custom_shift_keys[] = {
-  {LS_NUMB , KC_DEL}, // Shift + LT Backspace is delete
-  {KC_BSPC , KC_DEL}, // Shift + Normal backspace is delete
-};
-
-uint8_t NUM_CUSTOM_SHIFT_KEYS =
-    sizeof(custom_shift_keys) / sizeof(custom_shift_key_t);
-
-//------------------------------------------------------------------------------
-// Mod-tap settings
-//------------------------------------------------------------------------------
-uint16_t index_tap_term_diff = 20;
-uint16_t ring_pinky_tap_term_diff = 15;
-
-uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
-    switch (keycode) {
-        // Increase tapping term for ring and pinky fingers
-        // A and W are same for both Qwerty and Colemak
-        case MT_A:
-        case MT_W:
-
-        // Qwerty ring/pinky mod-taps
-        case MT_Q_S:
-        case MT_Q_L:
-        case MT_Q_QT:
-        case MT_Q_O:
-        // Colemak ring/pinky mod-taps
-        case MT_C_R:
-        case MT_C_I:
-        case MT_C_O:
-        case MT_C_Y:
-            return g_tapping_term + ring_pinky_tap_term_diff;
-        // Decrease tapping term for index fingers
-        // Qwerty index mod-taps
-        case MT_Q_F:
-        case MT_Q_J:
-        case MT_Q_R:
-        case MT_Q_U:
-        // Colemak index mod-taps
-        case MT_C_T:
-        case MT_C_N:
-        case MT_C_P:
-        case MT_C_L:
-            return g_tapping_term - index_tap_term_diff;
-        default:
-            return g_tapping_term;
-    }
-};
-
-bool get_permissive_hold(uint16_t keycode, keyrecord_t *record) {
-    switch (keycode) {
-        // Apply permissive hold to layer tap keys
-        case QK_LAYER_TAP ... QK_LAYER_TAP_MAX:
-        // Apply permissive hold to shift and cmd
-        // Qwerty shift and cmd mod-taps
-        case MT_Q_D:
-        case MT_Q_F:
-        case MT_Q_J:
-        case MT_Q_K:
-        // Colemak shift and cmd mod-taps
-        case MT_C_S:
-        case MT_C_T:
-        case MT_C_N:
-        case MT_C_E:
-            return true;
-        default:
-            return false;
-    }
-};
-
 bool get_retro_tapping(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
         // Enable retro tapping for "=" / snum layer switch key
@@ -276,213 +192,8 @@ bool get_retro_tapping(uint16_t keycode, keyrecord_t *record) {
 };
 
 //------------------------------------------------------------------------------
-// Achordion
-//------------------------------------------------------------------------------
-bool achordion_chord(uint16_t tap_hold_keycode,
-                    keyrecord_t *tap_hold_record,
-                    uint16_t other_keycode,
-                    keyrecord_t *other_record) {
-    switch (tap_hold_keycode) {
-        // Allow same hand holds with layer switching keys
-        case QK_LAYER_TAP ... QK_LAYER_TAP_MAX:
-        // Allow same hand holds with the symbol layer
-        case LS_SYMB:
-            return true;
-    }
-
-    // For thumb keys other than space, allow same-hand holds
-    if (other_record->event.key.col >= 4 && other_keycode != LS_NAVI) {
-        return true;
-    }
-
-    // Otherwise, follow the opposite hands rule.
-    return achordion_opposite_hands(tap_hold_record, other_record);
-}
-
-uint16_t achordion_timeout(uint16_t tap_hold_keycode) {
-    return g_tapping_term + 200;
-}
-
-bool achordion_eager_mod(uint8_t mod) {
-  switch (mod) {
-    // Eagerly apply Shift, Cmd and Alt mods.
-    case MOD_LSFT:
-    case MOD_RSFT:
-    case MOD_LGUI:
-    case MOD_RGUI:
-    case MOD_LALT:
-    case MOD_RALT:
-      return true;
-    default:
-      return false;
-  }
-};
-
-//------------------------------------------------------------------------------
-// Caps Word
-//------------------------------------------------------------------------------
-bool caps_word_press_user(uint16_t keycode) {
-    switch (keycode) {
-        // Keycodes that continue Caps Word, with shift applied.
-        case KC_A ... KC_Z:
-            add_weak_mods(MOD_BIT(KC_LSFT));  // Apply shift to next key.
-            return true;
-
-        // Keycodes that continue Caps Word, without shifting.
-        case KC_MINS:
-        case KC_1 ... KC_0:
-        case KC_BSPC:
-        case KC_DEL:
-        case KC_UNDS:
-            // When caps lock is enabled, we stop caps word on any key other
-            // than A-Z, to be re-enabled later when another A-Z key is pressed
-            return !is_caps_lock_on();
-
-        default:
-            return false;  // Deactivate Caps Word.
-    }
-}
-
-//------------------------------------------------------------------------------
-// Casemodes
-//------------------------------------------------------------------------------
-enum case_mode {
-    CASE_SNAKE,
-    CASE_KEBAB,
-    CASE_CAMEL,
-};
-
-static enum case_mode case_mode = -1;
-
-bool terminate_case_modes(uint16_t keycode, const keyrecord_t *record) {
-    switch (keycode) {
-        // Keycodes to ignore (don't disable case modes)
-        case KC_A ... KC_Z:
-        case KC_1 ... KC_0:
-        case KC_MINS:
-        case KC_UNDS:
-        case KC_BSPC:
-        case KC_DEL:
-        case CM_TOGL:
-        // We use Esc key to exit Case Modes but we don't want to send Esc to
-        // the system. If we do not add the Esc key to the list of keys to be
-        // ignored by Case Modes, when case modes processes Esc key, it exits
-        // but sends the key as well.
-        // So we ignore the key here but later when we handle custom keycodes in
-        // `process_other_keycodes` we disable Case Modes manually.
-        case LS_MDIA:
-        case KC_ESC:
-            // If mod chording disable the mods
-            if (record->event.pressed && (get_mods() != 0)) {
-                return true;
-            }
-            break;
-        default:
-            if (record->event.pressed) {
-                return true;
-            }
-            break;
-    }
-    return false;
-}
-
-//------------------------------------------------------------------------------
 // Custom keycode handling
 //------------------------------------------------------------------------------
-static const char* to_string(uint16_t diff) {
-    const char *diff_str = get_u16_str(diff, ' ');
-    // Skip padding spaces
-    while (*diff_str == ' ') {
-        diff_str++;
-    }
-    return diff_str;
-}
-
-static void send_string_if_enabled(const char *string) {
-#ifdef SEND_STRING_ENABLE
-    send_string(string);
-#endif
-}
-
-bool process_tapping_term_keycodes(uint16_t keycode, keyrecord_t *record) {
-    switch (keycode) {
-        case DT_I_UP:
-            if (record->event.pressed) {
-                index_tap_term_diff += DYNAMIC_TAPPING_TERM_INCREMENT;
-            }
-            return false;
-        case DT_I_DN:
-            if (record->event.pressed) {
-                index_tap_term_diff -= DYNAMIC_TAPPING_TERM_INCREMENT;
-            }
-            return false;
-        case DT_R_UP:
-            if (record->event.pressed) {
-                ring_pinky_tap_term_diff += DYNAMIC_TAPPING_TERM_INCREMENT;
-            }
-            return false;
-
-        case DT_R_DN:
-            if (record->event.pressed) {
-                ring_pinky_tap_term_diff -= DYNAMIC_TAPPING_TERM_INCREMENT;
-            }
-            return false;
-        case DT_PALL:
-            if (record->event.pressed) {
-                send_string_if_enabled(to_string(g_tapping_term));
-                send_string_if_enabled(", i: ");
-                send_string_if_enabled(to_string(index_tap_term_diff));
-                send_string_if_enabled(", rp: ");
-                send_string_if_enabled(to_string(ring_pinky_tap_term_diff));
-            }
-            return false;
-        default:
-            return true;
-    }
-}
-
-bool process_casemodes_keycode(uint16_t keycode, keyrecord_t *record) {
-    switch (keycode) {
-        case CM_TOGL:
-            if (record->event.pressed) {
-                const uint8_t mods = get_mods();
-                const uint8_t oneshot_mods = get_oneshot_mods();
-
-                if ((mods | oneshot_mods) & MOD_MASK_SHIFT) {
-
-                    // Shift held, activate camel case
-                    unregister_mods(MOD_MASK_SHIFT);
-                    del_oneshot_mods(MOD_MASK_SHIFT);
-                    enable_xcase_with(OS_LSFT);
-                    register_mods(mods);
-
-                    case_mode = CASE_CAMEL;
-                } else if ((mods | oneshot_mods) & MOD_MASK_GUI) {
-
-                    // CMD held, activate snake case
-                    unregister_mods(MOD_MASK_GUI);
-                    del_oneshot_mods(MOD_MASK_GUI);
-                    enable_xcase_with(KC_UNDS);
-                    register_mods(mods);
-
-                    case_mode = CASE_SNAKE;
-                } else if ((mods | oneshot_mods) & MOD_MASK_ALT) {
-
-                    // ALT held, activate kebab case
-                    unregister_mods(MOD_MASK_ALT);
-                    del_oneshot_mods(MOD_MASK_ALT);
-                    enable_xcase_with(KC_MINS);
-                    register_mods(mods);
-
-                    case_mode = CASE_KEBAB;
-                }
-            }
-            return false;
-        default:
-            return true;
-    }
-}
-
 void execute_symbol_macro(uint16_t keycode) {
     switch (keycode) {
         // Holding down ampersand sends markdown code block
@@ -551,49 +262,6 @@ bool process_tap_or_long_press_key(
     }
 }
 
-typedef struct {
-    uint16_t diacritic_dead_key;
-    uint16_t key_to_add_diacritic;
-} turkish_diacritic_key;
-
-const turkish_diacritic_key turkish_diacritic_keys[] = {
-    {KC_C, KC_C},
-    {KC_B, KC_G},
-    {KC_W, KC_I},
-    {KC_U, KC_O},
-    {KC_C, KC_S},
-    {KC_U, KC_U},
-};
-
-bool process_turkish_letter_macro(uint16_t keycode, keyrecord_t *record) {
-    if (keycode < TC_C || keycode > TC_U) {
-        return true;
-    }
-
-    if (record->event.pressed) {
-        uint8_t mods = get_mods();
-        uint8_t oneshot_mods = get_oneshot_mods();
-        uint8_t weak_mods = get_weak_mods();
-
-        clear_mods();
-        clear_oneshot_mods();
-        clear_weak_mods();
-
-        turkish_diacritic_key keys = turkish_diacritic_keys[keycode - TC_C];
-        tap_code16(LALT(keys.diacritic_dead_key));
-
-        if (((mods | oneshot_mods | weak_mods) & MOD_MASK_SHIFT)
-            || is_caps_lock_on()
-            || is_caps_word_on()
-        ) {
-            tap_code16(LSFT(keys.key_to_add_diacritic));
-        } else {
-            tap_code16(keys.key_to_add_diacritic);
-        }
-    }
-
-    return false;
-}
 
 bool process_macro_keycodes(uint16_t keycode, keyrecord_t *record) {
     // Tap-hold macros in symbol layer
@@ -624,37 +292,7 @@ bool process_macro_keycodes(uint16_t keycode, keyrecord_t *record) {
             return process_tap_or_long_press_key(record, KC_HASH, M_CBLOCK_S);
     }
 
-    return process_turkish_letter_macro(keycode, record);
-}
-
-static bool should_swallow_esc_release = false;
-bool process_swallowed_esc(uint16_t keycode, keyrecord_t *record) {
-    switch (keycode) {
-        case LS_MDIA:
-            if (record->tap.count != 0) { // key is being tapped
-                // Don't send escape key when trying to exit caps word or case
-                // modes
-                if (record->event.pressed
-                    && (
-                        (is_caps_word_on() && !is_caps_lock_on())
-                        || (get_xcase_state() != XCASE_OFF)
-                    )
-                ) {
-                    caps_word_off();
-                    disable_xcase();
-                    should_swallow_esc_release = true;
-                    return false; // skip default handling
-                }
-            }
-
-            // We should also swallow key release record
-            if (should_swallow_esc_release && !record->event.pressed) {
-                should_swallow_esc_release = false;
-                return false; // skip default handling
-            }
-    }
-
-    return true; // otherwise continue with default handling
+    return true;
 }
 
 #ifdef RGB_MATRIX_ENABLE
@@ -682,37 +320,10 @@ bool process_rgb_matrix_keycodes(uint16_t keycode, keyrecord_t *record) {
 #endif
 
 bool process_other_keycodes(uint16_t keycode, keyrecord_t *record) {
-    // Handle if keycode is "dynamic tapping term per key" adjustment keycode
-    if (!process_tapping_term_keycodes(keycode, record)) { return false; }
-
-    // Handle if keycode is "casemodes" keycode
-    if (!process_casemodes_keycode(keycode, record)) { return false; }
-
-    // Handle Esc when it's being used to exit Caps Word or Case Modes
-    if (!process_swallowed_esc(keycode, record)) { return false; }
-
-#ifdef RGB_MATRIX_ENABLE
-    // Process RGB Matrix keycodes
-    if (!process_rgb_matrix_keycodes(keycode, record)) { return false; }
-#endif
-
     switch (keycode) {
         case VRSN:
-            if (record->event.pressed) {
-                const char* str = QMK_KEYBOARD "/" QMK_KEYMAP " @ " QMK_VERSION;
-                send_string_if_enabled(str);
-            }
             return false;
         case CPS_LCK:
-            if (record->event.pressed) {
-                caps_lock_toggle();
-                if (is_caps_lock_on()) {
-                    caps_word_on();
-                } else {
-                    caps_word_off();
-                }
-
-            }
             return false;
         default:
             return true;
@@ -772,31 +383,6 @@ void led_state_set(layer_state_t state) {
         default:
             break;
     }
-
-    // Fix LED lights behaviour for Caps Lock and Caps Word
-    // led_t led_state = host_keyboard_led_state();
-    if (is_caps_lock_on()) {
-        ergodox_right_led_3_on();
-    } else if (is_caps_word_on()) {
-        ergodox_right_led_2_on();
-    }
-
-    // Fix LED lights behaviour for case modes
-    if (get_xcase_state() != XCASE_OFF) {
-        switch (case_mode) {
-            case CASE_CAMEL:
-                ergodox_right_led_1_on();
-                break;
-            case CASE_SNAKE:
-                ergodox_right_led_2_on();
-                break;
-            case CASE_KEBAB:
-                ergodox_right_led_3_on();
-                break;
-            default:
-                break;
-        }
-    }
 };
 
 // Fix LED lights behaviour for when other things affect LEDs (like Caps Lock &
@@ -812,7 +398,7 @@ void keyboard_post_init_user(void) {
 #if RGB_MATRIX_ENABLE
     rgb_matrix_enable_noeeprom();
 #elif
-    rgb_matrix_disable_noeeprom();
+    // rgb_matrix_disable_noeeprom();
 #endif
 
 #if CONSOLE_ENABLE
@@ -821,25 +407,10 @@ void keyboard_post_init_user(void) {
 };
 
 void matrix_scan_user() {
-    achordion_task();
     fix_leds_task();
 };
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-    // Pass the keycode and record to achordion for tap-hold decision
-    if (!process_achordion(keycode, record)) { return false; }
-
-    // Process case modes after other key codes because we use Esc to quit
-    // case modes but we don't want to send the escape key. If case modes
-    // handles the key first, it will send the Esc key itself.
-    if (!process_case_modes(keycode, record)) { return false; }
-
-    // Pass the keycode and record to custom caps lock
-    if (!process_custom_caps_lock(keycode, record)) { return false; }
-
-    // Pass the keycode and record to custom shift keys
-    if (!process_custom_shift_keys(keycode, record)) { return false; }
-
     // Process keycodes for custom macros
     if (!process_macro_keycodes(keycode, record)) { return false; }
 
