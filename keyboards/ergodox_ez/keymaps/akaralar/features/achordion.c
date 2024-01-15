@@ -81,10 +81,20 @@ static void settle_as_hold(void) {
   recursively_process_record(&tap_hold_record, STATE_HOLDING);
 }
 
+static bool pressed_another_key_before_release = false;
+
 bool process_achordion(uint16_t keycode, keyrecord_t* record) {
   // Don't process events that Achordion generated.
   if (achordion_state == STATE_RECURSING) {
     return true;
+  }
+
+  // Check if this is a different key press than the tap-hold key
+  if (!pressed_another_key_before_release
+      && record->event.pressed
+      && tap_hold_keycode != KC_NO
+    ) {
+    pressed_another_key_before_release = keycode != tap_hold_keycode;
   }
 
   // Determine whether the current event is for a mod-tap or layer-tap key.
@@ -108,6 +118,7 @@ bool process_achordion(uint16_t keycode, keyrecord_t* record) {
         // Save info about this key.
         tap_hold_keycode = keycode;
         tap_hold_record = *record;
+        pressed_another_key_before_release = false;
         hold_timer = record->event.time + timeout;
 
         if (is_mt) {  // Apply mods immediately if they are "eager."
@@ -131,16 +142,17 @@ bool process_achordion(uint16_t keycode, keyrecord_t* record) {
   }
 
   if (keycode == tap_hold_keycode && !record->event.pressed) {
-#ifdef RETRO_TAPPING
-    bool is_retro = IS_QK_MOD_TAP(keycode) || IS_QK_LAYER_TAP(keycode);
-#elif defined(RETRO_TAPPING_PER_KEY)
-    bool is_retro = get_retro_tapping(keycode, record);
-#else
-    bool is_retro = false;
-#endif
     // The active tap-hold key is being released.
-    if (achordion_state == STATE_HOLDING || is_retro) {
+    if (achordion_state == STATE_HOLDING) {
       dprintln("Achordion: Key released. Plumbing hold release.");
+      tap_hold_record.event.pressed = false;
+      // Plumb hold release event.
+      recursively_process_record(&tap_hold_record, STATE_RELEASED);
+    } else if (!pressed_another_key_before_release) {
+      // Active tap-hold key is being released without tapping another key so we
+      // simulate hold and then release.
+      dprintln("Achordion: Key released. Simulating hold and release.");
+      settle_as_hold();
       tap_hold_record.event.pressed = false;
       // Plumb hold release event.
       recursively_process_record(&tap_hold_record, STATE_RELEASED);
@@ -153,6 +165,7 @@ bool process_achordion(uint16_t keycode, keyrecord_t* record) {
     }
 
     achordion_state = STATE_RELEASED;
+    tap_hold_keycode = KC_NO;
     return false;
   }
 
