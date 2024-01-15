@@ -196,49 +196,12 @@ bool get_retro_tapping(uint16_t keycode, keyrecord_t *record) {
 //------------------------------------------------------------------------------
 void execute_symbol_macro(uint16_t keycode) {
     switch (keycode) {
-        // Holding down ampersand sends markdown code block
-        case M_CBLOCK:
-            SEND_STRING("```");
-            tap_code(KC_ENTER);
-            tap_code(KC_ENTER);
-            SEND_STRING("```");
-            tap_code(KC_UP);
-            return;
-        // Holding down hash sends markdown code block for Swift code
-        case M_CBLOCK_S:
-            SEND_STRING("```swift");
-            tap_code(KC_ENTER);
-            tap_code(KC_ENTER);
-            SEND_STRING("```");
-            tap_code(KC_UP);
-            return;
-        // Holding down slash sends string and returns
-        case M_UPDIR:
-            SEND_STRING("../");
-            return;
-
-        // Others sends keycodes, breaks out of the switch and sends left
-        // arrow after the switch
-        // For smart punctuation, we send the keycodes not the string
         case M_DQUOTES:
             tap_code16(KC_DQUO);
             tap_code16(KC_DQUO);
+            tap_code(KC_LEFT);
             break;
-        case M_QUOTES:
-            tap_code(KC_QUOT);
-            tap_code(KC_QUOT);
-            break;
-        case M_BRACKETS:        SEND_STRING("[]");   break;
-        case M_PARENS:          SEND_STRING("()");   break;
-        case M_ABRACES:         SEND_STRING("<>");   break;
-        case M_CBRACES:         SEND_STRING("{}");   break;
-        case M_UNDERS:          SEND_STRING("__");   break;
-        case M_ASTRSKS:         SEND_STRING("**");   break;
-        case M_GRAVES:          SEND_STRING("``");   break;
-        // Allow system to process other keycodes
-        default: return;
     }
-    tap_code(KC_LEFT);
     return;
 }
 
@@ -266,176 +229,22 @@ bool process_tap_or_long_press_key(
 bool process_macro_keycodes(uint16_t keycode, keyrecord_t *record) {
     // Tap-hold macros in symbol layer
     switch (keycode) {
-        case FT_SLSH:
-            return process_tap_or_long_press_key(record, KC_SLASH, M_UPDIR);
-        case FT_LBRC:
-            return process_tap_or_long_press_key(record, KC_LBRC, M_BRACKETS);
-        case FT_LPRN:
-            return process_tap_or_long_press_key(record, KC_LPRN, M_PARENS);
-        case FT_LABK:
-            return process_tap_or_long_press_key(record, KC_LABK, M_ABRACES);
-        case FT_LCBR:
-            return process_tap_or_long_press_key(record, KC_LCBR, M_CBRACES);
         case FT_DQUO:
             return process_tap_or_long_press_key(record, KC_DQUO, M_DQUOTES);
-        case FT_QUOT:
-            return process_tap_or_long_press_key(record, KC_QUOT, M_QUOTES);
-        case FT_UNDS:
-            return process_tap_or_long_press_key(record, KC_UNDS, M_UNDERS);
-        case FT_ASTR:
-            return process_tap_or_long_press_key(record, KC_ASTR, M_ASTRSKS);
-        case FT_GRV:
-            return process_tap_or_long_press_key(record, KC_GRV, M_GRAVES);
-        case FT_CBL:
-            return process_tap_or_long_press_key(record, KC_AMPR, M_CBLOCK);
-        case FT_CBLS:
-            return process_tap_or_long_press_key(record, KC_HASH, M_CBLOCK_S);
     }
 
     return true;
 }
-
-#ifdef RGB_MATRIX_ENABLE
-bool process_rgb_matrix_keycodes(uint16_t keycode, keyrecord_t *record) {
-    switch (keycode) {
-        case RGB_TGL:
-            if (record->event.pressed) {
-                rgblight_toggle_noeeprom();
-            }
-            return false;
-        case RGB_BUP:
-            if (record->event.pressed) {
-                rgb_matrix_increase_val_noeeprom();
-            }
-            return false;
-        case RGB_BDN:
-            if (record->event.pressed) {
-                rgb_matrix_decrease_val_noeeprom();
-            }
-            return false;
-        default:
-            return true;
-    }
-}
-#endif
-
-bool process_other_keycodes(uint16_t keycode, keyrecord_t *record) {
-    switch (keycode) {
-        case VRSN:
-            return false;
-        case CPS_LCK:
-            return false;
-        default:
-            return true;
-    }
-
-    return true;
-};
-
-//------------------------------------------------------------------------------
-// LED lights
-//------------------------------------------------------------------------------
-void led_state_set(layer_state_t state) {
-    ergodox_board_led_off();
-    ergodox_right_led_1_off();
-    ergodox_right_led_2_off();
-    ergodox_right_led_3_off();
-
-    uint8_t layer = get_highest_layer(layer_state);
-    switch (layer) {
-        case NAVI: {
-            ergodox_right_led_1_on();
-            break;
-        }
-        case MOUS: {
-            ergodox_right_led_2_on();
-            break;
-        }
-        case MDIA: {
-            ergodox_right_led_3_on();
-            break;
-        }
-        case NUMB: {
-            ergodox_right_led_1_on();
-            ergodox_right_led_2_on();
-            break;
-        }
-        case SYMB: {
-            ergodox_right_led_1_on();
-            ergodox_right_led_3_on();
-            break;
-        }
-        case SNUM: {
-            ergodox_right_led_2_on();
-            ergodox_right_led_3_on();
-            break;
-        }
-        case CLET:
-        case QLET:
-        case CTUR:
-        case QTUR:
-        case FUNC: {
-            ergodox_right_led_1_on();
-            ergodox_right_led_2_on();
-            ergodox_right_led_3_on();
-            break;
-        }
-        default:
-            break;
-    }
-};
-
-// Fix LED lights behaviour for when other things affect LEDs (like Caps Lock &
-// Caps Word and case modes)
-void fix_leds_task(void) {
-    led_state_set(layer_state);
-};
 
 //------------------------------------------------------------------------------
 // QMK User space functions
 //------------------------------------------------------------------------------
-void keyboard_post_init_user(void) {
-#if RGB_MATRIX_ENABLE
-    rgb_matrix_enable_noeeprom();
-#elif
-    // rgb_matrix_disable_noeeprom();
-#endif
-
-#if CONSOLE_ENABLE
-    enable_debug_user();
-#endif
-};
-
-void matrix_scan_user() {
-    fix_leds_task();
-};
-
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     // Process keycodes for custom macros
     if (!process_macro_keycodes(keycode, record)) { return false; }
 
-    // Process custom keycodes defined in this file
-    if (!process_other_keycodes(keycode, record)) { return false; }
-
     return true;
 };
-
-layer_state_t layer_state_set_user(layer_state_t state) {
-    led_state_set(state);
-    return state;
-};
-
-//------------------------------------------------------------------------------
-// Add empty functions for Magic Keycodes to save some space
-// see https://docs.qmk.fm/#/squeezing_avr?id=magic-functions
-//------------------------------------------------------------------------------
-uint16_t keycode_config(uint16_t keycode) {
-    return keycode;
-}
-
-uint8_t mod_config(uint8_t mod) {
-    return mod;
-}
 
 //------------------------------------------------------------------------------
 // Keymap
