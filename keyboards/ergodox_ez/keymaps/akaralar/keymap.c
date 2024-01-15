@@ -160,10 +160,10 @@ enum layers {
 #define LS_MOUS LT(MOUS, KC_TAB)
 #define LS_MDIA LT(MDIA, KC_ESCAPE)
 #define LS_NUMB LT(NUMB, KC_BSPC)
-#define LS_SNUM LT(SNUM, KC_EQUAL)
+#define LS_SNUM LT(SNUM, KC_3) // We intercept tap to send "}" and not "3"
 #define LS_FUNC LT(FUNC, KC_ENTER)
 // One shots
-#define LS_SYMB MO(SYMB) // For switching to symbol layer
+#define LS_SYMB OSL(SYMB) // For switching to symbol layer
 #define LS_QTUR OSL(QTUR) // For Turkish characters layer on Qwerty
 #define LS_CTUR OSL(CTUR) // For Turkish characters layer on Colemak
 // Toggling layers where mod-taps are removed from letter keys
@@ -236,8 +236,8 @@ bool get_permissive_hold(uint16_t keycode, keyrecord_t *record) {
         case LS_FUNC:
         case LS_QLET:
         case LS_CLET:
-        case QK_ONE_SHOT_LAYER ... QK_ONE_SHOT_LAYER_MAX:
-
+        case LS_QTUR:
+        case LS_CTUR:
         // Apply permissive hold to shift and cmd
         // Qwerty shift and cmd mod-taps
         case MT_Q_D:
@@ -249,16 +249,6 @@ bool get_permissive_hold(uint16_t keycode, keyrecord_t *record) {
         case MT_C_T:
         case MT_C_N:
         case MT_C_E:
-            return true;
-        default:
-            return false;
-    }
-};
-
-bool get_retro_tapping(uint16_t keycode, keyrecord_t *record) {
-    switch (keycode) {
-        // Enable retro tapping for "=" / snum layer switch key
-        case LS_SNUM:
             return true;
         default:
             return false;
@@ -283,7 +273,6 @@ bool achordion_chord(uint16_t tap_hold_keycode,
         case LS_FUNC:
         case LS_QLET:
         case LS_CLET:
-        case QK_ONE_SHOT_LAYER ... QK_ONE_SHOT_LAYER_MAX:
             return true;
     }
 
@@ -622,6 +611,12 @@ static bool process_macro_keycodes(uint16_t keycode, keyrecord_t *record) {
             return process_tap_or_long_press_key(record, KC_AMPR, M_CBLOCK);
         case FT_CBLS:
             return process_tap_or_long_press_key(record, KC_HASH, M_CBLOCK_S);
+        case LS_SNUM:
+            if (record->event.pressed && record->tap.count != 0) {
+                tap_code16(KC_RCBR);
+                return false;
+            }
+            return true;
     }
 
     return process_tr_letter_macro(keycode, record);
@@ -1122,8 +1117,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
         _______, _______, _______, _______, _______, _______, _______,
         _______, KC_CIRC, KC_BSLS, FT_DQUO, FT_ASTR, KC_PERC, _______,
-                 KC_PIPE, KC_RCBR, FT_LCBR, KC_COLN, KC_COMM, _______,
-        _______, FT_QUOT, LS_SNUM, KC_MINS, KC_EXLM, KC_SCLN, _______,
+                 KC_PIPE, LS_SNUM, FT_LCBR, KC_COLN, KC_COMM, _______,
+        _______, FT_QUOT, KC_EQL , KC_MINS, KC_EXLM, KC_SCLN, _______,
                           XXXXXXX, _______, _______, _______, _______,
         _______, _______,
         _______,
