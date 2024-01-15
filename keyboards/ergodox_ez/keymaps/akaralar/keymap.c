@@ -164,7 +164,7 @@ enum layers {
 #define LS_SNUM LT(SNUM, KC_3) // We intercept tap to send "}" and not "3"
 #define LS_FUNC LT(FUNC, KC_ENTER)
 // One shots
-#define LS_SYMB OSL(SYMB) // For switching to symbol layer
+#define LS_SYMB MO(SYMB) // For switching to symbol layer
 #define LS_QTUR OSL(QTUR) // For Turkish characters layer on Qwerty
 #define LS_CTUR OSL(CTUR) // For Turkish characters layer on Colemak
 // Toggling layers where mod-taps are removed from letter keys
