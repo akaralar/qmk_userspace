@@ -37,13 +37,11 @@
 //------------------------------------------------------------------------------
 enum C_keycodes {
     VRSN = EZ_SAFE_RANGE,
-#ifdef RGB_MATRIX_ENABLE
     // Custom keycode to toggle rgb lights on / off
     RGB_TGL,
     // Custom keycodes for RGB matrix brightness
     RGB_BUP,
     RGB_BDN,
-#endif
     // Increase/decrease the difference from tapping term for ring/pinky fingers
     DT_R_UP,
     DT_R_DN,
@@ -811,8 +809,6 @@ void fix_leds_task(void) {
 void keyboard_post_init_user(void) {
 #if RGB_MATRIX_ENABLE
     rgb_matrix_enable_noeeprom();
-#elif
-    rgb_matrix_disable_noeeprom();
 #endif
 
 #if CONSOLE_ENABLE
