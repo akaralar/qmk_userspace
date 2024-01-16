@@ -17,9 +17,12 @@
 #define ORYX_CONFIGURATOR
 #define USB_SUSPEND_WAKEUP_DELAY 0
 #define CAPS_LOCK_STATUS
-#define FIRMWARE_VERSION u8"v56OO/Qnbem"
+#define FIRMWARE_VERSION u8"v56OO/GQ4WV"
 #define RAW_USAGE_PAGE 0xFF60
 #define RAW_USAGE_ID 0x61
+
+// Use typing streaks for Achordion
+#define ACHORDION_STREAK
 
 // Support for up to 16 layers
 #define LAYER_STATE_16BIT
