@@ -191,6 +191,21 @@ enum layers {
 #define FT_CBL LT(SYMB, KC_A)
 #define FT_CBLS LT(SYMB, KC_B)
 
+// Helper for "real" layer switching keys. Since a bunch of fake layer switching
+// keys are used for macros, we want to exclude them when checking if a keycode
+// is a layer tap.
+#define IS_LAYER_TAP(code) ((code) == LS_NAVI \
+                            || (code) == LS_MOUS \
+                            || (code) == LS_MDIA \
+                            || (code) == LS_NUMB \
+                            || (code) == LS_SNUM \
+                            || (code) == LS_FUNC \
+                            || (code) == LS_QLET \
+                            || (code) == LS_QTUR \
+                            || (code) == LS_COLE \
+                            || (code) == LS_CLET \
+                            || (code) == LS_CTUR)
+
 //------------------------------------------------------------------------------
 // Custom shift keys
 //------------------------------------------------------------------------------
@@ -263,18 +278,9 @@ bool achordion_chord(uint16_t tap_hold_keycode,
                     keyrecord_t *tap_hold_record,
                     uint16_t other_keycode,
                     keyrecord_t *other_record) {
-    switch (tap_hold_keycode) {
-        // Allow same hand holds with layer switching keys
-        case LS_NAVI:
-        case LS_MOUS:
-        case LS_MDIA:
-        case LS_NUMB:
-        case LS_SYMB:
-        case LS_SNUM:
-        case LS_FUNC:
-        case LS_QLET:
-        case LS_CLET:
-            return true;
+    // Allow same hand holds with layer switching keys
+    if (IS_LAYER_TAP(tap_hold_keycode)) {
+        return true;
     }
 
     // For thumb keys other than space, allow same-hand holds
@@ -304,6 +310,25 @@ bool achordion_eager_mod(uint8_t mod) {
       return false;
   }
 };
+
+uint16_t achordion_streak_timeout(uint16_t tap_hold_keycode) {
+    // Disable streak detection on layer switching keys.
+    if (IS_LAYER_TAP(tap_hold_keycode)) {
+        return 0;
+    }
+
+    // A shorter streak timeout for Shift mod-tap keys.
+    if (tap_hold_keycode == MT_Q_F
+        || tap_hold_keycode == MT_Q_J
+        || tap_hold_keycode == MT_C_T
+        || tap_hold_keycode == MT_C_N
+    ) {
+        return 50;
+    }
+
+    // A longer timeout otherwise.
+    return 100;
+}
 
 //------------------------------------------------------------------------------
 // Caps Word
