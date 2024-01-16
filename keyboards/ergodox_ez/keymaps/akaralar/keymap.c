@@ -220,7 +220,7 @@ uint8_t NUM_CUSTOM_SHIFT_KEYS =
 //------------------------------------------------------------------------------
 // Mod-tap settings
 //------------------------------------------------------------------------------
-static uint16_t index_tap_term_diff = 20;
+static uint16_t index_tap_term_diff = 25;
 static uint16_t ring_pinky_tap_term_diff = 15;
 
 uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
