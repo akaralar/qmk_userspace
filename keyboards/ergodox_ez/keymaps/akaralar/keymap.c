@@ -161,7 +161,7 @@ enum layers {
 #define LS_MOUS LT(MOUS, KC_TAB)
 #define LS_MDIA LT(MDIA, KC_ESCAPE)
 #define LS_NUMB LT(NUMB, KC_BSPC)
-#define LS_SNUM LT(SNUM, KC_3) // We intercept tap to send "}" and not "3"
+#define LS_SNUM LT(SNUM, KC_3) // The tap is intercepted later to send "}"
 #define LS_FUNC LT(FUNC, KC_ENTER)
 // One shots
 #define LS_SYMB MO(SYMB) // For switching to symbol layer
