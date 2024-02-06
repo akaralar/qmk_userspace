@@ -271,6 +271,17 @@ bool get_permissive_hold(uint16_t keycode, keyrecord_t *record) {
     }
 };
 
+bool get_hold_on_other_key_press(uint16_t keycode, keyrecord_t *record) {
+    switch (keycode) {
+        case MT_Q_F:
+        case MT_Q_J:
+            // Immediately select the hold action when another key is pressed.
+            return true;
+        default:
+            // Do not select the hold action when another key is pressed.
+            return false;
+    }
+}
 //------------------------------------------------------------------------------
 // Achordion
 //------------------------------------------------------------------------------
@@ -323,7 +334,7 @@ uint16_t achordion_streak_timeout(uint16_t tap_hold_keycode) {
         || tap_hold_keycode == MT_C_T
         || tap_hold_keycode == MT_C_N
     ) {
-        return 50;
+        return 80;
     }
 
     // A longer timeout otherwise.
