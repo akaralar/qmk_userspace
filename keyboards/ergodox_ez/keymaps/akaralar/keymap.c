@@ -682,6 +682,22 @@ static bool process_swallowed_esc(uint16_t keycode, keyrecord_t *record) {
     return true; // otherwise continue with default handling
 }
 
+static bool process_osl_hold(uint16_t keycode, keyrecord_t *record) {
+    switch (keycode) {
+        case LS_SYMB:
+            // If one shot symbol layer is held but no key is pressed, we don't
+            // want it to stay on when the key is released, effectively making
+            // it act like MO(layer)
+            if (!record->event.pressed && record->tap.count == 0) {
+                layer_off(get_oneshot_layer());
+                reset_oneshot_layer();
+                return false;
+            }
+    }
+
+    return true; // otherwise continue with default handling
+}
+
 #ifdef RGB_MATRIX_ENABLE
 static bool process_rgb_matrix_keycodes(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
@@ -715,6 +731,9 @@ static bool process_other_keycodes(uint16_t keycode, keyrecord_t *record) {
 
     // Handle Esc when it's being used to exit Caps Word or Case Modes
     if (!process_swallowed_esc(keycode, record)) { return false; }
+
+    // Handle one shot layer key holds to make them act like MO(layer)
+    if (!process_osl_hold(keycode, record)) { return false; }
 
 #ifdef RGB_MATRIX_ENABLE
     // Process RGB Matrix keycodes
