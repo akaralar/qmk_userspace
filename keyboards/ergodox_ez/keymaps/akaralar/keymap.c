@@ -164,7 +164,7 @@ enum layers {
 #define LS_SNUM LT(SNUM, KC_3) // The tap is intercepted later to send "}"
 #define LS_FUNC LT(FUNC, KC_ENTER)
 // One shots
-#define LS_SYMB MO(SYMB) // For switching to symbol layer
+#define LS_SYMB OSL(SYMB) // For switching to symbol layer
 #define LS_QTUR OSL(QTUR) // For Turkish characters layer on Qwerty
 #define LS_CTUR OSL(CTUR) // For Turkish characters layer on Colemak
 // Toggling layers where mod-taps are removed from letter keys
@@ -220,7 +220,7 @@ uint8_t NUM_CUSTOM_SHIFT_KEYS =
 //------------------------------------------------------------------------------
 // Mod-tap settings
 //------------------------------------------------------------------------------
-static uint16_t index_tap_term_diff = 25;
+static uint16_t index_tap_term_diff = 50;
 static uint16_t ring_pinky_tap_term_diff = 15;
 
 uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
@@ -271,17 +271,6 @@ bool get_permissive_hold(uint16_t keycode, keyrecord_t *record) {
     }
 };
 
-bool get_hold_on_other_key_press(uint16_t keycode, keyrecord_t *record) {
-    switch (keycode) {
-        case MT_Q_F:
-        case MT_Q_J:
-            // Immediately select the hold action when another key is pressed.
-            return true;
-        default:
-            // Do not select the hold action when another key is pressed.
-            return false;
-    }
-}
 //------------------------------------------------------------------------------
 // Achordion
 //------------------------------------------------------------------------------
@@ -304,6 +293,10 @@ bool achordion_chord(uint16_t tap_hold_keycode,
 }
 
 uint16_t achordion_timeout(uint16_t tap_hold_keycode) {
+    switch (tap_hold_keycode) {
+        case LS_SYMB:
+            return 0;
+    }
     return g_tapping_term + 200;
 }
 
@@ -334,7 +327,7 @@ uint16_t achordion_streak_timeout(uint16_t tap_hold_keycode) {
         || tap_hold_keycode == MT_C_T
         || tap_hold_keycode == MT_C_N
     ) {
-        return 80;
+        return 100;
     }
 
     // A longer timeout otherwise.
