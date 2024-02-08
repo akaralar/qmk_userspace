@@ -192,12 +192,14 @@ enum layers {
 #define FT_CBLS LT(SYMB, KC_B)
 
 // Helper for "real" layer switching keys. Since a bunch of fake layer switching
-// keys are used for macros, we want to exclude them when checking if a keycode
-// is a layer tap.
+// keys are used for macros, we can't use QK_LAYER_TAP_MAX and we want to be
+// able to test against real layer switching keys when checking if a keycode is
+// a layer tap.
 #define IS_LAYER_TAP(code) ((code) == LS_NAVI \
                             || (code) == LS_MOUS \
                             || (code) == LS_MDIA \
                             || (code) == LS_NUMB \
+                            || (code) == LS_SYMB \
                             || (code) == LS_SNUM \
                             || (code) == LS_FUNC \
                             || (code) == LS_QLET \
@@ -205,6 +207,7 @@ enum layers {
                             || (code) == LS_COLE \
                             || (code) == LS_CLET \
                             || (code) == LS_CTUR)
+
 
 //------------------------------------------------------------------------------
 // Custom shift keys
