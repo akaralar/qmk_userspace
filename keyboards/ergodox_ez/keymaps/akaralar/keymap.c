@@ -223,7 +223,11 @@ uint8_t NUM_CUSTOM_SHIFT_KEYS =
 //------------------------------------------------------------------------------
 // Mod-tap settings
 //------------------------------------------------------------------------------
-static uint16_t index_tap_term_diff = 50;
+#ifndef DYNAMIC_TAPPING_TERM_ENABLE
+#define DYNAMIC_TAPPING_TERM_INCREMENT 0
+static uint16_t g_tapping_term = TAPPING_TERM;
+#endif
+static uint16_t index_tap_term_diff = 25;
 static uint16_t ring_pinky_tap_term_diff = 15;
 
 uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
@@ -767,6 +771,36 @@ static bool process_other_keycodes(uint16_t keycode, keyrecord_t *record) {
 
     return true;
 };
+
+//------------------------------------------------------------------------------
+// Combos
+//------------------------------------------------------------------------------
+enum combo_events {
+  M_CODE_BLOCK,
+  M_CODE_BLOCK_SWIFT
+};
+
+const uint16_t PROGMEM code_block_combo[] = {KC_RABK, FT_GRV, COMBO_END};
+const uint16_t PROGMEM swift_code_block_combo[] = {KC_RPRN, FT_CBL, COMBO_END};
+combo_t key_combos[] = {
+  [M_CODE_BLOCK] = COMBO_ACTION(code_block_combo),
+  [M_CODE_BLOCK_SWIFT] = COMBO_ACTION(swift_code_block_combo),
+};
+
+void process_combo_event(uint16_t combo_index, bool pressed) {
+    switch (combo_index) {
+        case M_CODE_BLOCK:
+            if (pressed) {
+                execute_symbol_macro(M_CBLOCK);
+            }
+            break;
+        case M_CODE_BLOCK_SWIFT:
+            if (pressed) {
+                execute_symbol_macro(M_CBLOCK_S);
+            }
+            break;
+    }
+}
 
 //------------------------------------------------------------------------------
 // LED lights
