@@ -163,8 +163,8 @@ enum layers {
 #define LS_NUMB LT(NUMB, KC_BSPC)
 #define LS_SNUM LT(SNUM, KC_3) // The tap is intercepted later to send "}"
 #define LS_FUNC LT(FUNC, KC_ENTER)
+#define LS_SYMB LT(SYMB, KC_C) // The tap is intercepted later to send OSL(SYMB)
 // One shots
-#define LS_SYMB OSL(SYMB) // For switching to symbol layer
 #define LS_QTUR OSL(QTUR) // For Turkish characters layer on Qwerty
 #define LS_CTUR OSL(CTUR) // For Turkish characters layer on Colemak
 // Toggling layers where mod-taps are removed from letter keys
@@ -207,7 +207,6 @@ enum layers {
                             || (code) == LS_COLE \
                             || (code) == LS_CLET \
                             || (code) == LS_CTUR)
-
 
 //------------------------------------------------------------------------------
 // Custom shift keys
@@ -700,20 +699,18 @@ static bool process_swallowed_esc(uint16_t keycode, keyrecord_t *record) {
     return true; // otherwise continue with default handling
 }
 
-static bool process_osl_hold(uint16_t keycode, keyrecord_t *record) {
-    switch (keycode) {
-        case LS_SYMB:
-            // If one shot symbol layer is held but no key is pressed, we don't
-            // want it to stay on when the key is released, effectively making
-            // it act like MO(layer)
-            if (!record->event.pressed && record->tap.count == 0) {
-                layer_off(get_oneshot_layer());
-                reset_oneshot_layer();
-                return false;
-            }
-    }
+static bool process_symbol_layer_keycode(
+    uint16_t keycode,
+    keyrecord_t* record
+) {
+    if (keycode == LS_SYMB && record->tap.count == 1)  {
+        if (record->event.pressed) {
+            set_oneshot_layer(SYMB, ONESHOT_START);
+        }
 
-    return true; // otherwise continue with default handling
+        return false;
+    }
+    return true;
 }
 
 #ifdef RGB_MATRIX_ENABLE
@@ -750,8 +747,9 @@ static bool process_other_keycodes(uint16_t keycode, keyrecord_t *record) {
     // Handle Esc when it's being used to exit Caps Word or Case Modes
     if (!process_swallowed_esc(keycode, record)) { return false; }
 
-    // Handle one shot layer key holds to make them act like MO(layer)
-    if (!process_osl_hold(keycode, record)) { return false; }
+    // Symbol layer switch key is a fake layer tap key and we intercept the tap
+    // to toggle a oneshot symbol layer.
+    if (!process_symbol_layer_keycode(keycode, record)) { return false; }
 
 #ifdef RGB_MATRIX_ENABLE
     // Process RGB Matrix keycodes
@@ -897,6 +895,20 @@ void fix_leds_task(void) {
     led_state_set(layer_state);
 };
 
+static bool is_fake_lt_keycode_in_symbol_layer(
+    uint16_t keycode,
+    keyrecord_t* record
+) {
+    return IS_QK_LAYER_TAP(keycode);
+}
+
+static void check_and_disable_oneshot_symbol_layer(keyrecord_t* record) {
+    if (get_oneshot_layer() > 0 && record->event.pressed) {
+        layer_off(get_oneshot_layer());
+        reset_oneshot_layer();
+    }
+}
+
 //------------------------------------------------------------------------------
 // QMK User space functions
 //------------------------------------------------------------------------------
@@ -919,6 +931,15 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     // Pass the keycode and record to achordion for tap-hold decision
     if (!process_achordion(keycode, record)) { return false; }
 
+    // For fake layer tap keys in symbol layer that are intercepted, further
+    // processing is disabled by returning `false`. When oneshot symbol layer is
+    // on, we can't reset the oneshot layer status in `post_process_record_user`
+    // as further processing is stopped. For those keycodes we disable the
+    // oneshot status here.
+    if (is_fake_lt_keycode_in_symbol_layer(keycode, record)) {
+        check_and_disable_oneshot_symbol_layer(record);
+    }
+
     // Process case modes after other key codes because we use Esc to quit
     // case modes but we don't want to send the escape key. If case modes
     // handles the key first, it will send the Esc key itself.
@@ -938,6 +959,11 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
     return true;
 };
+
+void post_process_record_user(uint16_t keycode, keyrecord_t *record) {
+    // When oneshot symbol layer is on, turn off oneshot status for regular keys
+    check_and_disable_oneshot_symbol_layer(record);
+}
 
 layer_state_t layer_state_set_user(layer_state_t state) {
     led_state_set(state);
