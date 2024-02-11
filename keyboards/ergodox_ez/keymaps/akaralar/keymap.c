@@ -232,7 +232,18 @@ static uint16_t ring_pinky_tap_term_diff = 15;
 
 uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
     // Only consider alpha keys block
-    if (record->event.key.col > 3) { return g_tapping_term; }
+    if (record->event.key.col > 3) {
+        return g_tapping_term;
+    }
+
+    // Make tapping term much shorter for shift mod tap keys
+    switch (keycode) {
+        case MT_Q_F:
+        case MT_Q_J:
+        case MT_C_T:
+        case MT_C_N:
+            return g_tapping_term - index_tap_term_diff - 30;
+    }
 
     switch (record->event.key.row) {
         // Increase tapping term for ring and pinky fingers
@@ -328,13 +339,13 @@ uint16_t achordion_streak_timeout(uint16_t tap_hold_keycode) {
         return 0;
     }
 
-    // A shorter streak timeout for Shift mod-tap keys.
+    // Disable streak detection for Shift mod-tap keys.
     if (tap_hold_keycode == MT_Q_F
         || tap_hold_keycode == MT_Q_J
         || tap_hold_keycode == MT_C_T
         || tap_hold_keycode == MT_C_N
     ) {
-        return 100;
+        return 0;
     }
 
     // A longer timeout otherwise.
