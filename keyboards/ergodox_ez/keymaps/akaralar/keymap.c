@@ -230,7 +230,12 @@ static uint16_t index_tap_term_diff = 25;
 static uint16_t ring_pinky_tap_term_diff = 15;
 
 uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
-    // Only consider alpha keys block
+    // Give a little bit of time to the thumb space key
+    if (keycode == LS_NAVI) {
+        return g_tapping_term + 25;
+    }
+
+    // Otherwise, only consider alpha keys block
     if (record->event.key.col > 3) {
         return g_tapping_term;
     }
@@ -241,7 +246,7 @@ uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
         case MT_Q_J:
         case MT_C_T:
         case MT_C_N:
-            return g_tapping_term - index_tap_term_diff - 30;
+            return g_tapping_term - index_tap_term_diff - 25;
     }
 
     switch (record->event.key.row) {
