@@ -789,6 +789,7 @@ static bool process_other_keycodes(uint16_t keycode, keyrecord_t *record) {
 //------------------------------------------------------------------------------
 // Combos
 //------------------------------------------------------------------------------
+#ifdef COMBO_ENABLE
 enum combo_events {
   M_CODE_BLOCK,
   M_CODE_BLOCK_SWIFT
@@ -815,7 +816,7 @@ void process_combo_event(uint16_t combo_index, bool pressed) {
             break;
     }
 }
-
+#endif
 //------------------------------------------------------------------------------
 // LED lights
 //------------------------------------------------------------------------------
