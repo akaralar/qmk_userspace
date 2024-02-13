@@ -338,11 +338,6 @@ bool achordion_eager_mod(uint8_t mod) {
 };
 
 uint16_t achordion_streak_timeout(uint16_t tap_hold_keycode) {
-    // Disable streak detection on layer switching keys.
-    if (IS_LAYER_TAP(tap_hold_keycode)) {
-        return 0;
-    }
-
     // Disable streak detection for Shift mod-tap keys.
     if (tap_hold_keycode == MT_Q_F
         || tap_hold_keycode == MT_Q_J
@@ -350,6 +345,11 @@ uint16_t achordion_streak_timeout(uint16_t tap_hold_keycode) {
         || tap_hold_keycode == MT_C_N
     ) {
         return 0;
+    }
+
+    // A short streak detection timeout on layer switching keys.
+    if (IS_LAYER_TAP(tap_hold_keycode)) {
+        return 50;
     }
 
     // A longer timeout otherwise.
