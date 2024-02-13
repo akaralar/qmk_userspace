@@ -918,10 +918,6 @@ static void check_and_disable_oneshot_symbol_layer(keyrecord_t* record) {
 // QMK User space functions
 //------------------------------------------------------------------------------
 void keyboard_post_init_user(void) {
-#if RGB_MATRIX_ENABLE
-    rgb_matrix_enable_noeeprom();
-#endif
-
 #if CONSOLE_ENABLE
     enable_debug_user();
 #endif
