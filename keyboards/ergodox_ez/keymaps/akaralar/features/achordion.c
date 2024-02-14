@@ -101,8 +101,9 @@ bool process_achordion(uint16_t keycode, keyrecord_t* record) {
   }
 
   // Determine whether the current event is for a mod-tap or layer-tap key.
-  const bool is_mt = IS_QK_MOD_TAP(keycode);
-  const bool is_tap_hold = is_mt || IS_QK_LAYER_TAP(keycode);
+  const bool is_mt = IS_QK_MOD_TAP(keycode) || IS_QK_ONE_SHOT_MOD(keycode);
+  const bool is_lt = IS_QK_LAYER_TAP(keycode) || IS_QK_ONE_SHOT_LAYER(keycode);
+  const bool is_tap_hold = is_mt || is_lt;
   // Check that this is a normal key event, don't act on combos.
 #ifdef IS_KEYEVENT
   const bool is_key_event = IS_KEYEVENT(record->event);
