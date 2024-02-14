@@ -1070,7 +1070,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                           _______, _______, _______, _______, _______,
         _______, _______,
         _______,
-        _______, _______, _______
+        XXXXXXX, _______, _______
     ),
 
     [COLE] = LAYOUT_ergodox(
@@ -1130,7 +1130,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                           _______, _______, _______, _______, _______,
         _______, _______,
         _______,
-        _______, _______, _______
+        XXXXXXX, _______, _______
     ),
 
     [NAVI] = LAYOUT_ergodox(
