@@ -305,8 +305,8 @@ bool achordion_chord(uint16_t tap_hold_keycode,
         return true;
     }
 
-    // For thumb keys other than space, allow same-hand holds
-    if (other_record->event.key.col >= 4 && other_keycode != LS_NAVI) {
+    // Allow same-hand holds for thumb keys
+    if (other_record->event.key.col >= 4) {
         return true;
     }
 
@@ -315,8 +315,12 @@ bool achordion_chord(uint16_t tap_hold_keycode,
 }
 
 uint16_t achordion_timeout(uint16_t tap_hold_keycode) {
+    // Disable Achordion for symbol and number layer switch keys, mainly to get
+    // around streak timeout.
     switch (tap_hold_keycode) {
         case LS_SYMB:
+        case LS_NUMB:
+        case LS_SNUM:
             return 0;
     }
     return g_tapping_term + 200;
@@ -338,23 +342,19 @@ bool achordion_eager_mod(uint8_t mod) {
 };
 
 uint16_t achordion_streak_timeout(uint16_t tap_hold_keycode) {
-    // Disable streak detection for Shift mod-tap keys.
+    // A short streak detection timeout for Space layer-tap key
+    if (tap_hold_keycode == LS_NAVI) {
+        return 50;
+    }
+
+    // Disable streak detection for Shift mod-tap keys or other layer-tap keys.
     if (tap_hold_keycode == MT_Q_F
         || tap_hold_keycode == MT_Q_J
         || tap_hold_keycode == MT_C_T
         || tap_hold_keycode == MT_C_N
+        || IS_LAYER_TAP(tap_hold_keycode)
     ) {
         return 0;
-    }
-
-    // Disable streak detection for one shot layer keys.
-    if (IS_QK_ONE_SHOT_LAYER(tap_hold_keycode)) {
-        return 0;
-    }
-
-    // A short streak detection timeout on layer switching keys.
-    if (IS_LAYER_TAP(tap_hold_keycode)) {
-        return 50;
     }
 
     // A longer timeout otherwise.
