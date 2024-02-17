@@ -21,6 +21,7 @@
  */
 
 #include "achordion.h"
+#include "debug_helper.h"
 
 #if !defined(IS_QK_MOD_TAP)
 // Attempt to detect out-of-date QMK installation, which would fail with
@@ -89,6 +90,13 @@ bool process_achordion(uint16_t keycode, keyrecord_t* record) {
     return true;
   }
 
+#if CONSOLE_ENABLE
+  prefixed_print(keycode, record, "process_achordion - 1:");
+  prefixed_print_letter(keycode, "                      ");
+  prefixed_print_keycode(tap_hold_keycode, "tap_hold          - 1:");
+  prefixed_print_letter(tap_hold_keycode, "                      ");
+#endif
+
   // If this is a keypress and if the key is different than the tap-hold key,
   // this information is saved to a flag to be processed later when the tap-hold
   // key is released.
@@ -142,6 +150,14 @@ bool process_achordion(uint16_t keycode, keyrecord_t* record) {
 
 #ifdef ACHORDION_STREAK
     streak_timer = (timer_read() + achordion_streak_timeout(keycode)) | 1;
+#if CONSOLE_ENABLE
+    prefixed_print(keycode, record, "process_achordion - 2:");
+    prefixed_print_letter(keycode, "                      ");
+    prefixed_print_keycode(tap_hold_keycode, "tap_hold          - 2:");
+    prefixed_print_letter(tap_hold_keycode, "                      ");
+    dprintf("     timeout           - 2: %u\n", achordion_streak_timeout(keycode));
+    dprintf("     tap_hold timeout  - 2: %u\n", achordion_streak_timeout(tap_hold_keycode));
+#endif
 #endif
     return true;  // Otherwise, continue with default handling.
   }
@@ -182,6 +198,15 @@ bool process_achordion(uint16_t keycode, keyrecord_t* record) {
 #ifdef ACHORDION_STREAK
     const bool is_streak = (streak_timer != 0);
     streak_timer = (timer_read() + achordion_streak_timeout(keycode)) | 1;
+#if CONSOLE_ENABLE
+    prefixed_print(keycode, record, "process_achordion - 3:");
+    prefixed_print_letter(keycode, "                      ");
+    prefixed_print_keycode(tap_hold_keycode, "tap_hold          - 3:");
+    prefixed_print_letter(tap_hold_keycode, "                      ");
+    dprintf("     timeout           - 3: %u\n", achordion_streak_timeout(keycode));
+    dprintf("     tap_hold timeout  - 3: %u\n", achordion_streak_timeout(tap_hold_keycode));
+    dprintf("     is_streak         - 3: %d\n", is_streak);
+#endif
 #endif
 
     // Press event occurred on a key other than the active tap-hold key.
@@ -227,6 +252,14 @@ bool process_achordion(uint16_t keycode, keyrecord_t* record) {
 #ifdef ACHORDION_STREAK
   // update idle timer on regular keys event
   streak_timer = (timer_read() + achordion_streak_timeout(keycode)) | 1;
+#if CONSOLE_ENABLE
+  prefixed_print(keycode, record, "process_achordion - 4:");
+  prefixed_print_letter(keycode, "                      ");
+  prefixed_print_keycode(tap_hold_keycode, "tap_hold          - 4:");
+  prefixed_print_letter(tap_hold_keycode, "                      ");
+  dprintf("     timeout           - 4: %u\n", achordion_streak_timeout(keycode));
+  dprintf("     tap_hold timeout  - 4: %u\n", achordion_streak_timeout(tap_hold_keycode));
+#endif
 #endif
   return true;
 }
