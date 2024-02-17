@@ -246,7 +246,7 @@ uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
         case MT_Q_J:
         case MT_C_T:
         case MT_C_N:
-            return g_tapping_term - index_tap_term_diff - 25;
+            return g_tapping_term - 50;
     }
 
     switch (record->event.key.row) {
@@ -256,7 +256,7 @@ uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
             return g_tapping_term + ring_pinky_tap_term_diff;
         // Decrease tapping term for index fingers
         case 4 ... 9:
-            return g_tapping_term - index_tap_term_diff;
+            return g_tapping_term; // - index_tap_term_diff;
         default:
             return g_tapping_term;
     }
