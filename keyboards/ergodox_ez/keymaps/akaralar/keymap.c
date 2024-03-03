@@ -133,8 +133,10 @@ enum C_keycodes {
 #define ONEP_AF LGUI(LSFT(KC_BSLS))     // 1password autofill
 #define TH_QE MEH(KC_T)                 // Things quick entry
 #define TH_QEAF HYPR(KC_T)              // Things quick entry with autofill
-#define PRT_SCR LGUI(LSFT(KC_5))        // Show screenshot tool
 #define EDT_SCR LGUI(LSFT(KC_4))        // Show edit screenshot tool
+#define PRT_SCR LGUI(LSFT(KC_5))        // Show screenshot tool
+#define REC_OPT LGUI(LSFT(KC_6))        // Show recording options tool
+
 
 //------------------------------------------------------------------------------
 // Layers and layer keycodes
@@ -1163,9 +1165,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
     [MOUS] = LAYOUT_ergodox(
         _______, _______, _______, _______, _______, _______, _______,
-        _______, EDT_SCR, PRT_SCR, ALF_NAV, ALF_ACT, MOOM   , _______,
+        _______, TH_QEAF, TH_QE  , ALF_NAV, ALF_ACT, MOOM   , _______,
         _______, KC_LCTL, KC_LALT, KC_LGUI, KC_LSFT, ONEP_QA,
-        _______, XXXXXXX, XXXXXXX, TH_QE  , TH_QEAF, XXXXXXX, _______,
+        _______, XXXXXXX, XXXXXXX, REC_OPT, EDT_SCR, PRT_SCR, _______,
         _______, _______, _______, _______, _______,
                                                      _______, _______,
                                                               _______,
@@ -1359,7 +1361,7 @@ const bool PROGMEM rgb_on[][RGB_MATRIX_LED_COUNT] = {
     [NAVI] = LED_LAYOUT_ergodox_pretty(
         false, false, false, false, false,    false, false, false, false, false,
         false, false, true , true , false,    true , true , true , true , true ,
-        true , true , true , true , true ,    true , true , true , true , true ,
+        true , true , true , true , false,    true , true , true , true , true ,
         true , true , true , true , true ,    true , true , true , true , true ,
         false, false, false, false,                  true , false, false, false
     ),
@@ -1367,7 +1369,7 @@ const bool PROGMEM rgb_on[][RGB_MATRIX_LED_COUNT] = {
         false, false, false, false, false,    false, false, false, false, false,
         true , true , true , true , true ,    true , true , true , true , false,
         true , true , true , true , true ,    true , true , true , true , false,
-        false, true , true , true , true ,    true , true , true , true , true ,
+        false, false, true , true , true ,    true , true , true , true , true ,
         false, false, false, false,                  true , false, false, false
     ),
     [MDIA] =  LED_LAYOUT_ergodox_pretty(
