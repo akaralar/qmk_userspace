@@ -240,15 +240,6 @@ uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
         return g_tapping_term;
     }
 
-    // Make tapping term much shorter for shift mod tap keys
-    switch (keycode) {
-        case MT_Q_F:
-        case MT_Q_J:
-        case MT_C_T:
-        case MT_C_N:
-            return g_tapping_term - 50;
-    }
-
     switch (record->event.key.row) {
         // Increase tapping term for ring and pinky fingers
         case 0 ... 2:
@@ -256,26 +247,17 @@ uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
             return g_tapping_term + ring_pinky_tap_term_diff;
         // Decrease tapping term for index fingers
         case 4 ... 9:
-            return g_tapping_term; // - index_tap_term_diff;
+            return g_tapping_term - index_tap_term_diff;
         default:
             return g_tapping_term;
     }
 }
 
 bool get_permissive_hold(uint16_t keycode, keyrecord_t *record) {
+    // Apply permissive hold to layer switching keys
+    if (IS_LAYER_TAP(keycode)) { return true; }
+
     switch (keycode) {
-        // Apply permissive hold to layer switching keys
-        case LS_NAVI:
-        case LS_MOUS:
-        case LS_MDIA:
-        case LS_NUMB:
-        case LS_SYMB:
-        case LS_SNUM:
-        case LS_FUNC:
-        case LS_QLET:
-        case LS_CLET:
-        case LS_QTUR:
-        case LS_CTUR:
         // Apply permissive hold to shift and cmd
         // Qwerty shift and cmd mod-taps
         case MT_Q_D:
@@ -297,9 +279,9 @@ bool get_permissive_hold(uint16_t keycode, keyrecord_t *record) {
 // Achordion
 //------------------------------------------------------------------------------
 bool achordion_chord(uint16_t tap_hold_keycode,
-                    keyrecord_t *tap_hold_record,
-                    uint16_t other_keycode,
-                    keyrecord_t *other_record) {
+                     keyrecord_t *tap_hold_record,
+                     uint16_t other_keycode,
+                     keyrecord_t *other_record) {
     // Allow same hand holds with layer switching keys
     if (IS_LAYER_TAP(tap_hold_keycode)) {
         return true;
