@@ -479,32 +479,26 @@ static bool process_casemodes_keycode(uint16_t keycode, keyrecord_t *record) {
                 const uint8_t oneshot_mods = get_oneshot_mods();
 
                 if ((mods | oneshot_mods) & MOD_MASK_SHIFT) {
-
-                    // Shift held, activate camel case
-                    unregister_mods(MOD_MASK_SHIFT);
-                    del_oneshot_mods(MOD_MASK_SHIFT);
-                    enable_xcase_with(OS_LSFT);
-                    register_mods(mods);
-
-                    case_mode = CASE_CAMEL;
-                } else if ((mods | oneshot_mods) & MOD_MASK_GUI) {
-
-                    // CMD held, activate snake case
+                    // Shift held, activate snake case
                     unregister_mods(MOD_MASK_GUI);
                     del_oneshot_mods(MOD_MASK_GUI);
                     enable_xcase_with(KC_UNDS);
                     register_mods(mods);
-
                     case_mode = CASE_SNAKE;
-                } else if ((mods | oneshot_mods) & MOD_MASK_ALT) {
-
-                    // ALT held, activate kebab case
+                } else if ((mods | oneshot_mods) & MOD_MASK_GUI) {
+                    // CMD held, activate kebab case
                     unregister_mods(MOD_MASK_ALT);
                     del_oneshot_mods(MOD_MASK_ALT);
                     enable_xcase_with(KC_MINS);
                     register_mods(mods);
-
                     case_mode = CASE_KEBAB;
+                } else {
+                    // No mod or other mods held, activate camel case
+                    unregister_mods(MOD_MASK_SHIFT);
+                    del_oneshot_mods(MOD_MASK_SHIFT);
+                    enable_xcase_with(OS_LSFT);
+                    register_mods(mods);
+                    case_mode = CASE_CAMEL;
                 }
             }
             return false;
@@ -1030,8 +1024,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         _______, KC_Z   , KC_X   , KC_C   , KC_V   , KC_B   , _______,
         _______, _______, _______, _______, LS_MDIA,
                                                      _______, LS_COLE,
-                                                              OS_LSFT,
-                                            LS_NAVI, LS_MOUS, CM_TOGL,
+                                                              CM_TOGL,
+                                            LS_NAVI, LS_MOUS, OS_LSFT,
 
         _______, _______, _______, _______, _______, _______, _______,
         _______, KC_Y   , MT_Q_U , MT_Q_I , MT_Q_O , KC_P   , _______,
@@ -1090,8 +1084,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         _______, KC_Z   , KC_X   , KC_C   , KC_D   , KC_V   , _______,
         _______, _______, _______, _______, LS_MDIA,
                                                      _______, _______,
-                                                              OS_LSFT,
-                                            LS_NAVI, LS_MOUS, CM_TOGL,
+                                                              CM_TOGL,
+                                            LS_NAVI, LS_MOUS, OS_LSFT,
 
         _______, _______, _______, _______, _______, _______, _______,
         _______, KC_J   , MT_C_L , MT_C_U , MT_C_Y , KC_QUOT, _______,
