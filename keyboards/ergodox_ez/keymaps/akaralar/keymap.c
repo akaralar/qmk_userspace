@@ -238,6 +238,15 @@ uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
         return g_tapping_term + 25;
     }
 
+    // Make tapping term much shorter for shift mod tap keys
+    switch (keycode) {
+        case MT_Q_F:
+        case MT_Q_J:
+        case MT_C_T:
+        case MT_C_N:
+            return g_tapping_term - index_tap_term_diff;
+    }
+
     // Otherwise, only consider alpha keys block
     if (record->event.key.col > 3) {
         return g_tapping_term;
@@ -248,9 +257,6 @@ uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
         case 0 ... 2:
         case 11 ... 13:
             return g_tapping_term + ring_pinky_tap_term_diff;
-        // Decrease tapping term for index fingers
-        case 4 ... 9:
-            return g_tapping_term - index_tap_term_diff;
         default:
             return g_tapping_term;
     }
