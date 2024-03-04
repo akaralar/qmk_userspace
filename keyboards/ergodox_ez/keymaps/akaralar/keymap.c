@@ -706,7 +706,14 @@ static bool process_rgb_matrix_keycodes(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
         case RGB_TGL:
             if (record->event.pressed) {
-                rgblight_toggle_noeeprom();
+                const uint8_t mods = get_mods();
+                const uint8_t oneshot_mods = get_oneshot_mods();
+
+                if ((mods | oneshot_mods) & MOD_MASK_SHIFT) {
+                    rgblight_toggle();
+                } else {
+                    rgblight_toggle_noeeprom();
+                }
             }
             return false;
         case RGB_BUP:
