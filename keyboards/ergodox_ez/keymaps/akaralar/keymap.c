@@ -321,7 +321,7 @@ uint16_t achordion_timeout(uint16_t tap_hold_keycode) {
     // Shorter timeout when we are in the symbol layer.
     if (get_highest_layer(layer_state) == SYMB) { return g_tapping_term + 75; }
 
-    // Disable Achordion for symbol and number layer switch keys, mainly to get
+    // Disable Achordion for number layer switch keys, mainly to get
     // around streak timeout during fast typing.
     switch (tap_hold_keycode) {
         case LS_NUMB:
