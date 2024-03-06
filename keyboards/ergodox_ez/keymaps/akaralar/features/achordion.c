@@ -163,6 +163,7 @@ bool process_achordion(uint16_t keycode, keyrecord_t* record) {
     }
 
     achordion_state = STATE_RELEASED;
+    tap_hold_keycode = KC_NO;
 
     return false;
   }
