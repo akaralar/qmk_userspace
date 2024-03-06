@@ -23,6 +23,7 @@
 
 // Use typing streaks for Achordion
 #define ACHORDION_STREAK
+// #define ACHORDION_LOG
 
 // Support for up to 16 layers
 #define LAYER_STATE_16BIT
