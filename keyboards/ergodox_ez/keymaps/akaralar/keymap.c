@@ -318,8 +318,10 @@ bool achordion_chord(uint16_t tap_hold_keycode,
 }
 
 uint16_t achordion_timeout(uint16_t tap_hold_keycode) {
-    // Shorter timeout when we are in the symbol layer.
-    if (get_highest_layer(layer_state) == SYMB) { return g_tapping_term + 75; }
+    // Disable achordion when we are in the symbol layer.
+    if (get_highest_layer(layer_state) == SYMB) {
+        return 0;
+    }
 
     // Disable Achordion for number layer switch keys, mainly to get
     // around streak timeout during fast typing.
@@ -328,7 +330,7 @@ uint16_t achordion_timeout(uint16_t tap_hold_keycode) {
         case LS_SNUM:
             return 0;
     }
-    return g_tapping_term + 200;
+    return g_tapping_term + 100;
 }
 
 bool achordion_eager_mod(uint8_t mod) {
