@@ -610,7 +610,7 @@ static const turkish_diacritic_key turkish_diacritic_keys[] = {
     {KC_U, KC_U},
 };
 
-static bool process_tr_letter_macro(uint16_t keycode, keyrecord_t *record) {
+static bool process_tr_letter_keycodes(uint16_t keycode, keyrecord_t *record) {
     if (keycode < TC_C || keycode > TC_U) {
         return true;
     }
@@ -968,8 +968,8 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     // Pass the keycode and record to custom shift keys
     if (!process_custom_shift_keys(keycode, record)) { return false; }
 
-    // Process keycodes for custom macros
-    if (!process_macro_keycodes(keycode, record)) { return false; }
+    // // Process keycodes for Turkish diacritics letters
+    if (!process_tr_letter_keycodes(keycode, record)) { return false; }
 
     // Process custom keycodes defined in this file
     if (!process_other_keycodes(keycode, record)) { return false; }
