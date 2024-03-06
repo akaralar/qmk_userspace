@@ -528,6 +528,151 @@ static bool process_casemodes_keycode(uint16_t keycode, keyrecord_t *record) {
     }
 }
 
+typedef struct {
+    uint16_t diacritic_dead_key;
+    uint16_t key_to_add_diacritic;
+} turkish_diacritic_key;
+
+static const turkish_diacritic_key turkish_diacritic_keys[] = {
+    {KC_C, KC_C},
+    {KC_B, KC_G},
+    {KC_W, KC_I},
+    {KC_U, KC_O},
+    {KC_C, KC_S},
+    {KC_U, KC_U},
+};
+
+static bool process_tr_letter_keycodes(uint16_t keycode, keyrecord_t *record) {
+    if (keycode < TC_C || keycode > TC_U) {
+        return true;
+    }
+
+    if (record->event.pressed) {
+        uint8_t mods = get_mods();
+        uint8_t oneshot_mods = get_oneshot_mods();
+        uint8_t weak_mods = get_weak_mods();
+
+        clear_mods();
+        clear_oneshot_mods();
+        clear_weak_mods();
+
+        turkish_diacritic_key keys = turkish_diacritic_keys[keycode - TC_C];
+        tap_code16(LALT(keys.diacritic_dead_key));
+
+        if (((mods | oneshot_mods | weak_mods) & MOD_MASK_SHIFT)
+            || is_caps_lock_on()
+            || is_caps_word_on()
+        ) {
+            tap_code16(LSFT(keys.key_to_add_diacritic));
+        } else {
+            tap_code16(keys.key_to_add_diacritic);
+        }
+    }
+
+    return false;
+}
+
+static bool should_swallow_esc_release = false;
+static bool process_swallowed_esc(uint16_t keycode, keyrecord_t *record) {
+    switch (keycode) {
+        case LS_MDIA:
+            if (record->tap.count != 0) { // key is being tapped
+                // Don't send escape key when trying to exit caps word or case
+                // modes
+                if (record->event.pressed
+                    && (
+                        (is_caps_word_on() && !is_caps_lock_on())
+                        || (get_xcase_state() != XCASE_OFF)
+                    )
+                ) {
+                    caps_word_off();
+                    disable_xcase();
+                    should_swallow_esc_release = true;
+                    return false; // skip default handling
+                }
+            }
+
+            // We should also swallow key release record
+            if (should_swallow_esc_release && !record->event.pressed) {
+                should_swallow_esc_release = false;
+                return false; // skip default handling
+            }
+    }
+
+    return true; // otherwise continue with default handling
+}
+
+#ifdef RGB_MATRIX_ENABLE
+static bool process_rgb_matrix_keycodes(uint16_t keycode, keyrecord_t *record) {
+    switch (keycode) {
+        case RGB_TGL:
+            if (record->event.pressed) {
+                const uint8_t mods = get_mods();
+                const uint8_t oneshot_mods = get_oneshot_mods();
+
+                if ((mods | oneshot_mods) & MOD_MASK_SHIFT) {
+                    rgblight_toggle();
+                } else {
+                    rgblight_toggle_noeeprom();
+                }
+            }
+            return false;
+        case RGB_BUP:
+            if (record->event.pressed) {
+                rgb_matrix_increase_val_noeeprom();
+            }
+            return false;
+        case RGB_BDN:
+            if (record->event.pressed) {
+                rgb_matrix_decrease_val_noeeprom();
+            }
+            return false;
+        default:
+            return true;
+    }
+}
+#endif
+
+static bool process_other_keycodes(uint16_t keycode, keyrecord_t *record) {
+    // Handle if keycode is "dynamic tapping term per key" adjustment keycode
+    if (!process_tapping_term_keycodes(keycode, record)) { return false; }
+
+    // Handle if keycode is "casemodes" keycode
+    if (!process_casemodes_keycode(keycode, record)) { return false; }
+
+    // Handle Esc when it's being used to exit Caps Word or Case Modes
+    if (!process_swallowed_esc(keycode, record)) { return false; }
+
+#ifdef RGB_MATRIX_ENABLE
+    // Process RGB Matrix keycodes
+    if (!process_rgb_matrix_keycodes(keycode, record)) { return false; }
+#endif
+
+    switch (keycode) {
+        case VRSN:
+            if (record->event.pressed) {
+                const char* str = QMK_KEYBOARD "/" QMK_KEYMAP " @ " QMK_VERSION;
+                send_string_if_enabled(str);
+            }
+            return false;
+        case CPS_LCK:
+            if (record->event.pressed) {
+                caps_lock_toggle();
+                if (is_caps_lock_on()) {
+                    caps_word_on();
+                } else {
+                    caps_word_off();
+                }
+
+            }
+            return false;
+        default:
+            return true;
+    }
+
+    return true;
+};
+
 static void execute_symbol_macro(uint16_t keycode) {
     switch (keycode) {
         // Holding down ampersand sends markdown code block
@@ -588,59 +733,20 @@ static bool process_tap_or_long_press_key(
         return false; // Skip default handling.
     } else {
         if (record->event.pressed) {
-            register_code16(tap_keycode);
-        } else {
-            unregister_code16(tap_keycode);
+            tap_code16(tap_keycode);
         }
         return false; // Skip default handling.
     }
 }
 
-typedef struct {
-    uint16_t diacritic_dead_key;
-    uint16_t key_to_add_diacritic;
-} turkish_diacritic_key;
-
-static const turkish_diacritic_key turkish_diacritic_keys[] = {
-    {KC_C, KC_C},
-    {KC_B, KC_G},
-    {KC_W, KC_I},
-    {KC_U, KC_O},
-    {KC_C, KC_S},
-    {KC_U, KC_U},
-};
-
-static bool process_tr_letter_keycodes(uint16_t keycode, keyrecord_t *record) {
-    if (keycode < TC_C || keycode > TC_U) {
-        return true;
-    }
-
-    if (record->event.pressed) {
-        uint8_t mods = get_mods();
-        uint8_t oneshot_mods = get_oneshot_mods();
-        uint8_t weak_mods = get_weak_mods();
-
-        clear_mods();
-        clear_oneshot_mods();
-        clear_weak_mods();
-
-        turkish_diacritic_key keys = turkish_diacritic_keys[keycode - TC_C];
-        tap_code16(LALT(keys.diacritic_dead_key));
-
-        if (((mods | oneshot_mods | weak_mods) & MOD_MASK_SHIFT)
-            || is_caps_lock_on()
-            || is_caps_word_on()
-        ) {
-            tap_code16(LSFT(keys.key_to_add_diacritic));
-        } else {
-            tap_code16(keys.key_to_add_diacritic);
-        }
-    }
-
-    return false;
-}
-
 static bool process_macro_keycodes(uint16_t keycode, keyrecord_t *record) {
+    // We send the tap keycode for these macros prematurely in
+    // `pre_process_record_user`, so if the event is later resolved to a hold,
+    // delete the tap keycode.
+    if (record->event.pressed && record->tap.count == 0) {
+        tap_code16(KC_BACKSPACE);
+    }
+
     // Tap-hold macros in symbol layer
     switch (keycode) {
         case FT_SLSH:
@@ -675,140 +781,102 @@ static bool process_macro_keycodes(uint16_t keycode, keyrecord_t *record) {
             return true;
     }
 
-    return process_tr_letter_macro(keycode, record);
+    return true;
 }
 
-static bool should_swallow_esc_release = false;
-static bool process_swallowed_esc(uint16_t keycode, keyrecord_t *record) {
-    switch (keycode) {
-        case LS_MDIA:
-            if (record->tap.count != 0) { // key is being tapped
-                // Don't send escape key when trying to exit caps word or case
-                // modes
-                if (record->event.pressed
-                    && (
-                        (is_caps_word_on() && !is_caps_lock_on())
-                        || (get_xcase_state() != XCASE_OFF)
-                    )
-                ) {
-                    caps_word_off();
-                    disable_xcase();
-                    should_swallow_esc_release = true;
-                    return false; // skip default handling
-                }
-            }
+static keyrecord_t modified_fake_lt_record;
+static bool should_ignore_next_tap = false;
+static bool did_release_symbol_layer_key = false;
 
-            // We should also swallow key release record
-            if (should_swallow_esc_release && !record->event.pressed) {
-                should_swallow_esc_release = false;
-                return false; // skip default handling
-            }
-    }
-
-    return true; // otherwise continue with default handling
-}
-
-static bool process_symbol_layer_keycode(
+static bool pre_process_symbol_layer_fake_lt_keys(
     uint16_t keycode,
-    keyrecord_t* record
+    keyrecord_t *record
 ) {
-    if (keycode == LS_SYMB && record->tap.count == 1)  {
-        if (record->event.pressed) {
-            set_oneshot_layer(SYMB, ONESHOT_START);
-        }
+    // Only process the LT keys in the symbol layer, aka fake LT keys and the
+    // real layer tap key to switch to SNUM layer.
+    if (!(IS_FAKE_LAYER_TAP(keycode) || keycode == LS_SNUM)) { return true; }
 
+    // Tap count is 0 when a record is received in `pre_process_record_user`, to
+    // trigger macro with the tap action, we copy the record and set the tap
+    // count.
+    modified_fake_lt_record = *record;
+    modified_fake_lt_record.tap.count = 1;
+
+    // Trigger the macro for the tap action with the modified record.
+    if (!process_macro_keycodes(keycode, &modified_fake_lt_record)) {
+        // If we receive a key up event immediately after the `MO` layer was
+        // released, the key was pressed when the `MO` layer was active, hence
+        // we should ignore the key up/down that QMK sends as if the `MO` layer
+        // was inactive.
+        should_ignore_next_tap = (
+            !record->event.pressed
+            && did_release_symbol_layer_key
+        );
+
+        // This flag should only be `true` immediately after releasing the `MO`
+        // layer key, so set it to false if it is true at this point as it is
+        // already processed in the expression directly above.
+        if (did_release_symbol_layer_key) {
+            did_release_symbol_layer_key = false;
+        }
+    };
+
+    return true;
+}
+
+static bool process_symbol_layer_fake_lt_keys(
+    uint16_t keycode,
+    keyrecord_t *record
+) {
+    // The modified record contains the last key pressed in the `MO` layer. If,
+    //   - the newly received record has the same key row and column,
+    //   - the newly received record is for tap,
+    //   - we decided that next tap should be ignored,
+    // we intercept this event and stop processing.
+    if (record->event.key.row == modified_fake_lt_record.event.key.row
+        && record->event.key.col == modified_fake_lt_record.event.key.col
+        && record->tap.count == 1
+        && should_ignore_next_tap
+    ) {
+        // After ignoring the key up event, we clear the variables so that they
+        // don't interfere with future processing.
+        if (!record->event.pressed) {
+            should_ignore_next_tap = false;
+            // Set the row and column to a key position that is unused.
+            modified_fake_lt_record.event.key.row = 0;
+            modified_fake_lt_record.event.key.col = 0;
+        }
         return false;
     }
+
+    if (IS_FAKE_LAYER_TAP(keycode) || keycode == LS_SNUM) {
+        // For fake `LT` keys that trigger macros with a tap action in the
+        // symbol layer, ignore the tap action because the tap action is alredy
+        // triggered in `pre_process_record_user`.
+        if (record->tap.count == 1) {
+            return false;
+        }
+
+        // Process the hold action and if it is handled, stop processing.
+        if (record->tap.count == 0
+            && !process_macro_keycodes(keycode, record)
+        ) {
+            return false;
+        }
+    }
+
+    // Otherwise, continue processing as it is not a fake layer tap key. The
+    // only case that falls here is when the layer tap key for switching to the
+    // number layer from the symbol layer is held down.
     return true;
 }
 
-#ifdef RGB_MATRIX_ENABLE
-static bool process_rgb_matrix_keycodes(uint16_t keycode, keyrecord_t *record) {
-    switch (keycode) {
-        case RGB_TGL:
-            if (record->event.pressed) {
-                const uint8_t mods = get_mods();
-                const uint8_t oneshot_mods = get_oneshot_mods();
-
-                if ((mods | oneshot_mods) & MOD_MASK_SHIFT) {
-                    rgblight_toggle();
-                } else {
-                    rgblight_toggle_noeeprom();
-                }
-            }
-            return false;
-        case RGB_BUP:
-            if (record->event.pressed) {
-                rgb_matrix_increase_val_noeeprom();
-            }
-            return false;
-        case RGB_BDN:
-            if (record->event.pressed) {
-                rgb_matrix_decrease_val_noeeprom();
-            }
-            return false;
-        default:
-            return true;
-    }
-}
-#endif
-
-static bool process_other_keycodes(uint16_t keycode, keyrecord_t *record) {
-    // Handle if keycode is "dynamic tapping term per key" adjustment keycode
-    if (!process_tapping_term_keycodes(keycode, record)) { return false; }
-
-    // Handle if keycode is "casemodes" keycode
-    if (!process_casemodes_keycode(keycode, record)) { return false; }
-
-    // Handle Esc when it's being used to exit Caps Word or Case Modes
-    if (!process_swallowed_esc(keycode, record)) { return false; }
-
-    // Symbol layer switch key is a fake layer tap key and we intercept the tap
-    // to toggle a oneshot symbol layer.
-    if (!process_symbol_layer_keycode(keycode, record)) { return false; }
-
-#ifdef RGB_MATRIX_ENABLE
-    // Process RGB Matrix keycodes
-    if (!process_rgb_matrix_keycodes(keycode, record)) { return false; }
-#endif
-
-    switch (keycode) {
-        case VRSN:
-            if (record->event.pressed) {
-                const char* str = QMK_KEYBOARD "/" QMK_KEYMAP " @ " QMK_VERSION;
-                send_string_if_enabled(str);
-            }
-            return false;
-        case CPS_LCK:
-            if (record->event.pressed) {
-                caps_lock_toggle();
-                if (is_caps_lock_on()) {
-                    caps_word_on();
-                } else {
-                    caps_word_off();
-                }
-
-            }
-            return false;
-        default:
-            return true;
-    }
-
-    return true;
-};
-
-static bool is_fake_lt_keycode_in_symbol_layer(
+static void post_process_symbol_layer_fake_lt_keys(
     uint16_t keycode,
-    keyrecord_t* record
+    keyrecord_t *record
 ) {
-    return get_highest_layer(layer_state) == SYMB && IS_QK_LAYER_TAP(keycode);
-}
-
-static void check_and_disable_oneshot_symbol_layer(keyrecord_t* record) {
-    if (get_oneshot_layer() == SYMB && record->event.pressed) {
-        layer_off(get_oneshot_layer());
-        reset_oneshot_layer();
-    }
+    // Set this flag only when the symbol layer switch key is released.
+    did_release_symbol_layer_key = keycode == LS_SYMB && !record->event.pressed;
 }
 
 //------------------------------------------------------------------------------
@@ -940,22 +1008,24 @@ void matrix_scan_user() {
     fix_leds_task();
 };
 
+bool pre_process_record_user(uint16_t keycode, keyrecord_t *record) {
+    if (!pre_process_symbol_layer_fake_lt_keys(keycode, record)) {
+        return false;
+    }
+
+    return true;
+}
+
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+    // First process the symbol layer fake lt keys as they might be ignored.
+    if (!process_symbol_layer_fake_lt_keys(keycode, record)) { return false; }
+
     // Pass the keycode and record to achordion for tap-hold decision
     if (!process_achordion(keycode, record)) { return false; }
 
 #ifdef CONSOLE_ENABLE
     prefixed_print(keycode, record, "process_record_user");
 #endif
-
-    // For fake layer tap keys in symbol layer that are intercepted, further
-    // processing is disabled by returning `false`. When oneshot symbol layer is
-    // on, we can't reset the oneshot layer status in `post_process_record_user`
-    // as further processing is stopped. For those keycodes we disable the
-    // oneshot status here.
-    if (is_fake_lt_keycode_in_symbol_layer(keycode, record)) {
-        check_and_disable_oneshot_symbol_layer(record);
-    }
 
     // Process case modes after other key codes because we use Esc to quit
     // case modes but we don't want to send the escape key. If case modes
@@ -978,8 +1048,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 };
 
 void post_process_record_user(uint16_t keycode, keyrecord_t *record) {
-    // When oneshot symbol layer is on, turn off oneshot status for regular keys
-    check_and_disable_oneshot_symbol_layer(record);
+    post_process_symbol_layer_fake_lt_keys(keycode, record);
 }
 
 layer_state_t layer_state_set_user(layer_state_t state) {
