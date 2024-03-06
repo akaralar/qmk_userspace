@@ -176,6 +176,23 @@ enum layers {
 // Toggling Colemak on / off
 #define LS_COLE TG(COLE)
 
+// Helper for "real" layer switching keys. Since a bunch of fake layer switching
+// keys are used for macros, we can't use QK_LAYER_TAP_MAX and we want to be
+// able to test against real layer switching keys when checking if a keycode is
+// a layer tap.
+#define IS_LAYER_TAP(code) ((code) == LS_NAVI \
+                            || (code) == LS_MOUS \
+                            || (code) == LS_MDIA \
+                            || (code) == LS_NUMB \
+                            || (code) == LS_SYMB \
+                            || (code) == LS_SNUM \
+                            || (code) == LS_FUNC \
+                            || (code) == LS_QLET \
+                            || (code) == LS_QTUR \
+                            || (code) == LS_COLE \
+                            || (code) == LS_CLET \
+                            || (code) == LS_CTUR)
+
 // Fake layer-tap keys. These keys are used in macros and since some of them
 // are not basic keycodes, both tap and hold action is handled in the macros,
 // which means they don't send the keycode defined here.
@@ -194,23 +211,18 @@ enum layers {
 #define FT_CBL LT(SYMB, KC_A)
 #define FT_CBLS LT(SYMB, KC_B)
 
-// Helper for "real" layer switching keys. Since a bunch of fake layer switching
-// keys are used for macros, we can't use QK_LAYER_TAP_MAX and we want to be
-// able to test against real layer switching keys when checking if a keycode is
-// a layer tap.
-#define IS_LAYER_TAP(code) ((code) == LS_NAVI \
-                            || (code) == LS_MOUS \
-                            || (code) == LS_MDIA \
-                            || (code) == LS_NUMB \
-                            || (code) == LS_SYMB \
-                            || (code) == LS_SNUM \
-                            || (code) == LS_FUNC \
-                            || (code) == LS_QLET \
-                            || (code) == LS_QTUR \
-                            || (code) == LS_COLE \
-                            || (code) == LS_CLET \
-                            || (code) == LS_CTUR)
-
+#define IS_FAKE_LAYER_TAP(code) ((code) == FT_SLSH \
+                              || (code) == FT_LBRC \
+                              || (code) == FT_LPRN \
+                              || (code) == FT_LABK \
+                              || (code) == FT_LCBR \
+                              || (code) == FT_DQUO \
+                              || (code) == FT_QUOT \
+                              || (code) == FT_UNDS \
+                              || (code) == FT_ASTR \
+                              || (code) == FT_GRV \
+                              || (code) == FT_CBL \
+                              || (code) == FT_CBLS)
 //------------------------------------------------------------------------------
 // Custom shift keys
 //------------------------------------------------------------------------------
