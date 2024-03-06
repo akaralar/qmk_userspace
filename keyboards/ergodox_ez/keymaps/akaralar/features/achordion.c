@@ -88,7 +88,7 @@ bool process_achordion(uint16_t keycode, keyrecord_t* record) {
     return true;
   }
 
-#if CONSOLE_ENABLE
+#if defined(CONSOLE_ENABLE) && defined(ACHORDION_LOG)
   prefixed_print(keycode, record, "process_achordion - 1:");
   prefixed_print_letter(keycode, "                      ");
   prefixed_print_keycode(tap_hold_keycode, "tap_hold          - 1:");
@@ -135,7 +135,7 @@ bool process_achordion(uint16_t keycode, keyrecord_t* record) {
 
 #ifdef ACHORDION_STREAK
     streak_timer = (timer_read() + achordion_streak_timeout(keycode)) | 1;
-#if CONSOLE_ENABLE
+#if defined(CONSOLE_ENABLE) && defined(ACHORDION_LOG)
     prefixed_print(keycode, record, "process_achordion - 2:");
     prefixed_print_letter(keycode, "                      ");
     prefixed_print_keycode(tap_hold_keycode, "tap_hold          - 2:");
@@ -172,7 +172,7 @@ bool process_achordion(uint16_t keycode, keyrecord_t* record) {
 #ifdef ACHORDION_STREAK
     const bool is_streak = (streak_timer != 0);
     streak_timer = (timer_read() + achordion_streak_timeout(keycode)) | 1;
-#if CONSOLE_ENABLE
+#if defined(CONSOLE_ENABLE) && defined(ACHORDION_LOG)
     prefixed_print(keycode, record, "process_achordion - 3:");
     prefixed_print_letter(keycode, "                      ");
     prefixed_print_keycode(tap_hold_keycode, "tap_hold          - 3:");
@@ -226,7 +226,7 @@ bool process_achordion(uint16_t keycode, keyrecord_t* record) {
 #ifdef ACHORDION_STREAK
   // update idle timer on regular keys event
   streak_timer = (timer_read() + achordion_streak_timeout(keycode)) | 1;
-#if CONSOLE_ENABLE
+#if defined(CONSOLE_ENABLE) && defined(ACHORDION_LOG)
   prefixed_print(keycode, record, "process_achordion - 4:");
   prefixed_print_letter(keycode, "                      ");
   prefixed_print_keycode(tap_hold_keycode, "tap_hold          - 4:");
