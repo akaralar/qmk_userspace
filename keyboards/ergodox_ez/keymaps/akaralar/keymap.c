@@ -115,6 +115,13 @@ enum C_keycodes {
 
 // One-shot modifiers
 #define OS_LSFT OSM(MOD_LSFT)
+#define OS_LCMD OSM(MOD_LGUI)
+#define OS_LOPT OSM(MOD_LALT)
+#define OS_LCTL OSM(MOD_LCTL)
+#define OS_RSFT OSM(MOD_RSFT)
+#define OS_RCMD OSM(MOD_RGUI)
+#define OS_ROPT OSM(MOD_RALT)
+#define OS_RCTL OSM(MOD_RCTL)
 
 // macOS keycodes
 #define KC_CUT LGUI(KC_X)
@@ -794,8 +801,9 @@ static bool pre_process_symbol_layer_fake_lt_keys(
     uint16_t keycode,
     keyrecord_t *record
 ) {
-    // Only process the LT keys in the symbol layer, aka fake LT keys and the
-    // real layer tap key to switch to SNUM layer.
+    // Only process the LT keys in the symbol layer, which are:
+    //  - Fake LT keys to trigger macros,
+    //  - Layer switching key for switching to SNUM layer.
     if (!(IS_FAKE_LAYER_TAP(keycode) || keycode == LS_SNUM)) { return true; }
 
     // Tap count is 0 when a record is received in `pre_process_record_user`, to
@@ -1259,7 +1267,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [MOUS] = LAYOUT_ergodox(
         _______, _______, _______, _______, _______, _______, _______,
         _______, TH_QEAF, TH_QE  , ALF_NAV, ALF_ACT, MOOM   , _______,
-        _______, KC_LCTL, KC_LALT, KC_LGUI, KC_LSFT, ONEP_QA,
+        _______, OS_LCTL, OS_LOPT, OS_LCMD, OS_LSFT, ONEP_QA,
         _______, XXXXXXX, XXXXXXX, REC_OPT, EDT_SCR, PRT_SCR, _______,
         _______, _______, _______, _______, _______,
                                                      _______, _______,
@@ -1367,9 +1375,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                             KC_SPC , KC_TAB , _______,
 
         _______, _______, _______, _______, _______, _______, _______,
-        _______, XXXXXXX, DT_I_UP, DT_UP  , DT_R_UP, XXXXXXX, _______,
-                 DT_PALL, KC_RSFT, KC_RGUI, KC_LALT, KC_RCTL, _______,
-        _______, XXXXXXX, DT_I_DN, DT_DOWN, DT_R_DN, XXXXXXX, _______,
+        _______, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, _______,
+                 XXXXXXX, OS_RSFT, OS_RCMD, OS_ROPT, OS_RCTL, _______,
+        _______, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, _______,
                           _______, _______, _______, _______, _______,
         _______, _______,
         _______,
@@ -1495,9 +1503,9 @@ const bool PROGMEM rgb_on[][RGB_MATRIX_LED_COUNT] = {
     ),
     [FUNC] = LED_LAYOUT_ergodox_pretty(
         false, false, false, false, false,    false, false, false, false, false,
-        true , true , true , true , false,    false, true , true , true , false,
-        true , true , true , true , false,    true , true , true , true , true ,
-        true , true , true , true , false,    false, true , true , true , false,
+        true , true , true , true , false,    false, false, false, false, false,
+        true , true , true , true , false,    false, true , true , true , true ,
+        true , true , true , true , false,    false, false, false, false, false,
         false, false, false, true ,                  false, false, false, false
     ),
 };
