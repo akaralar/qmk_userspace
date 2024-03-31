@@ -42,14 +42,6 @@ enum C_keycodes {
     // Custom keycodes for RGB matrix brightness
     RGB_BUP,
     RGB_BDN,
-    // Increase/decrease the difference from tapping term for ring/pinky fingers
-    DT_R_UP,
-    DT_R_DN,
-    // Increase/decrease the difference from tapping term for index fingers
-    DT_I_UP,
-    DT_I_DN,
-    // Print all the differences and the tapping term
-    DT_PALL,
     // Keycode for activating casemodes
     CM_TOGL,
     // Keycode for caps lock.
@@ -446,59 +438,10 @@ bool terminate_case_modes(uint16_t keycode, const keyrecord_t *record) {
 //------------------------------------------------------------------------------
 // Custom keycode handling
 //------------------------------------------------------------------------------
-static const char* to_string(uint16_t diff) {
-    const char *diff_str = get_u16_str(diff, ' ');
-    // Skip padding spaces
-    while (*diff_str == ' ') {
-        diff_str++;
-    }
-    return diff_str;
-}
-
 static void send_string_if_enabled(const char *string) {
 #ifdef SEND_STRING_ENABLE
     send_string(string);
 #endif
-}
-
-static bool process_tapping_term_keycodes(
-    uint16_t keycode,
-    keyrecord_t *record
-) {
-    switch (keycode) {
-        case DT_I_UP:
-            if (record->event.pressed) {
-                index_tap_term_diff += DYNAMIC_TAPPING_TERM_INCREMENT;
-            }
-            return false;
-        case DT_I_DN:
-            if (record->event.pressed) {
-                index_tap_term_diff -= DYNAMIC_TAPPING_TERM_INCREMENT;
-            }
-            return false;
-        case DT_R_UP:
-            if (record->event.pressed) {
-                ring_pinky_tap_term_diff += DYNAMIC_TAPPING_TERM_INCREMENT;
-            }
-            return false;
-
-        case DT_R_DN:
-            if (record->event.pressed) {
-                ring_pinky_tap_term_diff -= DYNAMIC_TAPPING_TERM_INCREMENT;
-            }
-            return false;
-        case DT_PALL:
-            if (record->event.pressed) {
-                send_string_if_enabled(to_string(g_tapping_term));
-                send_string_if_enabled(", i: ");
-                send_string_if_enabled(to_string(index_tap_term_diff));
-                send_string_if_enabled(", rp: ");
-                send_string_if_enabled(to_string(ring_pinky_tap_term_diff));
-            }
-            return false;
-        default:
-            return true;
-    }
 }
 
 static bool process_casemodes_keycode(uint16_t keycode, keyrecord_t *record) {
@@ -643,9 +586,6 @@ static bool process_rgb_matrix_keycodes(uint16_t keycode, keyrecord_t *record) {
 #endif
 
 static bool process_other_keycodes(uint16_t keycode, keyrecord_t *record) {
-    // Handle if keycode is "dynamic tapping term per key" adjustment keycode
-    if (!process_tapping_term_keycodes(keycode, record)) { return false; }
-
     // Handle if keycode is "casemodes" keycode
     if (!process_casemodes_keycode(keycode, record)) { return false; }
 
