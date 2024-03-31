@@ -82,7 +82,31 @@ static void settle_as_hold(void) {
   recursively_process_record(&tap_hold_record, STATE_HOLDING);
 }
 
+const char* state_str(uint8_t state) {
+    switch (state) {
+        case STATE_UNSETTLED:
+            return "UNSETTLED";
+        case STATE_RELEASED:
+            return " RELEASED";
+        case STATE_TAPPING:
+            return "  TAPPING";
+        case STATE_HOLDING:
+            return "  HOLDING";
+        case STATE_RECURSING:
+            return "RECURSING";
+        default:
+            return "";
+    }
+}
+
 bool process_achordion(uint16_t keycode, keyrecord_t* record) {
+#if defined(CONSOLE_ENABLE)
+    char buffer[20];
+    snprintf(buffer, sizeof(buffer), "Achordion %s", state_str(achordion_state));
+    const char* str = buffer;
+    prefixed_print(keycode, record, str);
+#endif
+
   // Don't process events that Achordion generated.
   if (achordion_state == STATE_RECURSING) {
     return true;
