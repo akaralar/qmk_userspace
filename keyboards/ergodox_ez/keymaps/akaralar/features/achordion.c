@@ -155,7 +155,7 @@ bool process_achordion(uint16_t keycode, keyrecord_t* record) {
 
   if (achordion_state == STATE_UNSETTLED && record->event.pressed) {
 #ifdef ACHORDION_STREAK
-    const bool is_streak = (streak_timer != 0);
+    const bool is_streak = (streak_timer != 0) && achordion_check_streak(keycode, tap_hold_keycode);
     streak_timer = (timer_read() + achordion_streak_timeout(keycode)) | 1;
 #endif
 
@@ -259,6 +259,10 @@ __attribute__((weak)) bool achordion_eager_mod(uint8_t mod) {
 __attribute__((weak)) uint16_t achordion_streak_timeout(uint16_t tap_hold_keycode) {
   return 100;  // Default of 100 ms.
 }
-#endif
 
-#endif  // version check
+__attribute__((weak)) bool achordion_check_streak(uint16_t keycode, uint16_t tap_hold_keycode) {
+    return true; // Default of 100 ms.
+}
+#    endif
+
+#endif // version check

@@ -367,6 +367,16 @@ uint16_t achordion_streak_timeout(uint16_t tap_hold_keycode) {
     return 100;
 }
 
+bool achordion_check_streak(uint16_t keycode, uint16_t tap_hold_keycode) {
+    // Disable check for Cmd + C and Cmd + V
+    if (tap_hold_keycode == MT_Q_K
+        && (keycode == KC_V || keycode == KC_C)
+    ) {
+        return false;
+    }
+    return true;
+}
+
 //------------------------------------------------------------------------------
 // Caps Word
 //------------------------------------------------------------------------------
