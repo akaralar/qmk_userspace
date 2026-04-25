@@ -141,12 +141,12 @@ enum C_keycodes {
 // Layers and layer keycodes
 //------------------------------------------------------------------------------
 enum layers {
-    QWER, // default qwerty layer
-    QLET, // Only letters without modtaps for qwerty
-    QTUR, // Turkish letters with diacritics
     COLE, // default colemak layer
     CLET, // Only letters without modtaps for colemak
     CTUR, // Only letters without modtaps for colemak
+    QWER, // default qwerty layer
+    QLET, // Only letters without modtaps for qwerty
+    QTUR, // Turkish letters with diacritics
     NAVI, // navigation layer
     MOUS, // mouse layer
     MDIA, // media keys layer
@@ -173,7 +173,7 @@ enum layers {
 #define LS_QLET TT(QLET)
 #define LS_CLET TT(CLET)
 // Toggling Colemak on / off
-#define LS_COLE TG(COLE)
+#define LS_QWER TG(QWER)
 
 // Helper for "real" layer switching keys. Since a bunch of fake layer switching
 // keys are used for macros, we can't use QK_LAYER_TAP_MAX and we want to be
@@ -188,7 +188,7 @@ enum layers {
                             || (code) == LS_FUNC \
                             || (code) == LS_QLET \
                             || (code) == LS_QTUR \
-                            || (code) == LS_COLE \
+                            || (code) == LS_QWER \
                             || (code) == LS_CLET \
                             || (code) == LS_CTUR)
 
@@ -369,7 +369,7 @@ uint16_t achordion_streak_timeout(uint16_t tap_hold_keycode) {
 
 bool achordion_check_streak(uint16_t keycode, uint16_t tap_hold_keycode) {
     // Disable check for Cmd + C and Cmd + V
-    if (tap_hold_keycode == MT_Q_K
+    if ((tap_hold_keycode == MT_Q_K || tap_hold_keycode == MT_C_E)
         && (keycode == KC_V || keycode == KC_C)
     ) {
         return false;
@@ -1074,13 +1074,73 @@ uint8_t mod_config(uint8_t mod) {
  */
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
+    [COLE] = LAYOUT_ergodox(
+        _______, _______, _______, _______, _______, _______, _______,
+        _______, KC_Q   , MT_W   , MT_C_F , MT_C_P , KC_B   , _______,
+        _______, MT_A   , MT_C_R , MT_C_S , MT_C_T , KC_G   ,
+        _______, KC_Z   , KC_X   , KC_C   , KC_D   , KC_V   , _______,
+        _______, _______, _______, _______, LS_MDIA,
+                                                     _______, LS_QWER,
+                                                              CM_TOGL,
+                                            LS_NAVI, LS_MOUS, OS_LSFT,
+
+        _______, _______, _______, _______, _______, _______, _______,
+        _______, KC_J   , MT_C_L , MT_C_U , MT_C_Y , KC_QUOT, _______,
+                 KC_M   , MT_C_N , MT_C_E , MT_C_I , MT_C_O , _______,
+        _______, KC_K   , KC_H   , KC_COMM, KC_DOT , KC_SLSH, _______,
+                          LS_SYMB, _______, _______, _______, _______,
+        LS_CLET, _______,
+        KC_FN  ,
+        LS_CTUR, LS_FUNC, LS_NUMB
+    ),
+
+    [CLET] = LAYOUT_ergodox(
+        _______, _______, _______, _______, _______, _______, _______,
+        _______, _______, KC_W   , KC_F   , KC_P   , _______, _______,
+        _______, KC_A   , KC_R   , KC_S   , KC_T   , _______,
+        _______, _______, _______, _______, _______, _______, _______,
+        _______, _______, _______, _______, _______,
+                                                     _______, _______,
+                                                              _______,
+                                            _______, _______, _______,
+
+        _______, _______, _______, _______, _______, _______, _______,
+        _______, _______, KC_L   , KC_U   , KC_Y   , _______, _______,
+                 _______, KC_N   , KC_E   , KC_I   , KC_O   , _______,
+        _______, _______, _______, _______, _______, _______, _______,
+                          _______, _______, _______, _______, _______,
+        _______, _______,
+        _______,
+        _______, _______, _______
+    ),
+
+    [CTUR] = LAYOUT_ergodox(
+        _______, _______, _______, _______, _______, _______, _______,
+        _______, _______, _______, _______, _______, _______, _______,
+        _______, _______, _______, TC_S   , _______, TC_G   ,
+        _______, _______, _______, TC_C   , _______, _______, _______,
+        _______, _______, _______, _______, _______,
+                                                     _______, _______,
+                                                              _______,
+                                            _______, _______, _______,
+
+        _______, _______, _______, _______, _______, _______, _______,
+        _______, _______, _______, TC_U   , _______, _______, _______,
+                 _______, _______, _______, TC_I   , TC_O   , _______,
+        _______, _______, _______, _______, _______, _______, _______,
+                          _______, _______, _______, _______, _______,
+        _______, _______,
+        _______,
+        XXXXXXX, _______, _______
+    ),
+
     [QWER] = LAYOUT_ergodox(
         _______, _______, _______, _______, _______, _______, _______,
         _______, KC_Q   , MT_W   , MT_Q_E , MT_Q_R , KC_T   , _______,
         _______, MT_A   , MT_Q_S , MT_Q_D , MT_Q_F , KC_G   ,
         _______, KC_Z   , KC_X   , KC_C   , KC_V   , KC_B   , _______,
         _______, _______, _______, _______, LS_MDIA,
-                                                     _______, LS_COLE,
+                                                     _______, _______,
                                                               CM_TOGL,
                                             LS_NAVI, LS_MOUS, OS_LSFT,
 
@@ -1127,66 +1187,6 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         _______, _______, _______, _______, _______, _______, _______,
         _______, _______, TC_U   , TC_I   , TC_O   , _______, _______,
                  _______, _______, _______, _______, _______, _______,
-        _______, _______, _______, _______, _______, _______, _______,
-                          _______, _______, _______, _______, _______,
-        _______, _______,
-        _______,
-        XXXXXXX, _______, _______
-    ),
-
-    [COLE] = LAYOUT_ergodox(
-        _______, _______, _______, _______, _______, _______, _______,
-        _______, KC_Q   , MT_W   , MT_C_F , MT_C_P , KC_B   , _______,
-        _______, MT_A   , MT_C_R , MT_C_S , MT_C_T , KC_G   ,
-        _______, KC_Z   , KC_X   , KC_C   , KC_D   , KC_V   , _______,
-        _______, _______, _______, _______, LS_MDIA,
-                                                     _______, _______,
-                                                              CM_TOGL,
-                                            LS_NAVI, LS_MOUS, OS_LSFT,
-
-        _______, _______, _______, _______, _______, _______, _______,
-        _______, KC_J   , MT_C_L , MT_C_U , MT_C_Y , KC_QUOT, _______,
-                 KC_M   , MT_C_N , MT_C_E , MT_C_I , MT_C_O , _______,
-        _______, KC_K   , KC_H   , KC_COMM, KC_DOT , KC_SLSH, _______,
-                          LS_SYMB, _______, _______, _______, _______,
-        LS_CLET, _______,
-        KC_FN  ,
-        LS_CTUR, LS_FUNC, LS_NUMB
-    ),
-
-    [CLET] = LAYOUT_ergodox(
-        _______, _______, _______, _______, _______, _______, _______,
-        _______, _______, KC_W   , KC_F   , KC_P   , _______, _______,
-        _______, KC_A   , KC_R   , KC_S   , KC_T   , _______,
-        _______, _______, _______, _______, _______, _______, _______,
-        _______, _______, _______, _______, _______,
-                                                     _______, _______,
-                                                              _______,
-                                            _______, _______, _______,
-
-        _______, _______, _______, _______, _______, _______, _______,
-        _______, _______, KC_L   , KC_U   , KC_Y   , _______, _______,
-                 _______, KC_N   , KC_E   , KC_I   , KC_O   , _______,
-        _______, _______, _______, _______, _______, _______, _______,
-                          _______, _______, _______, _______, _______,
-        _______, _______,
-        _______,
-        _______, _______, _______
-    ),
-
-    [CTUR] = LAYOUT_ergodox(
-        _______, _______, _______, _______, _______, _______, _______,
-        _______, _______, _______, _______, _______, _______, _______,
-        _______, _______, _______, TC_S   , _______, TC_G   ,
-        _______, _______, _______, TC_C   , _______, _______, _______,
-        _______, _______, _______, _______, _______,
-                                                     _______, _______,
-                                                              _______,
-                                            _______, _______, _______,
-
-        _______, _______, _______, _______, _______, _______, _______,
-        _______, _______, _______, TC_U   , _______, _______, _______,
-                 _______, _______, _______, TC_I   , KC_O, _______,
         _______, _______, _______, _______, _______, _______, _______,
                           _______, _______, _______, _______, _______,
         _______, _______,
