@@ -17,9 +17,6 @@
 #include QMK_KEYBOARD_H
 #include "version.h"
 
-// For more info about achordion, see https://getreuer.info/posts/keyboards/achordion/index.html
-#include "features/achordion.h"
-
 // For more info about custom shift keys, see https://getreuer.info/posts/keyboards/custom-shift-keys/index.html
 #include "features/custom_shift_keys.h"
 
@@ -296,13 +293,17 @@ bool get_permissive_hold(uint16_t keycode, keyrecord_t *record) {
 };
 
 //------------------------------------------------------------------------------
-// Achordion
+// Chordal hold
 //------------------------------------------------------------------------------
-bool achordion_chord(uint16_t tap_hold_keycode,
-                     keyrecord_t *tap_hold_record,
-                     uint16_t other_keycode,
-                     keyrecord_t *other_record) {
-    // Allow same hand holds with layer switching keys
+bool get_chordal_hold(uint16_t tap_hold_keycode, keyrecord_t* tap_hold_record,
+                      uint16_t other_keycode, keyrecord_t* other_record) {
+    // Disable chordal hold when we are in the symbol layer.
+    if (get_highest_layer(layer_state) == SYMB) {
+        return true;
+    }
+
+    // Disable chordal hold for layer switch keys, mainly to get
+    // around streak timeout during fast typing.
     if (IS_LAYER_TAP(tap_hold_keycode)) {
         return true;
     }
@@ -312,69 +313,74 @@ bool achordion_chord(uint16_t tap_hold_keycode,
         return true;
     }
 
-    // Otherwise, follow the opposite hands rule.
-    return achordion_opposite_hands(tap_hold_record, other_record);
+    // Otherwise defer to the opposite hands rule.
+    return get_chordal_hold_default(tap_hold_record, other_record);
 }
 
-uint16_t achordion_timeout(uint16_t tap_hold_keycode) {
-    // Disable achordion when we are in the symbol layer.
-    if (get_highest_layer(layer_state) == SYMB) {
+//------------------------------------------------------------------------------
+// Flow tap
+//------------------------------------------------------------------------------
+bool is_flow_tap_key(uint16_t keycode) {
+    if (((get_mods() | get_oneshot_mods()) & (MOD_MASK_CG | MOD_BIT_LALT)) != 0) {
+        return false; // Disable Flow Tap on hotkeys.
+    }
+    // Disable streak detection for layer-tap keys.
+    if (IS_LAYER_TAP(keycode)) {
+        return false;
+    }
+
+    // Disable streak detection for shift mod tap keys
+    if (IS_QK_MOD_TAP(keycode)) {
+        uint8_t mods = QK_MOD_TAP_GET_MODS(keycode);
+        if (mods == MOD_LSFT || mods == MOD_RSFT) {
+            return false;
+        }
+    }
+
+    switch (get_tap_keycode(keycode)) {
+        case KC_SPC:
+        case KC_A ... KC_Z:
+        case KC_DOT:
+        case KC_COMM:
+        case KC_QUOT:
+        case KC_SLSH:
+            return true;
+    }
+
+    return false;
+}
+
+uint16_t get_flow_tap_term(uint16_t keycode, keyrecord_t* record,
+                           uint16_t prev_keycode) {
+    // Disable check for Cmd + C and Cmd + V
+    if ((prev_keycode == MT_Q_K || prev_keycode == MT_C_E)
+        && (keycode == KC_V || keycode == KC_C)
+    ) {
         return 0;
     }
 
-    // Disable Achordion for number layer switch keys, mainly to get
-    // around streak timeout during fast typing.
-    switch (tap_hold_keycode) {
-        case LS_NUMB:
-        case LS_SNUM:
-            return 0;
-    }
-    return g_tapping_term + 100;
-}
-
-bool achordion_eager_mod(uint8_t mod) {
-  switch (mod) {
-    // Eagerly apply Shift, Cmd and Alt mods.
-    case MOD_LSFT:
-    case MOD_RSFT:
-    case MOD_LGUI:
-    case MOD_RGUI:
-    case MOD_LALT:
-    case MOD_RALT:
-      return true;
-    default:
-      return false;
-  }
-};
-
-uint16_t achordion_streak_timeout(uint16_t tap_hold_keycode) {
     // A short streak detection timeout for Space layer-tap key
-    if (tap_hold_keycode == LS_NAVI) {
+    if (keycode == LS_NAVI) {
         return 50;
     }
 
-    // Disable streak detection for Shift mod-tap keys or other layer-tap keys.
-    if (tap_hold_keycode == MT_Q_F
-        || tap_hold_keycode == MT_Q_J
-        || tap_hold_keycode == MT_C_T
-        || tap_hold_keycode == MT_C_N
-        || IS_LAYER_TAP(tap_hold_keycode)
-    ) {
-        return 0;
+    if (is_flow_tap_key(prev_keycode) && is_flow_tap_key(keycode)) {
+        // A longer timeout otherwise.
+        return FLOW_TAP_TERM;
     }
 
-    // A longer timeout otherwise.
-    return 100;
+    return 0;
 }
 
-bool achordion_check_streak(uint16_t keycode, uint16_t tap_hold_keycode) {
-    // Disable check for Cmd + C and Cmd + V
-    if ((tap_hold_keycode == MT_Q_K || tap_hold_keycode == MT_C_E)
-        && (keycode == KC_V || keycode == KC_C)
-    ) {
-        return false;
+//------------------------------------------------------------------------------
+// Speculative hold
+//------------------------------------------------------------------------------
+bool get_speculative_hold(uint16_t keycode, keyrecord_t* record) {
+    if (IS_QK_MOD_TAP(keycode)) {
+        return true;
     }
-    return true;
+
+    return false; // Disable otherwise.
 }
 
 //------------------------------------------------------------------------------
@@ -964,7 +970,6 @@ void keyboard_post_init_user(void) {
 };
 
 void matrix_scan_user() {
-    achordion_task();
     fix_leds_task();
 };
 
@@ -979,9 +984,6 @@ bool pre_process_record_user(uint16_t keycode, keyrecord_t *record) {
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     // First process the symbol layer fake lt keys as they might be ignored.
     if (!process_symbol_layer_fake_lt_keys(keycode, record)) { return false; }
-
-    // Pass the keycode and record to achordion for tap-hold decision
-    if (!process_achordion(keycode, record)) { return false; }
 
 #ifdef CONSOLE_ENABLE
     prefixed_print(keycode, record, "process_record_user");
@@ -1080,7 +1082,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         _______, MT_A   , MT_C_R , MT_C_S , MT_C_T , KC_G   ,
         _______, KC_Z   , KC_X   , KC_C   , KC_D   , KC_V   , _______,
         _______, _______, _______, _______, LS_MDIA,
-                                                     _______, LS_QWER,
+                                                     CW_TOGG, LS_QWER,
                                                               CM_TOGL,
                                             LS_NAVI, LS_MOUS, OS_LSFT,
 
@@ -1089,7 +1091,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                  KC_M   , MT_C_N , MT_C_E , MT_C_I , MT_C_O , _______,
         _______, KC_K   , KC_H   , KC_COMM, KC_DOT , KC_SLSH, _______,
                           LS_SYMB, _______, _______, _______, _______,
-        LS_CLET, _______,
+        LS_CLET, CW_TOGG,
         KC_FN  ,
         LS_CTUR, LS_FUNC, LS_NUMB
     ),
@@ -1225,13 +1227,13 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                             XXXXXXX, _______, _______,
 
         _______, _______, _______, _______, _______, _______, _______,
-        _______, KC_WH_U, KC_WH_L, KC_MS_U, KC_WH_R, XXXXXXX, _______,
-                 KC_WH_D, KC_MS_L, KC_MS_D, KC_MS_R, XXXXXXX, _______,
+        _______, MS_WHLU, MS_WHLL,   MS_UP, MS_WHLR, XXXXXXX, _______,
+                 MS_WHLD, MS_LEFT, MS_DOWN, MS_RGHT, XXXXXXX, _______,
         _______, KC_REDO, KC_PSTE, KC_COPY, KC_CUT , KC_UNDO, _______,
-                          KC_BTN2, _______, _______, _______, _______,
+                          MS_BTN2, _______, _______, _______, _______,
         _______, _______,
         _______,
-        _______, KC_BTN1, KC_BTN3
+        _______, MS_BTN1, MS_BTN3
     ),
 
     [MDIA] = LAYOUT_ergodox(

@@ -21,10 +21,6 @@
 #define RAW_USAGE_PAGE 0xFF60
 #define RAW_USAGE_ID 0x61
 
-// Use typing streaks for Achordion
-#define ACHORDION_STREAK
-// #define ACHORDION_LOG
-
 // Support for up to 16 layers
 #define LAYER_STATE_16BIT
 
@@ -37,6 +33,10 @@
 #define TAPPING_TERM_PER_KEY
 #define PERMISSIVE_HOLD_PER_KEY
 
+#define CHORDAL_HOLD
+#define FLOW_TAP_TERM 100
+#define SPECULATIVE_HOLD
+
 // Turn keyboard lights off after 5 minutes
 #undef RGB_MATRIX_TIMEOUT
 #define RGB_MATRIX_TIMEOUT 300000
@@ -46,11 +46,8 @@
 
 #define RGB_MATRIX_DEFAULT_SPD 60
 
-// Activate Caps Word by pressing both shift keys
-#define BOTH_SHIFTS_TURNS_ON_CAPS_WORD
-
-// Turn off Caps Word after 5 seconds.
-#define CAPS_WORD_IDLE_TIMEOUT 5000
+// Turn off Caps Word after 3 seconds.
+#define CAPS_WORD_IDLE_TIMEOUT 3000
 
 // Type lowercase if shift is applied during Caps Word is on
 #define CAPS_WORD_INVERT_ON_SHIFT

@@ -15,7 +15,6 @@ UNICODE_ENABLE = no
 WEBUSB_ENABLE = no
 
 SRC = matrix.c
-SRC += features/achordion.c
 SRC += features/casemodes.c
 SRC += features/custom_caps_lock.c
 SRC += features/custom_shift_keys.c
