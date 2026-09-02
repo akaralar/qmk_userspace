@@ -459,6 +459,20 @@ bool terminate_case_modes(uint16_t keycode, const keyrecord_t *record) {
     return false;
 }
 
+static void enable_camel_case(void) {
+    enable_xcase_with(OS_LSFT);
+    case_mode = CASE_CAMEL;
+}
+
+static void enable_snake_case(void) {
+    enable_xcase_with(KC_UNDS);
+    case_mode = CASE_SNAKE;
+}
+
+static void enable_kebab_case(void) {
+    enable_xcase_with(KC_MINS);
+    case_mode = CASE_KEBAB;
+}
 //------------------------------------------------------------------------------
 // Custom keycode handling
 //------------------------------------------------------------------------------
@@ -479,23 +493,20 @@ static bool process_casemodes_keycode(uint16_t keycode, keyrecord_t *record) {
                     // Shift held, activate snake case
                     unregister_mods(MOD_MASK_GUI);
                     del_oneshot_mods(MOD_MASK_GUI);
-                    enable_xcase_with(KC_UNDS);
+                    enable_snake_case();
                     register_mods(mods);
-                    case_mode = CASE_SNAKE;
                 } else if ((mods | oneshot_mods) & MOD_MASK_GUI) {
                     // CMD held, activate kebab case
                     unregister_mods(MOD_MASK_ALT);
                     del_oneshot_mods(MOD_MASK_ALT);
-                    enable_xcase_with(KC_MINS);
+                    enable_kebab_case();
                     register_mods(mods);
-                    case_mode = CASE_KEBAB;
                 } else {
                     // No mod or other mods held, activate camel case
                     unregister_mods(MOD_MASK_SHIFT);
                     del_oneshot_mods(MOD_MASK_SHIFT);
-                    enable_xcase_with(OS_LSFT);
+                    enable_camel_case();
                     register_mods(mods);
-                    case_mode = CASE_CAMEL;
                 }
             }
             return false;
@@ -858,27 +869,44 @@ static void post_process_symbol_layer_fake_lt_keys(
 //------------------------------------------------------------------------------
 #ifdef COMBO_ENABLE
 enum combo_events {
-  M_CODE_BLOCK,
-  M_CODE_BLOCK_SWIFT
+  CAPS_WORD,
+  CAMEL_CASE,
+  SNAKE_CASE,
+  KEBAB_CASE
 };
 
-const uint16_t PROGMEM code_block_combo[] = {KC_RABK, FT_GRV, COMBO_END};
-const uint16_t PROGMEM swift_code_block_combo[] = {KC_RPRN, FT_CBL, COMBO_END};
+const uint16_t PROGMEM caps_word_combo[] = {KC_D, KC_H, COMBO_END};
+const uint16_t PROGMEM camel_case_combo[] = {KC_C, KC_COMM, COMBO_END};
+const uint16_t PROGMEM snake_case_combo[] = {KC_X, KC_DOT, COMBO_END};
+const uint16_t PROGMEM kebab_case_combo[] = {KC_Z, KC_SLSH, COMBO_END};
+
 combo_t key_combos[] = {
-  [M_CODE_BLOCK] = COMBO_ACTION(code_block_combo),
-  [M_CODE_BLOCK_SWIFT] = COMBO_ACTION(swift_code_block_combo),
+  [CAPS_WORD] = COMBO_ACTION(caps_word_combo),
+  [CAMEL_CASE] = COMBO_ACTION(camel_case_combo),
+  [SNAKE_CASE] = COMBO_ACTION(snake_case_combo),
+  [KEBAB_CASE] = COMBO_ACTION(kebab_case_combo),
 };
 
 void process_combo_event(uint16_t combo_index, bool pressed) {
     switch (combo_index) {
-        case M_CODE_BLOCK:
+        case CAPS_WORD:
             if (pressed) {
-                execute_symbol_macro(M_CBLOCK);
+                caps_word_on();
             }
             break;
-        case M_CODE_BLOCK_SWIFT:
+        case CAMEL_CASE:
             if (pressed) {
-                execute_symbol_macro(M_CBLOCK_S);
+                enable_camel_case();
+            }
+            break;
+        case SNAKE_CASE:
+            if (pressed) {
+                enable_snake_case();
+            }
+            break;
+        case KEBAB_CASE:
+            if (pressed) {
+                enable_kebab_case();
             }
             break;
     }
