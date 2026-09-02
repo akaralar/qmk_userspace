@@ -34,7 +34,7 @@
 // Keycodes
 //------------------------------------------------------------------------------
 enum C_keycodes {
-    VRSN = EZ_SAFE_RANGE,
+    VRSN = QK_USER_0,
     // Custom keycode to toggle rgb lights on / off
     RGB_TGL,
     // Custom keycodes for RGB matrix brightness

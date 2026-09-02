@@ -1,0 +1,3 @@
+[submodule "modules/zsa"]
+	path = modules/zsa
+	url = https://github.com/zsa/qmk_modules.git
