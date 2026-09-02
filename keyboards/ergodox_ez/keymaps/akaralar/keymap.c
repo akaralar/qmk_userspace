@@ -14,6 +14,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "action_layer.h"
 #include QMK_KEYBOARD_H
 #include "version.h"
 
@@ -198,7 +199,7 @@ enum layers {
 #define FT_LBRC LT(SYMB, KC_1)
 #define FT_LPRN LT(SYMB, KC_2)
 #define FT_LABK LT(SYMB, KC_3)
-#define FT_LCBR LT(SYMB, KC_4)
+#define FT_RCBR LT(SYMB, KC_4)
 #define FT_DQUO LT(SYMB, KC_5)
 #define FT_QUOT LT(SYMB, KC_6)
 #define FT_UNDS LT(SYMB, KC_7)
@@ -211,7 +212,7 @@ enum layers {
                               || (code) == FT_LBRC \
                               || (code) == FT_LPRN \
                               || (code) == FT_LABK \
-                              || (code) == FT_LCBR \
+                              || (code) == FT_RCBR \
                               || (code) == FT_DQUO \
                               || (code) == FT_QUOT \
                               || (code) == FT_UNDS \
@@ -321,9 +322,16 @@ bool get_chordal_hold(uint16_t tap_hold_keycode, keyrecord_t* tap_hold_record,
 // Flow tap
 //------------------------------------------------------------------------------
 bool is_flow_tap_key(uint16_t keycode) {
+    // Disable Flow Tap on hotkeys.
     if (((get_mods() | get_oneshot_mods()) & (MOD_MASK_CG | MOD_BIT_LALT)) != 0) {
-        return false; // Disable Flow Tap on hotkeys.
+        return false;
     }
+
+    // Disable Flow Tap if not on home row layer
+    if (get_highest_layer(layer_state) != COLE && get_highest_layer(layer_state) != QWER) {
+        return false;
+    }
+
     // Disable streak detection for layer-tap keys.
     if (IS_LAYER_TAP(keycode)) {
         return false;
@@ -361,7 +369,7 @@ uint16_t get_flow_tap_term(uint16_t keycode, keyrecord_t* record,
 
     // A short streak detection timeout for Space layer-tap key
     if (keycode == LS_NAVI) {
-        return 50;
+        return 0;
     }
 
     if (is_flow_tap_key(prev_keycode) && is_flow_tap_key(keycode)) {
@@ -722,8 +730,8 @@ static bool process_macro_keycodes(uint16_t keycode, keyrecord_t *record) {
             return process_tap_or_long_press_key(record, KC_LPRN, M_PARENS);
         case FT_LABK:
             return process_tap_or_long_press_key(record, KC_LABK, M_ABRACES);
-        case FT_LCBR:
-            return process_tap_or_long_press_key(record, KC_LCBR, M_CBRACES);
+        case FT_RCBR:
+            return process_tap_or_long_press_key(record, KC_RCBR, M_CBRACES);
         case FT_DQUO:
             return process_tap_or_long_press_key(record, KC_DQUO, M_DQUOTES);
         case FT_QUOT:
@@ -740,7 +748,7 @@ static bool process_macro_keycodes(uint16_t keycode, keyrecord_t *record) {
             return process_tap_or_long_press_key(record, KC_HASH, M_CBLOCK_S);
         case LS_SNUM:
             if (record->event.pressed && record->tap.count != 0) {
-                tap_code16(KC_RCBR);
+                tap_code16(KC_LCBR);
                 return false;
             }
             return true;
@@ -1288,7 +1296,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
         _______, _______, _______, _______, _______, _______, _______,
         _______, KC_CIRC, KC_BSLS, FT_DQUO, FT_ASTR, KC_PERC, _______,
-                 KC_PIPE, LS_SNUM, FT_LCBR, KC_COLN, KC_COMM, _______,
+                 KC_PIPE, LS_SNUM, FT_RCBR, KC_COLN, KC_COMM, _______,
         _______, FT_QUOT, KC_EQL , KC_MINS, KC_EXLM, KC_SCLN, _______,
                           XXXXXXX, _______, _______, _______, _______,
         _______, _______,
