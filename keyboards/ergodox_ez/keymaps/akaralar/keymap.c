@@ -208,18 +208,10 @@ enum layers {
 #define FT_CBL LT(SYMB, KC_A)
 #define FT_CBLS LT(SYMB, KC_B)
 
-#define IS_FAKE_LAYER_TAP(code) ((code) == FT_SLSH \
-                              || (code) == FT_LBRC \
-                              || (code) == FT_LPRN \
-                              || (code) == FT_LABK \
-                              || (code) == FT_RCBR \
-                              || (code) == FT_DQUO \
-                              || (code) == FT_QUOT \
-                              || (code) == FT_UNDS \
-                              || (code) == FT_ASTR \
-                              || (code) == FT_GRV \
-                              || (code) == FT_CBL \
-                              || (code) == FT_CBLS)
+// Every fake layer-tap key is an LT into the SYMB layer, and no real layer-tap
+// targets SYMB (it is entered via MO(SYMB)), so any LT(SYMB, ...) is a fake one.
+#define IS_FAKE_LAYER_TAP(code) \
+    (IS_QK_LAYER_TAP(code) && QK_LAYER_TAP_GET_LAYER(code) == SYMB)
 //------------------------------------------------------------------------------
 // Custom shift keys
 //------------------------------------------------------------------------------
@@ -651,7 +643,7 @@ static bool process_other_keycodes(uint16_t keycode, keyrecord_t *record) {
             }
             return false;
         default:
-            return true;
+            break;
     }
 
     return true;
