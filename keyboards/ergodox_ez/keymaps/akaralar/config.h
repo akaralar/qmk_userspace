@@ -27,6 +27,12 @@
 // Disable key repeating for tap-hold keys
 #define QUICK_TAP_TERM 0
 
+// Shrink RAM-heavy buffers so COMBO_ENABLE fits in the ATmega32U4's 2.5KB SRAM.
+// Default DYNAMIC_MACRO_SIZE (128) alone costs ~1.1KB; enabling combos grows
+// every keyrecord by 2 bytes, which tipped the build into stack corruption.
+#define DYNAMIC_MACRO_SIZE 48
+#define COMBO_KEY_BUFFER_LENGTH 6
+
 // Tap-hold configuration for home row mods.
 #undef TAPPING_TERM
 #define TAPPING_TERM 175
