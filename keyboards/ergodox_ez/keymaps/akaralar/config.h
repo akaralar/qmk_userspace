@@ -46,8 +46,8 @@
 
 #define RGB_MATRIX_DEFAULT_SPD 60
 
-// Turn off Caps Word after 3 seconds.
-#define CAPS_WORD_IDLE_TIMEOUT 3000
+// Turn off Caps Word after 4 seconds.
+#define CAPS_WORD_IDLE_TIMEOUT 4000
 
 // Type lowercase if shift is applied during Caps Word is on
 #define CAPS_WORD_INVERT_ON_SHIFT
