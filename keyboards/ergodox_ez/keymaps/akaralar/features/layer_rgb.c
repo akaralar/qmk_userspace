@@ -178,13 +178,9 @@ static void set_layer_rgb_colors(int layer) {
                 .v = pgm_read_byte(&rgb_colors[layer][2]),
             };
 
-            if (!hsv.h && !hsv.s && !hsv.v) {
-                rgb_matrix_set_color(i, 0, 0, 0);
-            } else {
-                RGB   rgb = hsv_to_rgb(hsv);
-                float f   = (float)rgb_matrix_config.hsv.v / UINT8_MAX;
-                rgb_matrix_set_color(i, f * rgb.r, f * rgb.g, f * rgb.b);
-            }
+            RGB   rgb = hsv_to_rgb(hsv);
+            float f   = (float)rgb_matrix_config.hsv.v / UINT8_MAX;
+            rgb_matrix_set_color(i, f * rgb.r, f * rgb.g, f * rgb.b);
         }
     }
 };
