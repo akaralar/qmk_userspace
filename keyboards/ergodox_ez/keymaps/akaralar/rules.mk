@@ -25,6 +25,12 @@ SRC += features/tap_hold.c
 SRC += features/turkish.c
 SRC += features/led_indicators.c
 
+# Combos define key_combos[], which QMK's keymap_introspection.c reads via
+# ARRAY_SIZE(). That macro needs the array visible in the introspection
+# translation unit, so the file is pulled in there (alongside keymap.c) rather
+# than compiled separately via SRC.
+INTROSPECTION_KEYMAP_C = features/combos.c
+
 # Disable the following to save space
 SPACE_CADET_ENABLE = no
 GRAVE_ESC_ENABLE = no

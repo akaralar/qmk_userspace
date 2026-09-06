@@ -41,20 +41,36 @@ bool process_custom_caps_lock(uint16_t keycode, keyrecord_t* record) {
     return true;
 }
 
-void caps_lock_on() {
-    caps_lock_active = true;
-}
+bool is_caps_lock_on(void) { return caps_lock_active; }
 
-void caps_lock_off() {
-    caps_lock_active = false;
-}
-
-void caps_lock_toggle(void) {
+void toggle_caps_lock(void) {
+    caps_lock_active = !caps_lock_active;
     if (caps_lock_active) {
-        caps_lock_off();
+        caps_word_on();
     } else {
-        caps_lock_on();
+        caps_word_off();
     }
 }
 
-bool is_caps_lock_on(void) { return caps_lock_active; }
+// QMK weak override: decide which keys keep Caps Word alive.
+bool caps_word_press_user(uint16_t keycode) {
+    switch (keycode) {
+        // Keycodes that continue Caps Word, with shift applied.
+        case KC_A ... KC_Z:
+            add_weak_mods(MOD_BIT(KC_LSFT));  // Apply shift to next key.
+            return true;
+
+        // Keycodes that continue Caps Word, without shifting.
+        case KC_MINS:
+        case KC_1 ... KC_0:
+        case KC_BSPC:
+        case KC_DEL:
+        case KC_UNDS:
+            // When caps lock is enabled, we stop caps word on any key other
+            // than A-Z, to be re-enabled later when another A-Z key is pressed
+            return !is_caps_lock_on();
+
+        default:
+            return false;  // Deactivate Caps Word.
+    }
+}

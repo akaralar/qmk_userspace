@@ -20,10 +20,12 @@ extern "C" {
 //------------------------------------------------------------------------------
 bool process_custom_caps_lock(uint16_t keycode, keyrecord_t* record);
 
-void caps_lock_on(void);
-void caps_lock_off(void);
-void caps_lock_toggle(void);
+// Query the manual caps lock state.
 bool is_caps_lock_on(void);
+
+// Toggle manual caps lock, keeping Caps Word in sync (on when caps lock turns
+// on, off when it turns off).
+void toggle_caps_lock(void);
 
 #ifdef __cplusplus
 }
