@@ -766,143 +766,132 @@ static void execute_symbol_macro(uint16_t keycode) {
     return;
 }
 
-static bool process_tap_or_long_press_key(
-    keyrecord_t *record,
-    uint16_t tap_keycode,
-    uint16_t long_press_keycode
+// Maps a symbol-layer fake LT keycode to its tap symbol and hold macro.
+// Returns false if `keycode` is not one of these keys. This is the single
+// source of truth for "is this a symbol-layer fake LT" and what it does.
+static bool fake_lt_actions(
+    uint16_t keycode,
+    uint16_t *tap_keycode,
+    uint16_t *hold_macro
 ) {
-    if (record->tap.count == 0) { // Key is being held.
-        if (record->event.pressed) {
-            execute_symbol_macro(long_press_keycode);
-        }
-        return false; // Skip default handling.
-    } else {
+    switch (keycode) {
+        case FT_SLSH: *tap_keycode = KC_SLASH; *hold_macro = M_UPDIR;    return true;
+        case FT_LBRC: *tap_keycode = KC_LBRC;  *hold_macro = M_BRACKETS; return true;
+        case FT_LPRN: *tap_keycode = KC_LPRN;  *hold_macro = M_PARENS;   return true;
+        case FT_LABK: *tap_keycode = KC_LABK;  *hold_macro = M_ABRACES;  return true;
+        case FT_RCBR: *tap_keycode = KC_RCBR;  *hold_macro = M_CBRACES;  return true;
+        case FT_DQUO: *tap_keycode = KC_DQUO;  *hold_macro = M_DQUOTES;  return true;
+        case FT_QUOT: *tap_keycode = KC_QUOT;  *hold_macro = M_QUOTES;   return true;
+        case FT_UNDS: *tap_keycode = KC_UNDS;  *hold_macro = M_UNDERS;   return true;
+        case FT_ASTR: *tap_keycode = KC_ASTR;  *hold_macro = M_ASTRSKS;  return true;
+        case FT_GRV:  *tap_keycode = KC_GRV;   *hold_macro = M_GRAVES;   return true;
+        case FT_CBL:  *tap_keycode = KC_AMPR;  *hold_macro = M_CBLOCK;   return true;
+        case FT_CBLS: *tap_keycode = KC_HASH;  *hold_macro = M_CBLOCK_S; return true;
+        // LS_SNUM's tap is "{"; its hold is a layer switch (handled specially,
+        // no macro), so `hold_macro` is unused for it.
+        case LS_SNUM: *tap_keycode = KC_LCBR;  *hold_macro = KC_NO;      return true;
+        default:      return false;
+    }
+}
+
+// Performs the intended symbol-layer action for a fake LT key. `keycode` is the
+// fake LT keycode (resolved directly in the stable case, or reconstructed from
+// the pending record in the collapse case), and `record->tap.count` decides
+// tap vs hold (reliable in both cases). Always consumes the event so the
+// underlying keycode - the LT placeholder, or the collapsed base key - is never
+// emitted.
+static bool handle_fake_lt(uint16_t keycode, keyrecord_t *record) {
+    uint16_t tap_keycode;
+    uint16_t hold_macro;
+    if (!fake_lt_actions(keycode, &tap_keycode, &hold_macro)) {
+        return true; // not a fake LT: let normal processing continue
+    }
+
+    if (record->tap.count > 0) {
+        // Tap: emit the symbol once, on the key-down.
         if (record->event.pressed) {
             tap_code16(tap_keycode);
         }
-        return false; // Skip default handling.
+    } else if (keycode == LS_SNUM) {
+        // LS_SNUM's hold switches to the SNUM layer. We drive it manually
+        // instead of letting QMK's LT do it, so the stable and collapse paths
+        // are identical: in a collapse QMK hands us the base keycode and would
+        // never switch layers on its own.
+        if (record->event.pressed) {
+            layer_on(SNUM);
+        } else {
+            layer_off(SNUM);
+        }
+    } else if (record->event.pressed) {
+        // FT_* hold runs a one-shot macro on the key-down.
+        execute_symbol_macro(hold_macro);
     }
+
+    return false; // symbol-layer action handled; suppress default processing
 }
 
-static bool process_macro_keycodes(uint16_t keycode, keyrecord_t *record) {
-    // We send the tap keycode for these macros prematurely in
-    // `pre_process_record_user`, so if the event is later resolved to a hold,
-    // delete the tap keycode.
-    if (record->event.pressed && record->tap.count == 0) {
-        tap_code16(KC_BACKSPACE);
-    }
+// Fake symbol-layer LT keys are deferred by the tapping machinery. When
+// MO(SYMB) is released before such a key settles, the symbol layer "collapses"
+// and QMK resolves the key on the base layer - handing us the base keycode
+// (e.g. "n") instead of the fake LT. To honor the intent fixed at key-down (the
+// layer the key was pressed on), `pre_process` records every fake LT pressed on
+// the symbol layer, and if a base keycode later resolves at that position we
+// reconstruct the symbol-layer action from the recorded keycode.
+#define FAKE_LT_PENDING_SLOTS 4
+typedef struct {
+    bool     active;
+    uint8_t  row;
+    uint8_t  col;
+    uint16_t keycode;        // the fake LT that was pressed at this position
+    bool     reconstructing; // whether the key-down committed a collapse reconstruct
+} fake_lt_pending_t;
 
-    // Tap-hold macros in symbol layer
-    switch (keycode) {
-        case FT_SLSH:
-            return process_tap_or_long_press_key(record, KC_SLASH, M_UPDIR);
-        case FT_LBRC:
-            return process_tap_or_long_press_key(record, KC_LBRC, M_BRACKETS);
-        case FT_LPRN:
-            return process_tap_or_long_press_key(record, KC_LPRN, M_PARENS);
-        case FT_LABK:
-            return process_tap_or_long_press_key(record, KC_LABK, M_ABRACES);
-        case FT_RCBR:
-            return process_tap_or_long_press_key(record, KC_RCBR, M_CBRACES);
-        case FT_DQUO:
-            return process_tap_or_long_press_key(record, KC_DQUO, M_DQUOTES);
-        case FT_QUOT:
-            return process_tap_or_long_press_key(record, KC_QUOT, M_QUOTES);
-        case FT_UNDS:
-            return process_tap_or_long_press_key(record, KC_UNDS, M_UNDERS);
-        case FT_ASTR:
-            return process_tap_or_long_press_key(record, KC_ASTR, M_ASTRSKS);
-        case FT_GRV:
-            return process_tap_or_long_press_key(record, KC_GRV, M_GRAVES);
-        case FT_CBL:
-            return process_tap_or_long_press_key(record, KC_AMPR, M_CBLOCK);
-        case FT_CBLS:
-            return process_tap_or_long_press_key(record, KC_HASH, M_CBLOCK_S);
-        case LS_SNUM:
-            // Mirror the fake LT keys: send "{" on the tap press and swallow
-            // both the press *and* the release. Returning false on the key-up
-            // is what lets `pre_process_symbol_layer_fake_lt_keys` arm
-            // `should_ignore_next_tap`; otherwise the base-layer keycode at
-            // this position (e.g. "n") leaks when MO(SYMB) is released before
-            // this key.
-            if (record->tap.count != 0) { // tap
-                if (record->event.pressed) {
-                    tap_code16(KC_LCBR);
-                }
-                return false;
-            }
-            return true; // hold: continue with normal LT(SNUM) processing
-    }
+static fake_lt_pending_t fake_lt_pending[FAKE_LT_PENDING_SLOTS];
 
-    return true;
+static fake_lt_pending_t *find_pending_fake_lt(keyrecord_t *record) {
+    for (int i = 0; i < FAKE_LT_PENDING_SLOTS; i++) {
+        if (fake_lt_pending[i].active
+            && fake_lt_pending[i].row == record->event.key.row
+            && fake_lt_pending[i].col == record->event.key.col
+        ) {
+            return &fake_lt_pending[i];
+        }
+    }
+    return NULL;
 }
 
-static keyrecord_t modified_fake_lt_record;
-static bool should_ignore_next_tap = false;
-static bool did_release_symbol_layer_key = false;
+static void remember_pending_fake_lt(uint16_t keycode, keyrecord_t *record) {
+    fake_lt_pending_t *slot = find_pending_fake_lt(record);
+    if (slot == NULL) {
+        for (int i = 0; i < FAKE_LT_PENDING_SLOTS; i++) {
+            if (!fake_lt_pending[i].active) { slot = &fake_lt_pending[i]; break; }
+        }
+    }
+    if (slot == NULL) { return; } // all slots busy (5+ pending is not realistic)
 
-// Tracks whether LS_SNUM is currently physically held, and how many premature
-// symbols have been emitted since it went down (its own "{" plus any symbol a
-// key pressed during the SYMB->SNUM switch emitted before re-resolving). Used
-// to delete exactly those characters when LS_SNUM settles as a hold.
-static bool did_press_snum_key = false;
-static uint8_t symb_premature_count = 0;
+    slot->active         = true;
+    slot->row            = record->event.key.row;
+    slot->col            = record->event.key.col;
+    slot->keycode        = keycode;
+    slot->reconstructing = false;
+}
 
 static bool pre_process_symbol_layer_fake_lt_keys(
     uint16_t keycode,
     keyrecord_t *record
 ) {
-    // Only process the LT keys in the symbol layer, which are:
-    //  - Fake LT keys to trigger macros,
-    //  - Layer switching key for switching to SNUM layer.
-    if (!(IS_FAKE_LAYER_TAP(keycode) || keycode == LS_SNUM)) { return true; }
-
-    // Tap count is 0 when a record is received in `pre_process_record_user`, to
-    // trigger macro with the tap action, we copy the record and set the tap
-    // count.
-    modified_fake_lt_record = *record;
-    modified_fake_lt_record.tap.count = 1;
-
-    // Trigger the macro for the tap action with the modified record.
-    if (!process_macro_keycodes(keycode, &modified_fake_lt_record)) {
-        // A premature symbol was just emitted (on the key-down). Keep a running
-        // count of the premature characters that are on screen since LS_SNUM
-        // went down, so that if LS_SNUM settles as a hold we can delete exactly
-        // those characters. This covers both LS_SNUM's own "{" and the symbol
-        // an interrupting key emits while SYMB is still active (before it
-        // re-resolves onto the SNUM layer).
-        if (record->event.pressed) {
-            if (keycode == LS_SNUM) {
-                symb_premature_count = 1; // its own "{"
-            } else if (did_press_snum_key) {
-                symb_premature_count++;   // interleaved during the SNUM switch
-            }
-        }
-
-        // Track LS_SNUM's physical held state so the count above can attribute
-        // interleaved premature symbols to the SNUM layer switch. This is set
-        // after the count so LS_SNUM's own press is attributed to itself, not
-        // treated as an interleaved key.
-        if (keycode == LS_SNUM) {
-            did_press_snum_key = record->event.pressed;
-        }
-
-        // If we receive a key up event immediately after the `MO` layer was
-        // released, the key was pressed when the `MO` layer was active, hence
-        // we should ignore the key up/down that QMK sends as if the `MO` layer
-        // was inactive.
-        should_ignore_next_tap = (
-            !record->event.pressed
-            && did_release_symbol_layer_key
-        );
-
-        // This flag should only be `true` immediately after releasing the `MO`
-        // layer key, so set it to false if it is true at this point as it is
-        // already processed in the expression directly above.
-        if (did_release_symbol_layer_key) {
-            did_release_symbol_layer_key = false;
-        }
-    };
+    // Record intent at key-down, while the correct layer is still live:
+    // pre_process runs before the tapping machinery defers the key, so
+    // `keycode` is the real fake LT even if the layer later collapses. We only
+    // record - nothing is emitted here - so modal apps (e.g. Vim) never see a
+    // premature keystroke.
+    uint16_t tap_keycode;
+    uint16_t hold_macro;
+    if (record->event.pressed
+        && fake_lt_actions(keycode, &tap_keycode, &hold_macro)
+    ) {
+        remember_pending_fake_lt(keycode, record);
+    }
 
     return true;
 }
@@ -911,70 +900,44 @@ static bool process_symbol_layer_fake_lt_keys(
     uint16_t keycode,
     keyrecord_t *record
 ) {
-    // The modified record contains the last key pressed in the `MO` layer. If,
-    //   - the newly received record has the same key row and column,
-    //   - the newly received record is for tap,
-    //   - we decided that next tap should be ignored,
-    // we intercept this event and stop processing.
-    if (record->event.key.row == modified_fake_lt_record.event.key.row
-        && record->event.key.col == modified_fake_lt_record.event.key.col
-        && record->tap.count == 1
-        && should_ignore_next_tap
-    ) {
-        // After ignoring the key up event, we clear the variables so that they
-        // don't interfere with future processing.
-        if (!record->event.pressed) {
-            should_ignore_next_tap = false;
-            // Set the row and column to a key position that is unused.
-            modified_fake_lt_record.event.key.row = 0;
-            modified_fake_lt_record.event.key.col = 0;
-        }
-        return false;
+    uint16_t tap_keycode;
+    uint16_t hold_macro;
+
+    // Stable case: the key resolved on the symbol layer, so QMK hands us the
+    // fake LT keycode directly. Handle it and drop any pending record.
+    if (fake_lt_actions(keycode, &tap_keycode, &hold_macro)) {
+        fake_lt_pending_t *slot = find_pending_fake_lt(record);
+        if (slot != NULL && !record->event.pressed) { slot->active = false; }
+        return handle_fake_lt(keycode, record);
     }
 
-    if (IS_FAKE_LAYER_TAP(keycode) || keycode == LS_SNUM) {
-        // For fake `LT` keys that trigger macros with a tap action in the
-        // symbol layer, ignore the tap action because the tap action is alredy
-        // triggered in `pre_process_record_user`.
-        if (record->tap.count == 1) {
-            return false;
+    // A base/other-layer keycode resolved here. If a fake LT was pressed at this
+    // position, decide whether this is a genuine collapse: it is only a collapse
+    // if the layer fell all the way back to a base alpha layer. If a functional
+    // layer (e.g. SNUM) is on top, the key resolved there on purpose - a number
+    // on SNUM at a position that is a fake LT on SYMB - and must pass through
+    // untouched. We decide on the key-down and mirror it on the release, so the
+    // release does not depend on how the key happens to re-resolve.
+    fake_lt_pending_t *slot = find_pending_fake_lt(record);
+    if (slot != NULL) {
+        if (record->event.pressed) {
+            slot->reconstructing = get_highest_layer(layer_state) < NAVI;
+            if (slot->reconstructing) {
+                return handle_fake_lt(slot->keycode, record);
+            }
+            return true; // resolved on a functional layer: pass through
         }
 
-        if (record->tap.count == 0) {
-            // LS_SNUM resolved as a hold: switch to the SNUM layer. Delete the
-            // premature "{" plus any symbol a key pressed during the switch
-            // emitted before re-resolving onto SNUM (those keys re-emit their
-            // SNUM value afterwards). Using the running count deletes the right
-            // number of characters even when an interrupting key inserted its
-            // own premature symbol between our "{" and this hold resolution.
-            if (keycode == LS_SNUM) {
-                if (record->event.pressed) {
-                    for (uint8_t i = 0; i < symb_premature_count; i++) {
-                        tap_code16(KC_BACKSPACE);
-                    }
-                }
-                return true; // let QMK perform the LT(SNUM) layer switch
-            }
-
-            // Process the hold action and if it is handled, stop processing.
-            if (!process_macro_keycodes(keycode, record)) {
-                return false;
-            }
+        bool     reconstructing = slot->reconstructing;
+        uint16_t recorded       = slot->keycode;
+        slot->active = false; // consume the pending record on release
+        if (reconstructing) {
+            return handle_fake_lt(recorded, record);
         }
+        return true;
     }
 
-    // Otherwise, continue processing as it is not a fake layer tap key. The
-    // only case that falls here is when the layer tap key for switching to the
-    // number layer from the symbol layer is held down.
-    return true;
-}
-
-static void post_process_symbol_layer_fake_lt_keys(
-    uint16_t keycode,
-    keyrecord_t *record
-) {
-    // Set this flag only when the symbol layer switch key is released.
-    did_release_symbol_layer_key = keycode == LS_SYMB && !record->event.pressed;
+    return true; // not a fake LT and nothing pending: normal processing
 }
 
 //------------------------------------------------------------------------------
@@ -1110,9 +1073,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     return true;
 };
 
-void post_process_record_user(uint16_t keycode, keyrecord_t *record) {
-    post_process_symbol_layer_fake_lt_keys(keycode, record);
-}
 
 layer_state_t layer_state_set_user(layer_state_t state) {
     led_state_set(state);
