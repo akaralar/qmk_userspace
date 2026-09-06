@@ -6,19 +6,12 @@ bool process_custom_caps_lock(uint16_t keycode, keyrecord_t* record) {
     if (!record->event.pressed) { return true; }
 
     if (is_caps_lock_on() && !is_caps_word_on()) {
-        switch (keycode) {
-            case QK_MOD_TAP ... QK_MOD_TAP_MAX:
-                if (record->tap.count != 0) { // Mod-tap key is tapped.
-                    keycode = QK_MOD_TAP_GET_TAP_KEYCODE(keycode);
-                }
-                break;
-#ifndef NO_ACTION_LAYER
-            case QK_LAYER_TAP ... QK_LAYER_TAP_MAX:
-                if (record->tap.count != 0) {  // Layer-tap key is held.
-                    keycode = QK_LAYER_TAP_GET_TAP_KEYCODE(keycode);
-                }
-                break;
-#endif  // NO_ACTION_LAYER
+        // Resolve mod-tap / layer-tap keys to their tap keycode when tapped, so
+        // the A-Z check below sees the underlying letter. On a hold, tap.count
+        // is 0 and the key keeps its MT/LT keycode (which is not A-Z), so Caps
+        // Word is left off.
+        if (record->tap.count != 0) {
+            keycode = get_tap_keycode(keycode);
         }
 
         uint8_t mods = get_mods() | get_oneshot_mods();
