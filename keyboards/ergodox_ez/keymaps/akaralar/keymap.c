@@ -14,7 +14,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "action.h"
 #include "action_layer.h"
+#include "oryx.h"
+#include "quantum.h"
 #include QMK_KEYBOARD_H
 #include "version.h"
 
@@ -160,7 +163,7 @@ enum layers {
 #define LS_MOUS LT(MOUS, KC_TAB)
 #define LS_MDIA LT(MDIA, KC_ESCAPE)
 #define LS_NUMB LT(NUMB, KC_BSPC)
-#define LS_SNUM LT(SNUM, KC_3) // The tap is intercepted later to send "}"
+#define LS_SNUM LT(SNUM, KC_3) // The tap is intercepted later to send "{"
 #define LS_FUNC LT(FUNC, KC_ENTER)
 // Momentary
 #define LS_SYMB MO(SYMB)
@@ -315,9 +318,9 @@ bool get_chordal_hold(uint16_t tap_hold_keycode, keyrecord_t* tap_hold_record,
 //------------------------------------------------------------------------------
 bool is_flow_tap_key(uint16_t keycode) {
     // Disable Flow Tap on hotkeys.
-    if (((get_mods() | get_oneshot_mods()) & (MOD_MASK_CG | MOD_BIT_LALT)) != 0) {
-        return false;
-    }
+    // if (((get_mods() | get_oneshot_mods()) & (MOD_MASK_CG | MOD_BIT_LALT)) != 0) {
+    //     return false;
+    // }
 
     // Disable Flow Tap if not on home row layer
     if (get_highest_layer(layer_state) != COLE && get_highest_layer(layer_state) != QWER) {
@@ -364,7 +367,7 @@ uint16_t get_flow_tap_term(uint16_t keycode, keyrecord_t* record,
         return 0;
     }
 
-    if (is_flow_tap_key(prev_keycode) && is_flow_tap_key(keycode)) {
+    if (/* is_flow_tap_key(prev_keycode) && */is_flow_tap_key(keycode)) {
         // A longer timeout otherwise.
         return FLOW_TAP_TERM;
     }
@@ -465,6 +468,77 @@ static void enable_kebab_case(void) {
     enable_xcase_with(KC_MINS);
     case_mode = CASE_KEBAB;
 }
+
+
+//------------------------------------------------------------------------------
+// Caps lock
+//------------------------------------------------------------------------------
+static void toggle_caps_lock(void) {
+    caps_lock_toggle();
+    if (is_caps_lock_on()) {
+        caps_word_on();
+    } else {
+        caps_word_off();
+    }
+}
+
+//------------------------------------------------------------------------------
+// Combos
+//------------------------------------------------------------------------------
+#ifdef COMBO_ENABLE
+enum combo_events {
+  CAPS_WORD,
+  CAPS_LOCK,
+  CAMEL_CASE,
+  SNAKE_CASE,
+  KEBAB_CASE
+};
+
+const uint16_t PROGMEM caps_word_combo[] = {KC_D, KC_H, COMBO_END};
+const uint16_t PROGMEM caps_lock_combo[] = {KC_G, KC_M, COMBO_END};
+const uint16_t PROGMEM camel_case_combo[] = {KC_C, KC_COMM, COMBO_END};
+const uint16_t PROGMEM snake_case_combo[] = {KC_X, KC_DOT, COMBO_END};
+const uint16_t PROGMEM kebab_case_combo[] = {KC_Z, KC_SLSH, COMBO_END};
+
+combo_t key_combos[] = {
+  [CAPS_WORD] = COMBO_ACTION(caps_word_combo),
+  [CAPS_LOCK] = COMBO_ACTION(caps_lock_combo),
+  [CAMEL_CASE] = COMBO_ACTION(camel_case_combo),
+  [SNAKE_CASE] = COMBO_ACTION(snake_case_combo),
+  [KEBAB_CASE] = COMBO_ACTION(kebab_case_combo),
+};
+
+void process_combo_event(uint16_t combo_index, bool pressed) {
+    switch (combo_index) {
+        case CAPS_WORD:
+            if (pressed) {
+                caps_word_on();
+            }
+            break;
+        case CAPS_LOCK:
+            if (pressed) {
+                toggle_caps_lock();
+            }
+            break;
+        case CAMEL_CASE:
+            if (pressed) {
+                enable_camel_case();
+            }
+            break;
+        case SNAKE_CASE:
+            if (pressed) {
+                enable_snake_case();
+            }
+            break;
+        case KEBAB_CASE:
+            if (pressed) {
+                enable_kebab_case();
+            }
+            break;
+    }
+}
+#endif
+
 //------------------------------------------------------------------------------
 // Custom keycode handling
 //------------------------------------------------------------------------------
@@ -556,8 +630,8 @@ static bool process_swallowed_esc(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
         case LS_MDIA:
             if (record->tap.count != 0) { // key is being tapped
-                // Don't send escape key when trying to exit caps word or case
-                // modes
+                // Don't send escape key when trying to exit caps word, caps
+                // lock or case modes
                 if (record->event.pressed
                     && (
                         (is_caps_word_on() && !is_caps_lock_on())
@@ -633,13 +707,7 @@ static bool process_other_keycodes(uint16_t keycode, keyrecord_t *record) {
             return false;
         case CPS_LCK:
             if (record->event.pressed) {
-                caps_lock_toggle();
-                if (is_caps_lock_on()) {
-                    caps_word_on();
-                } else {
-                    caps_word_off();
-                }
-
+                toggle_caps_lock();
             }
             return false;
         default:
@@ -856,54 +924,6 @@ static void post_process_symbol_layer_fake_lt_keys(
     did_release_symbol_layer_key = keycode == LS_SYMB && !record->event.pressed;
 }
 
-//------------------------------------------------------------------------------
-// Combos
-//------------------------------------------------------------------------------
-#ifdef COMBO_ENABLE
-enum combo_events {
-  CAPS_WORD,
-  CAMEL_CASE,
-  SNAKE_CASE,
-  KEBAB_CASE
-};
-
-const uint16_t PROGMEM caps_word_combo[] = {KC_D, KC_H, COMBO_END};
-const uint16_t PROGMEM camel_case_combo[] = {KC_C, KC_COMM, COMBO_END};
-const uint16_t PROGMEM snake_case_combo[] = {KC_X, KC_DOT, COMBO_END};
-const uint16_t PROGMEM kebab_case_combo[] = {KC_Z, KC_SLSH, COMBO_END};
-
-combo_t key_combos[] = {
-  [CAPS_WORD] = COMBO_ACTION(caps_word_combo),
-  [CAMEL_CASE] = COMBO_ACTION(camel_case_combo),
-  [SNAKE_CASE] = COMBO_ACTION(snake_case_combo),
-  [KEBAB_CASE] = COMBO_ACTION(kebab_case_combo),
-};
-
-void process_combo_event(uint16_t combo_index, bool pressed) {
-    switch (combo_index) {
-        case CAPS_WORD:
-            if (pressed) {
-                caps_word_on();
-            }
-            break;
-        case CAMEL_CASE:
-            if (pressed) {
-                enable_camel_case();
-            }
-            break;
-        case SNAKE_CASE:
-            if (pressed) {
-                enable_snake_case();
-            }
-            break;
-        case KEBAB_CASE:
-            if (pressed) {
-                enable_kebab_case();
-            }
-            break;
-    }
-}
-#endif
 //------------------------------------------------------------------------------
 // LED lights
 //------------------------------------------------------------------------------
