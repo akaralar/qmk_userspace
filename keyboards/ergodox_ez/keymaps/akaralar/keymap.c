@@ -34,6 +34,7 @@
 #include "features/common.h"
 #include "features/symbol_layer.h"
 #include "features/layer_rgb.h"
+#include "features/tap_hold.h"
 
 #ifdef CONSOLE_ENABLE
 #include "features/debug_helper.h"
@@ -48,37 +49,8 @@
 // Custom modifiers in single key
 #define KC_CSG LCTL(LSFT(KC_LEFT_GUI))
 
-// mod-tap keys same for qwerty and colemak
-#define MT_A MT(MOD_LCTL, KC_A)
-#define MT_W MT(MOD_LSFT | MOD_LCTL | MOD_LGUI, KC_W)
-
-// mod-tap keys for qwerty
-#define MT_Q_E MEH_T(KC_E)
-#define MT_Q_R ALL_T(KC_R)
-#define MT_Q_U ALL_T(KC_U)
-#define MT_Q_I MEH_T(KC_I)
-#define MT_Q_O MT(MOD_RSFT | MOD_RCTL | MOD_RGUI, KC_O)
-#define MT_Q_F MT(MOD_LSFT, KC_F)
-#define MT_Q_D MT(MOD_LGUI, KC_D)
-#define MT_Q_S MT(MOD_LALT, KC_S)
-#define MT_Q_J MT(MOD_RSFT, KC_J)
-#define MT_Q_K MT(MOD_RGUI, KC_K)
-#define MT_Q_L MT(MOD_LALT, KC_L)
-#define MT_Q_QT MT(MOD_RCTL, KC_QUOTE)
-
-// mod-tap keys for colemak-dh
-#define MT_C_F MEH_T(KC_F)
-#define MT_C_P ALL_T(KC_P)
-#define MT_C_L ALL_T(KC_L)
-#define MT_C_U MEH_T(KC_U)
-#define MT_C_Y MT(MOD_RSFT | MOD_RCTL | MOD_RGUI, KC_Y)
-#define MT_C_T MT(MOD_LSFT, KC_T)
-#define MT_C_S MT(MOD_LGUI, KC_S)
-#define MT_C_R MT(MOD_LALT, KC_R)
-#define MT_C_N MT(MOD_RSFT, KC_N)
-#define MT_C_E MT(MOD_RGUI, KC_E)
-#define MT_C_I MT(MOD_LALT, KC_I)
-#define MT_C_O MT(MOD_RCTL, KC_O)
+// The mod-tap keys (MT_*) are defined in features/tap_hold.h, alongside the
+// tap/hold tuning that governs their behavior.
 
 // One-shot modifiers
 #define OS_LSFT OSM(MOD_LSFT)
@@ -117,41 +89,8 @@
 //------------------------------------------------------------------------------
 // The layer enum lives in features/common.h so feature modules can share it.
 
-// Layer switching keys
-// Layer-taps
-#define LS_NAVI LT(NAVI, KC_SPACE)
-#define LS_MOUS LT(MOUS, KC_TAB)
-#define LS_MDIA LT(MDIA, KC_ESCAPE)
-#define LS_NUMB LT(NUMB, KC_BSPC)
-// LS_SNUM is defined in features/symbol_layer.h (its tap/hold is handled there).
-#define LS_FUNC LT(FUNC, KC_ENTER)
-// Momentary
-#define LS_SYMB MO(SYMB)
-// One shots
-#define LS_QTUR OSL(QTUR) // For Turkish characters layer on Qwerty
-#define LS_CTUR OSL(CTUR) // For Turkish characters layer on Colemak
-// Toggling layers where mod-taps are removed from letter keys
-#define LS_QLET TT(QLET)
-#define LS_CLET TT(CLET)
-// Toggling Colemak on / off
-#define LS_QWER TG(QWER)
-
-// Helper for "real" layer switching keys. Since a bunch of fake layer switching
-// keys are used for macros, we can't use QK_LAYER_TAP_MAX and we want to be
-// able to test against real layer switching keys when checking if a keycode is
-// a layer tap.
-#define IS_LAYER_TAP(code) ((code) == LS_NAVI \
-                            || (code) == LS_MOUS \
-                            || (code) == LS_MDIA \
-                            || (code) == LS_NUMB \
-                            || (code) == LS_SYMB \
-                            || (code) == LS_SNUM \
-                            || (code) == LS_FUNC \
-                            || (code) == LS_QLET \
-                            || (code) == LS_QTUR \
-                            || (code) == LS_QWER \
-                            || (code) == LS_CLET \
-                            || (code) == LS_CTUR)
+// The layer-switch keys (LS_*) are defined in features/tap_hold.h, and the
+// IS_LAYER_TAP helper that enumerates them is private to that module.
 
 // The fake layer-tap keys (FT_*) are defined in features/symbol_layer.h,
 // alongside the code that handles their tap/hold behavior.
@@ -166,166 +105,6 @@ const custom_shift_key_t custom_shift_keys[] = {
 
 uint8_t NUM_CUSTOM_SHIFT_KEYS =
     sizeof(custom_shift_keys) / sizeof(custom_shift_key_t);
-
-//------------------------------------------------------------------------------
-// Mod-tap settings
-//------------------------------------------------------------------------------
-#ifndef DYNAMIC_TAPPING_TERM_ENABLE
-#define DYNAMIC_TAPPING_TERM_INCREMENT 0
-static uint16_t g_tapping_term = TAPPING_TERM;
-#endif
-static uint16_t index_tap_term_diff = 25;
-static uint16_t ring_pinky_tap_term_diff = 15;
-
-uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
-    // Give a little bit of time to the thumb space key
-    if (keycode == LS_NAVI) {
-        return g_tapping_term + 25;
-    }
-
-    // Make tapping term much shorter for shift mod tap keys
-    switch (keycode) {
-        case MT_Q_F:
-        case MT_Q_J:
-        case MT_C_T:
-        case MT_C_N:
-            return g_tapping_term - index_tap_term_diff;
-    }
-
-    // Otherwise, only consider alpha keys block
-    if (record->event.key.col > 3) {
-        return g_tapping_term;
-    }
-
-    switch (record->event.key.row) {
-        // Increase tapping term for ring and pinky fingers
-        case 0 ... 2:
-        case 11 ... 13:
-            return g_tapping_term + ring_pinky_tap_term_diff;
-        default:
-            return g_tapping_term;
-    }
-}
-
-bool get_permissive_hold(uint16_t keycode, keyrecord_t *record) {
-    // Apply permissive hold to layer switching keys
-    if (IS_LAYER_TAP(keycode)) { return true; }
-
-    switch (keycode) {
-        // Apply permissive hold to shift and cmd
-        // Qwerty shift and cmd mod-taps
-        case MT_Q_D:
-        case MT_Q_F:
-        case MT_Q_J:
-        case MT_Q_K:
-        // Colemak shift and cmd mod-taps
-        case MT_C_S:
-        case MT_C_T:
-        case MT_C_N:
-        case MT_C_E:
-            return true;
-        default:
-            return false;
-    }
-};
-
-//------------------------------------------------------------------------------
-// Chordal hold
-//------------------------------------------------------------------------------
-bool get_chordal_hold(uint16_t tap_hold_keycode, keyrecord_t* tap_hold_record,
-                      uint16_t other_keycode, keyrecord_t* other_record) {
-    // Disable chordal hold when we are in the symbol layer.
-    if (get_highest_layer(layer_state) == SYMB) {
-        return true;
-    }
-
-    // Disable chordal hold for layer switch keys, mainly to get
-    // around streak timeout during fast typing.
-    if (IS_LAYER_TAP(tap_hold_keycode)) {
-        return true;
-    }
-
-    // Allow same-hand holds for thumb keys
-    if (other_record->event.key.col >= 4) {
-        return true;
-    }
-
-    // Otherwise defer to the opposite hands rule.
-    return get_chordal_hold_default(tap_hold_record, other_record);
-}
-
-//------------------------------------------------------------------------------
-// Flow tap
-//------------------------------------------------------------------------------
-bool is_flow_tap_key(uint16_t keycode) {
-    // Disable Flow Tap on hotkeys.
-    // if (((get_mods() | get_oneshot_mods()) & (MOD_MASK_CG | MOD_BIT_LALT)) != 0) {
-    //     return false;
-    // }
-
-    // Disable Flow Tap if not on home row layer
-    if (get_highest_layer(layer_state) != COLE && get_highest_layer(layer_state) != QWER) {
-        return false;
-    }
-
-    // Disable streak detection for layer-tap keys.
-    if (IS_LAYER_TAP(keycode)) {
-        return false;
-    }
-
-    // Disable streak detection for shift mod tap keys and right cmd for copy paste
-    if (IS_QK_MOD_TAP(keycode)) {
-        uint8_t mods = QK_MOD_TAP_GET_MODS(keycode);
-        if (mods == MOD_LSFT || mods == MOD_RSFT || mods == MOD_RGUI) {
-            return false;
-        }
-    }
-
-    switch (get_tap_keycode(keycode)) {
-        case KC_SPC:
-        case KC_A ... KC_Z:
-        case KC_DOT:
-        case KC_COMM:
-        case KC_QUOT:
-        case KC_SLSH:
-            return true;
-    }
-
-    return false;
-}
-
-uint16_t get_flow_tap_term(uint16_t keycode, keyrecord_t* record,
-                           uint16_t prev_keycode) {
-    // Disable check for Cmd + C and Cmd + V
-    if ((prev_keycode == MT_Q_K || prev_keycode == MT_C_E)
-        && (keycode == KC_V || keycode == KC_C)
-    ) {
-        return 0;
-    }
-
-    // A short streak detection timeout for Space layer-tap key
-    if (keycode == LS_NAVI) {
-        return 0;
-    }
-
-    if (/* is_flow_tap_key(prev_keycode) && */is_flow_tap_key(keycode)) {
-        // A longer timeout otherwise.
-        return FLOW_TAP_TERM;
-    }
-
-    return 0;
-}
-
-//------------------------------------------------------------------------------
-// Speculative hold
-//------------------------------------------------------------------------------
-bool get_speculative_hold(uint16_t keycode, keyrecord_t* record) {
-    if (IS_QK_MOD_TAP(keycode)) {
-        return true;
-    }
-
-    return false; // Disable otherwise.
-}
 
 //------------------------------------------------------------------------------
 // Caps Word
