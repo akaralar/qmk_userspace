@@ -23,6 +23,7 @@ SRC += features/symbol_layer.c
 SRC += features/layer_rgb.c
 SRC += features/tap_hold.c
 SRC += features/turkish.c
+SRC += features/led_indicators.c
 
 # Disable the following to save space
 SPACE_CADET_ENABLE = no

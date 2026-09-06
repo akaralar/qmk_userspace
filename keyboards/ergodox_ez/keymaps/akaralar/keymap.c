@@ -38,6 +38,7 @@
 #include "features/layer_rgb.h"
 #include "features/tap_hold.h"
 #include "features/turkish.h"
+#include "features/led_indicators.h"
 
 #ifdef CONSOLE_ENABLE
 #include "features/debug_helper.h"
@@ -274,89 +275,6 @@ static bool process_other_keycodes(uint16_t keycode, keyrecord_t *record) {
 };
 
 //------------------------------------------------------------------------------
-// LED lights
-//------------------------------------------------------------------------------
-static void led_state_set(layer_state_t state) {
-    ergodox_board_led_off();
-    ergodox_right_led_1_off();
-    ergodox_right_led_2_off();
-    ergodox_right_led_3_off();
-
-    uint8_t layer = get_highest_layer(layer_state);
-    switch (layer) {
-        case NAVI: {
-            ergodox_right_led_1_on();
-            break;
-        }
-        case MOUS: {
-            ergodox_right_led_2_on();
-            break;
-        }
-        case MDIA: {
-            ergodox_right_led_3_on();
-            break;
-        }
-        case NUMB: {
-            ergodox_right_led_1_on();
-            ergodox_right_led_2_on();
-            break;
-        }
-        case SYMB: {
-            ergodox_right_led_1_on();
-            ergodox_right_led_3_on();
-            break;
-        }
-        case SNUM: {
-            ergodox_right_led_2_on();
-            ergodox_right_led_3_on();
-            break;
-        }
-        case CLET:
-        case QLET:
-        case CTUR:
-        case QTUR:
-        case FUNC: {
-            ergodox_right_led_1_on();
-            ergodox_right_led_2_on();
-            ergodox_right_led_3_on();
-            break;
-        }
-        default:
-            break;
-    }
-
-    // Fix LED lights behaviour for Caps Lock and Caps Word
-    if (is_caps_lock_on()) {
-        ergodox_right_led_3_on();
-    } else if (is_caps_word_on()) {
-        ergodox_right_led_2_on();
-    }
-
-    // Fix LED lights behaviour for case modes
-    if (get_xcase_state() != XCASE_OFF) {
-        switch (get_case_mode()) {
-            case CASE_CAMEL:
-                ergodox_right_led_1_on();
-                break;
-            case CASE_SNAKE:
-                ergodox_right_led_2_on();
-                break;
-            case CASE_KEBAB:
-                ergodox_right_led_3_on();
-                break;
-            default:
-                break;
-        }
-    }
-};
-
-// Fix LED lights behaviour for when other things affect LEDs (like Caps Lock &
-// Caps Word and case modes)
-void fix_leds_task(void) {
-    led_state_set(layer_state);
-};
-
-//------------------------------------------------------------------------------
 // QMK User space functions
 //------------------------------------------------------------------------------
 void keyboard_post_init_user(void) {
@@ -366,7 +284,7 @@ void keyboard_post_init_user(void) {
 };
 
 void matrix_scan_user() {
-    fix_leds_task();
+    update_led_indicators();
 };
 
 bool pre_process_record_user(uint16_t keycode, keyrecord_t *record) {
@@ -407,7 +325,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
 
 layer_state_t layer_state_set_user(layer_state_t state) {
-    led_state_set(state);
+    update_led_indicators();
     return state;
 };
 
