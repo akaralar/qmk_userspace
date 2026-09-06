@@ -36,6 +36,7 @@
 #include "features/symbol_layer.h"
 #include "features/layer_rgb.h"
 #include "features/tap_hold.h"
+#include "features/turkish.h"
 
 #ifdef CONSOLE_ENABLE
 #include "features/debug_helper.h"
@@ -302,50 +303,6 @@ static bool process_casemodes_keycode(uint16_t keycode, keyrecord_t *record) {
     }
 }
 
-typedef struct {
-    uint16_t diacritic_dead_key;
-    uint16_t key_to_add_diacritic;
-} turkish_diacritic_key;
-
-static const turkish_diacritic_key turkish_diacritic_keys[] = {
-    {KC_C, KC_C},
-    {KC_B, KC_G},
-    {KC_W, KC_I},
-    {KC_U, KC_O},
-    {KC_C, KC_S},
-    {KC_U, KC_U},
-};
-
-static bool process_tr_letter_keycodes(uint16_t keycode, keyrecord_t *record) {
-    if (keycode < TC_C || keycode > TC_U) {
-        return true;
-    }
-
-    if (record->event.pressed) {
-        uint8_t mods = get_mods();
-        uint8_t oneshot_mods = get_oneshot_mods();
-        uint8_t weak_mods = get_weak_mods();
-
-        clear_mods();
-        clear_oneshot_mods();
-        clear_weak_mods();
-
-        turkish_diacritic_key keys = turkish_diacritic_keys[keycode - TC_C];
-        tap_code16(LALT(keys.diacritic_dead_key));
-
-        if (((mods | oneshot_mods | weak_mods) & MOD_MASK_SHIFT)
-            || is_caps_lock_on()
-            || is_caps_word_on()
-        ) {
-            tap_code16(LSFT(keys.key_to_add_diacritic));
-        } else {
-            tap_code16(keys.key_to_add_diacritic);
-        }
-    }
-
-    return false;
-}
-
 static bool should_swallow_esc_release = false;
 static bool process_swallowed_esc(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
@@ -531,7 +488,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     if (!process_custom_shift_keys(keycode, record)) { return false; }
 
     // Process keycodes for Turkish diacritics letters
-    if (!process_tr_letter_keycodes(keycode, record)) { return false; }
+    if (!process_turkish_diacritics(keycode, record)) { return false; }
 
     // Process custom keycodes defined in this file
     if (!process_other_keycodes(keycode, record)) { return false; }
