@@ -841,6 +841,13 @@ static keyrecord_t modified_fake_lt_record;
 static bool should_ignore_next_tap = false;
 static bool did_release_symbol_layer_key = false;
 
+// Tracks whether LS_SNUM is currently physically held, and how many premature
+// symbols have been emitted since it went down (its own "{" plus any symbol a
+// key pressed during the SYMB->SNUM switch emitted before re-resolving). Used
+// to delete exactly those characters when LS_SNUM settles as a hold.
+static bool did_press_snum_key = false;
+static uint8_t symb_premature_count = 0;
+
 static bool pre_process_symbol_layer_fake_lt_keys(
     uint16_t keycode,
     keyrecord_t *record
@@ -858,6 +865,28 @@ static bool pre_process_symbol_layer_fake_lt_keys(
 
     // Trigger the macro for the tap action with the modified record.
     if (!process_macro_keycodes(keycode, &modified_fake_lt_record)) {
+        // A premature symbol was just emitted (on the key-down). Keep a running
+        // count of the premature characters that are on screen since LS_SNUM
+        // went down, so that if LS_SNUM settles as a hold we can delete exactly
+        // those characters. This covers both LS_SNUM's own "{" and the symbol
+        // an interrupting key emits while SYMB is still active (before it
+        // re-resolves onto the SNUM layer).
+        if (record->event.pressed) {
+            if (keycode == LS_SNUM) {
+                symb_premature_count = 1; // its own "{"
+            } else if (did_press_snum_key) {
+                symb_premature_count++;   // interleaved during the SNUM switch
+            }
+        }
+
+        // Track LS_SNUM's physical held state so the count above can attribute
+        // interleaved premature symbols to the SNUM layer switch. This is set
+        // after the count so LS_SNUM's own press is attributed to itself, not
+        // treated as an interleaved key.
+        if (keycode == LS_SNUM) {
+            did_press_snum_key = record->event.pressed;
+        }
+
         // If we receive a key up event immediately after the `MO` layer was
         // released, the key was pressed when the `MO` layer was active, hence
         // we should ignore the key up/down that QMK sends as if the `MO` layer
@@ -911,11 +940,26 @@ static bool process_symbol_layer_fake_lt_keys(
             return false;
         }
 
-        // Process the hold action and if it is handled, stop processing.
-        if (record->tap.count == 0
-            && !process_macro_keycodes(keycode, record)
-        ) {
-            return false;
+        if (record->tap.count == 0) {
+            // LS_SNUM resolved as a hold: switch to the SNUM layer. Delete the
+            // premature "{" plus any symbol a key pressed during the switch
+            // emitted before re-resolving onto SNUM (those keys re-emit their
+            // SNUM value afterwards). Using the running count deletes the right
+            // number of characters even when an interrupting key inserted its
+            // own premature symbol between our "{" and this hold resolution.
+            if (keycode == LS_SNUM) {
+                if (record->event.pressed) {
+                    for (uint8_t i = 0; i < symb_premature_count; i++) {
+                        tap_code16(KC_BACKSPACE);
+                    }
+                }
+                return true; // let QMK perform the LT(SNUM) layer switch
+            }
+
+            // Process the hold action and if it is handled, stop processing.
+            if (!process_macro_keycodes(keycode, record)) {
+                return false;
+            }
         }
     }
 
