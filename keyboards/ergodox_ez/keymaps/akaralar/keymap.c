@@ -30,7 +30,8 @@
 
 #include "features/custom_caps_lock.h"
 
-// Shared layer / custom-keycode definitions and the symbol-layer fake LT feature
+// Keymap feature modules: shared layer/keycode definitions (common), plus the
+// symbol-layer fake LT, RGB matrix, and tap/hold features.
 #include "features/common.h"
 #include "features/symbol_layer.h"
 #include "features/layer_rgb.h"
@@ -459,7 +460,6 @@ static void led_state_set(layer_state_t state) {
     }
 
     // Fix LED lights behaviour for Caps Lock and Caps Word
-    // led_t led_state = host_keyboard_led_state();
     if (is_caps_lock_on()) {
         ergodox_right_led_3_on();
     } else if (is_caps_word_on()) {
@@ -519,9 +519,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     prefixed_print(keycode, record, "process_record_user");
 #endif
 
-    // Process case modes after other key codes because we use Esc to quit
-    // case modes but we don't want to send the escape key. If case modes
-    // handles the key first, it will send the Esc key itself.
+    // Case modes runs before the other custom keycodes. Esc is not sent here
+    // because terminate_case_modes ignores it and process_swallowed_esc (inside
+    // process_other_keycodes) handles exiting case modes / caps word.
     if (!process_case_modes(keycode, record)) { return false; }
 
     // Pass the keycode and record to custom caps lock
@@ -530,7 +530,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     // Pass the keycode and record to custom shift keys
     if (!process_custom_shift_keys(keycode, record)) { return false; }
 
-    // // Process keycodes for Turkish diacritics letters
+    // Process keycodes for Turkish diacritics letters
     if (!process_tr_letter_keycodes(keycode, record)) { return false; }
 
     // Process custom keycodes defined in this file

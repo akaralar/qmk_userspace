@@ -109,7 +109,7 @@ void print_mods(void) {
 }
 
 void prefixed_print_all_mods(const char* prefix) {
-    uprintf("%4u %s layer: %2u, ", counter, prefix);
+    uprintf("%4u %s ", counter, prefix);
     print_mods();
 }
 #endif // CONSOLE_ENABLE
