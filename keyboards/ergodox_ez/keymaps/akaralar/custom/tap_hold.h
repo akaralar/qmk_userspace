@@ -55,7 +55,7 @@
 #define LS_MOUS LT(MOUS, KC_TAB)
 #define LS_MDIA LT(MDIA, KC_ESCAPE)
 #define LS_NUMB LT(NUMB, KC_BSPC)
-// LS_SNUM is defined in features/symbol_layer.h (its tap/hold is handled there).
+// LS_SNUM is defined in custom/symbol_layer.h (its tap/hold is handled there).
 #define LS_FUNC LT(FUNC, KC_ENTER)
 // Momentary
 #define LS_SYMB MO(SYMB)

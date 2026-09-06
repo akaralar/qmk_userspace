@@ -1,5 +1,5 @@
 #include "casemodes_config.h"
-#include "casemodes.h" // for enable_xcase_with
+#include "../third_party/casemodes.h" // for enable_xcase_with
 #include "tap_hold.h"  // for LS_MDIA
 
 static enum case_mode case_mode = CASE_NONE;

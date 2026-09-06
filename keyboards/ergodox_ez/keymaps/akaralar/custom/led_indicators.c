@@ -1,7 +1,7 @@
 #include "led_indicators.h"
 #include QMK_KEYBOARD_H     // for the ergodox_* LED helpers
 #include "common.h"         // for the layer enum
-#include "casemodes.h"      // for get_xcase_state / XCASE_OFF
+#include "../third_party/casemodes.h" // for get_xcase_state / XCASE_OFF
 #include "casemodes_config.h" // for get_case_mode
 #include "custom_caps_lock.h" // for is_caps_lock_on
 

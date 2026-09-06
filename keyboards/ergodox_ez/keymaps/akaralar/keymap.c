@@ -22,38 +22,38 @@
 #include QMK_KEYBOARD_H
 #include "version.h"
 
+// Third-party modules (vendored under third_party/).
 // For more info about custom shift keys, see https://getreuer.info/posts/keyboards/custom-shift-keys/index.html
-#include "features/custom_shift_keys.h"
-
+#include "third_party/custom_shift_keys.h"
 // For more info about casemodes, see https://github.com/andrewjrae/kyria-keymap/
-#include "features/casemodes.h"
-#include "features/casemodes_config.h"
+#include "third_party/casemodes.h"
 
-#include "features/custom_caps_lock.h"
-
-// Keymap feature modules: shared layer/keycode definitions (common), plus the
-// symbol-layer fake LT, RGB matrix, and tap/hold features.
-#include "features/common.h"
-#include "features/symbol_layer.h"
-#include "features/layer_rgb.h"
-#include "features/tap_hold.h"
-#include "features/turkish.h"
-#include "features/led_indicators.h"
+// Keymap modules (own code under custom/): shared layer/keycode definitions
+// (common), plus the symbol-layer fake LT, RGB matrix, tap/hold, and the
+// keymap-specific glue built on the third-party features above.
+#include "custom/casemodes_config.h"
+#include "custom/custom_caps_lock.h"
+#include "custom/common.h"
+#include "custom/symbol_layer.h"
+#include "custom/layer_rgb.h"
+#include "custom/tap_hold.h"
+#include "custom/turkish.h"
+#include "custom/led_indicators.h"
 
 #ifdef CONSOLE_ENABLE
-#include "features/debug_helper.h"
+#include "custom/debug_helper.h"
 #endif
 
 //------------------------------------------------------------------------------
 // Keycodes
 //------------------------------------------------------------------------------
-// The custom-keycode enum (C_keycodes) lives in features/common.h so feature
+// The custom-keycode enum (C_keycodes) lives in custom/common.h so feature
 // modules can share it.
 
 // Custom modifiers in single key
 #define KC_CSG LCTL(LSFT(KC_LEFT_GUI))
 
-// The mod-tap keys (MT_*) are defined in features/tap_hold.h, alongside the
+// The mod-tap keys (MT_*) are defined in custom/tap_hold.h, alongside the
 // tap/hold tuning that governs their behavior.
 
 // One-shot modifiers
@@ -91,12 +91,12 @@
 //------------------------------------------------------------------------------
 // Layers and layer keycodes
 //------------------------------------------------------------------------------
-// The layer enum lives in features/common.h so feature modules can share it.
+// The layer enum lives in custom/common.h so feature modules can share it.
 
-// The layer-switch keys (LS_*) are defined in features/tap_hold.h, and the
+// The layer-switch keys (LS_*) are defined in custom/tap_hold.h, and the
 // IS_LAYER_TAP helper that enumerates them is private to that module.
 
-// The fake layer-tap keys (FT_*) are defined in features/symbol_layer.h,
+// The fake layer-tap keys (FT_*) are defined in custom/symbol_layer.h,
 // alongside the code that handles their tap/hold behavior.
 
 //------------------------------------------------------------------------------
