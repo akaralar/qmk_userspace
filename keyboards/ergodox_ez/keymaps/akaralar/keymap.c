@@ -212,10 +212,6 @@ enum layers {
 #define FT_CBL LT(SYMB, KC_A)
 #define FT_CBLS LT(SYMB, KC_B)
 
-// Every fake layer-tap key is an LT into the SYMB layer, and no real layer-tap
-// targets SYMB (it is entered via MO(SYMB)), so any LT(SYMB, ...) is a fake one.
-#define IS_FAKE_LAYER_TAP(code) \
-    (IS_QK_LAYER_TAP(code) && QK_LAYER_TAP_GET_LAYER(code) == SYMB)
 //------------------------------------------------------------------------------
 // Custom shift keys
 //------------------------------------------------------------------------------
