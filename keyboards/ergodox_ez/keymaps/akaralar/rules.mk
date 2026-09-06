@@ -18,6 +18,7 @@ SRC += features/casemodes.c
 SRC += features/custom_caps_lock.c
 SRC += features/custom_shift_keys.c
 SRC += features/debug_helper.c
+SRC += features/symbol_layer.c
 
 # Disable the following to save space
 SPACE_CADET_ENABLE = no
