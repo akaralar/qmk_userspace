@@ -107,8 +107,7 @@ const custom_shift_key_t custom_shift_keys[] = {
   {KC_BSPC , KC_DEL}, // Shift + Normal backspace is delete
 };
 
-uint8_t NUM_CUSTOM_SHIFT_KEYS =
-    sizeof(custom_shift_keys) / sizeof(custom_shift_key_t);
+uint8_t NUM_CUSTOM_SHIFT_KEYS = ARRAY_SIZE(custom_shift_keys);
 
 //------------------------------------------------------------------------------
 // Custom keycode handling
