@@ -16,6 +16,7 @@
 
 #include "action.h"
 #include "action_layer.h"
+#include "modifiers.h"
 #include "oryx.h"
 #include "quantum.h"
 #include QMK_KEYBOARD_H
@@ -332,10 +333,10 @@ bool is_flow_tap_key(uint16_t keycode) {
         return false;
     }
 
-    // Disable streak detection for shift mod tap keys
+    // Disable streak detection for shift mod tap keys and right cmd for copy paste
     if (IS_QK_MOD_TAP(keycode)) {
         uint8_t mods = QK_MOD_TAP_GET_MODS(keycode);
-        if (mods == MOD_LSFT || mods == MOD_RSFT) {
+        if (mods == MOD_LSFT || mods == MOD_RSFT || mods == MOD_RGUI) {
             return false;
         }
     }
