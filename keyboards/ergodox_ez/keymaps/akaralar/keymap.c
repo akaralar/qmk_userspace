@@ -819,11 +819,19 @@ static bool process_macro_keycodes(uint16_t keycode, keyrecord_t *record) {
         case FT_CBLS:
             return process_tap_or_long_press_key(record, KC_HASH, M_CBLOCK_S);
         case LS_SNUM:
-            if (record->event.pressed && record->tap.count != 0) {
-                tap_code16(KC_LCBR);
+            // Mirror the fake LT keys: send "{" on the tap press and swallow
+            // both the press *and* the release. Returning false on the key-up
+            // is what lets `pre_process_symbol_layer_fake_lt_keys` arm
+            // `should_ignore_next_tap`; otherwise the base-layer keycode at
+            // this position (e.g. "n") leaks when MO(SYMB) is released before
+            // this key.
+            if (record->tap.count != 0) { // tap
+                if (record->event.pressed) {
+                    tap_code16(KC_LCBR);
+                }
                 return false;
             }
-            return true;
+            return true; // hold: continue with normal LT(SNUM) processing
     }
 
     return true;
