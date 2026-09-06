@@ -109,10 +109,9 @@ bool get_chordal_hold(uint16_t tap_hold_keycode, keyrecord_t* tap_hold_record,
 // Flow tap
 //------------------------------------------------------------------------------
 bool is_flow_tap_key(uint16_t keycode) {
-    // Disable Flow Tap on hotkeys.
-    // if (((get_mods() | get_oneshot_mods()) & (MOD_MASK_CG | MOD_BIT_LALT)) != 0) {
-    //     return false;
-    // }
+    // Note: Flow Tap is intentionally left active while a hotkey mod
+    // (Ctrl/Cmd/Alt) is held. Disabling it there was tried and reverted - it
+    // works better in practice - so there is deliberately no mod guard here.
 
     // Disable Flow Tap if not on home row layer
     if (get_highest_layer(layer_state) != COLE && get_highest_layer(layer_state) != QWER) {
@@ -159,8 +158,10 @@ uint16_t get_flow_tap_term(uint16_t keycode, keyrecord_t* record,
         return 0;
     }
 
-    if (/* is_flow_tap_key(prev_keycode) && */is_flow_tap_key(keycode)) {
-        // A longer timeout otherwise.
+    // The term is decided by the current key alone. The previous key in the
+    // streak is intentionally ignored here - guarding on is_flow_tap_key(
+    // prev_keycode) as well was tried and dropped on purpose.
+    if (is_flow_tap_key(keycode)) {
         return FLOW_TAP_TERM;
     }
 
