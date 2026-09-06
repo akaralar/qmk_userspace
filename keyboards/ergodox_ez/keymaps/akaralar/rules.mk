@@ -15,6 +15,7 @@ UNICODE_ENABLE = no
 WEBUSB_ENABLE = no
 
 SRC += features/casemodes.c
+SRC += features/casemodes_config.c
 SRC += features/custom_caps_lock.c
 SRC += features/custom_shift_keys.c
 SRC += features/debug_helper.c
