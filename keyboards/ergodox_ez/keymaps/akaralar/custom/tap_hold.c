@@ -154,8 +154,12 @@ uint16_t get_flow_tap_term(uint16_t keycode, keyrecord_t* record,
         return 0;
     }
 
-    // A short streak detection timeout for Space layer-tap key
-    if (keycode == LS_NAVI) {
+    // Don't chain Flow Tap from a layer-tap key (e.g. Space). After tapping a
+    // layer-tap, a following mod-tap press should be free to resolve as a hold
+    // (chord) rather than being forced into a tap. A held flow-tapped key
+    // auto-repeats on the host, because Flow Tap sends the tap press
+    // immediately and defers the release to the physical key-up.
+    if (IS_LAYER_TAP(prev_keycode)) {
         return 0;
     }
 
