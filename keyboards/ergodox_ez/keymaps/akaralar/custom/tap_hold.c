@@ -1,4 +1,5 @@
 #include "tap_hold.h"
+#include "keycodes.h"
 #include "symbol_layer.h" // for LS_SNUM, referenced by IS_LAYER_TAP
 
 // Helper for "real" layer switching keys. Since a bunch of fake layer switching
